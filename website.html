@@ -1,0 +1,3424 @@
+<style>
+  :root {
+    --bg: #06060f;
+    --surface: #0d0d1f;
+    --card: #12122a;
+    --border: #1e1e3f;
+    --accent: #f0a500;
+    --accent2: #7c5cfc;
+    --accent3: #00d4aa;
+    --text: #f0eeff;
+    --muted: #6e6e9a;
+    --danger: #ff4d6d;
+    --success: #00d4aa;
+    --btn-primary-bg: #f0a500;
+    --btn-primary-color: #06060f;
+    --hero-btn-bg: linear-gradient(135deg,#7c5cfc,#f0a500);
+    --hero-btn-color: #ffffff;
+    --body-font: 'Plus Jakarta Sans', 'Noto Sans Devanagari', sans-serif;
+    --heading-font: 'Sora', sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg);color:var(--text);font-family:var(--body-font);min-height:100vh;overflow-x:hidden;transition:background 0.4s,color 0.4s;}
+  body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:0.4;}
+
+  /* NAV */
+  nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:14px 40px;background:rgba(6,6,15,0.7);backdrop-filter:blur(28px) saturate(180%);border-bottom:1px solid rgba(124,92,252,0.12);transition:all 0.3s;}
+  nav::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(124,92,252,0.6),rgba(240,165,0,0.5),transparent);opacity:0.5;}
+  .nav-left{display:flex;align-items:center;gap:10px;}
+  .admin-gear{width:26px;height:26px;border-radius:8px;background:transparent;border:1px solid transparent;color:transparent;cursor:pointer;font-size:0.85rem;display:flex;align-items:center;justify-content:center;transition:all 0.3s;opacity:0.15;}
+  .admin-gear:hover{opacity:1;color:var(--accent2);border-color:var(--accent2);background:rgba(124,92,252,0.1);}
+  .nav-logo{font-family:var(--heading-font);font-size:1.5rem;font-weight:800;background:linear-gradient(135deg,#fff 0%,var(--accent) 50%,var(--accent2) 100%);background-size:200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-0.5px;animation:shimmer 5s ease infinite;}
+  .nav-btns{display:flex;gap:10px;align-items:center;}
+  .btn{padding:9px 22px;border-radius:10px;font-size:0.85rem;font-family:var(--body-font);font-weight:700;cursor:pointer;border:none;transition:all 0.25s ease;letter-spacing:0.2px;}
+  .btn-outline{background:transparent;color:var(--accent2);border:1.5px solid rgba(124,92,252,0.45);}
+  .btn-outline:hover{background:rgba(124,92,252,0.1);border-color:var(--accent2);box-shadow:0 0 20px rgba(124,92,252,0.2);}
+  .btn-solid{background:linear-gradient(135deg,var(--accent2),#5a3fd4);color:#fff;border:none;box-shadow:0 4px 16px rgba(124,92,252,0.35);}
+  .btn-solid:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(124,92,252,0.5);}
+
+  /* USER MENU */
+  .user-menu{position:relative;display:flex;align-items:center;gap:8px;}
+  .user-avatar{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--accent2),var(--accent));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.88rem;color:#fff;cursor:pointer;border:2px solid transparent;transition:all 0.25s;font-family:'Poppins',sans-serif;letter-spacing:0.5px;box-shadow:0 4px 14px rgba(124,92,252,0.3);}
+  .user-avatar:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(124,92,252,0.45);}
+  .user-dropdown{position:absolute;top:52px;right:0;background:rgba(13,13,31,0.95);border:1px solid rgba(124,92,252,0.2);border-radius:16px;min-width:220px;box-shadow:0 24px 60px rgba(0,0,0,0.8),0 0 0 1px rgba(124,92,252,0.08);overflow:hidden;display:none;z-index:200;backdrop-filter:blur(20px);animation:dropIn 0.2s cubic-bezier(0.34,1.2,0.64,1);}
+  @keyframes dropIn{from{opacity:0;transform:translateY(-10px) scale(0.96);}to{opacity:1;transform:translateY(0) scale(1);}}
+  .user-dropdown.open{display:block;}
+  .user-dd-header{padding:16px 18px 12px;border-bottom:1px solid rgba(124,92,252,0.12);background:linear-gradient(135deg,rgba(124,92,252,0.08),transparent);}
+  .user-dd-name{font-weight:700;font-size:0.95rem;color:var(--text);}
+  .user-dd-school{font-size:0.78rem;color:var(--muted);margin-top:3px;}
+  .user-dd-item{padding:11px 18px;cursor:pointer;font-size:0.84rem;color:var(--muted);display:flex;align-items:center;gap:10px;transition:all 0.15s;}
+  .user-dd-item:hover{background:rgba(124,92,252,0.08);color:var(--text);padding-left:22px;}
+  .user-dd-item.logout{color:var(--danger);}
+  .user-dd-item.logout:hover{background:rgba(255,77,109,0.08);}
+
+  /* HERO */
+  .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 40px 80px;position:relative;overflow:hidden;}
+  .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 15% 50%,rgba(124,92,252,0.22) 0%,transparent 55%),radial-gradient(ellipse 60% 50% at 85% 30%,rgba(240,165,0,0.15) 0%,transparent 55%),radial-gradient(ellipse 50% 70% at 50% 90%,rgba(0,212,170,0.08) 0%,transparent 60%);animation:orbFloat 10s ease-in-out infinite alternate;pointer-events:none;}
+  .hero::after{content:'';position:absolute;inset:0;background:radial-gradient(circle 400px at 75% 15%,rgba(124,92,252,0.1) 0%,transparent 70%),radial-gradient(circle 250px at 15% 85%,rgba(240,165,0,0.07) 0%,transparent 70%);animation:orbFloat2 12s ease-in-out infinite alternate;pointer-events:none;}
+  .hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(124,92,252,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(124,92,252,0.04) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 80% at center,black 30%,transparent 100%);pointer-events:none;}
+  .site-title{font-family:var(--heading-font);font-size:clamp(3rem,9vw,6.5rem);font-weight:800;line-height:1.0;background:linear-gradient(160deg,#ffffff 0%,#d4b8ff 30%,var(--accent) 60%,var(--accent2) 100%);background-size:300%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:20px;letter-spacing:-2px;animation:fadeUp 0.9s ease both, shimmer 6s 1s ease infinite;position:relative;z-index:1;}
+  .tagline{font-size:clamp(1rem,2.5vw,1.35rem);color:rgba(240,238,255,0.55);margin-bottom:40px;animation:fadeUp 0.9s 0.2s ease both;font-weight:500;position:relative;z-index:1;max-width:500px;line-height:1.65;}
+  .shayari-box{max-width:580px;margin:0 auto 44px;padding:28px 36px;background:rgba(124,92,252,0.06);border:1px solid rgba(124,92,252,0.18);border-left:3px solid var(--accent2);border-radius:16px;animation:fadeUp 0.9s 0.35s ease both;position:relative;z-index:1;backdrop-filter:blur(12px);box-shadow:0 8px 32px rgba(0,0,0,0.3),0 0 0 1px rgba(124,92,252,0.06);transition:all 0.3s;}
+  .shayari-box:hover{border-color:rgba(240,165,0,0.3);box-shadow:0 16px 48px rgba(0,0,0,0.4),0 0 30px rgba(124,92,252,0.1);transform:translateY(-2px);}
+  .shayari-box::before{content:'❝';position:absolute;top:-16px;left:24px;font-size:2.2rem;color:var(--accent2);line-height:1;filter:drop-shadow(0 0 8px rgba(124,92,252,0.5));}
+  .shayari-text{font-family:'Cormorant Garamond',serif;font-size:1.2rem;line-height:1.9;color:rgba(220,215,255,0.85);font-style:italic;white-space:pre-line;}
+  .hero-cta{animation:fadeUp 0.9s 0.5s ease both;position:relative;z-index:1;}
+  .btn-hero{padding:16px 48px;font-size:1rem;background:linear-gradient(135deg,var(--accent2),#5a3fd4,var(--accent));background-size:200%;color:#fff;border:none;border-radius:50px;font-family:var(--body-font);font-weight:700;cursor:pointer;transition:all 0.4s ease;box-shadow:0 6px 30px rgba(124,92,252,0.45);position:relative;overflow:hidden;letter-spacing:0.3px;animation:shimmer 4s 2s ease infinite;}
+  .btn-hero::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent);transition:left 0.6s ease;}
+  .btn-hero:hover{transform:translateY(-4px) scale(1.02);box-shadow:0 14px 45px rgba(124,92,252,0.6);}
+  .btn-hero:hover::before{left:100%;}
+  .hero-stats{display:flex;gap:32px;justify-content:center;margin-top:44px;position:relative;z-index:1;animation:fadeUp 0.9s 0.65s ease both;flex-wrap:wrap;}
+  .hero-stat{text-align:center;}
+  .hero-stat-num{font-family:var(--heading-font);font-size:1.8rem;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:block;line-height:1;margin-bottom:4px;}
+  .hero-stat-label{font-size:0.7rem;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;}
+  .hero-stat-divider{width:1px;background:rgba(124,92,252,0.2);align-self:stretch;min-height:40px;}
+
+  #particlesCanvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:0.55;}
+
+  /* FEATURES */
+  .features-section{padding:100px 40px;max-width:1100px;margin:0 auto;position:relative;}
+  .section-label{text-align:center;font-size:0.72rem;letter-spacing:4px;text-transform:uppercase;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:700;margin-bottom:12px;}
+  .section-title{font-family:var(--heading-font);font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;text-align:center;margin-bottom:60px;letter-spacing:-1px;background:linear-gradient(160deg,var(--text),rgba(240,238,255,0.65));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .boxes-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
+  .feature-box{background:linear-gradient(135deg,rgba(18,18,42,0.9),rgba(13,13,31,0.95));border:1px solid rgba(124,92,252,0.12);border-radius:20px;padding:36px 28px;transition:all 0.4s ease;position:relative;overflow:hidden;cursor:default;box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.03);}
+  .feature-box::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent2),transparent);opacity:0;transform:scaleX(0);transform-origin:left;transition:opacity 0.3s,transform 0.5s ease;}
+  .feature-box::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 30%,rgba(124,92,252,0.07),transparent 60%);opacity:0;transition:opacity 0.4s;}
+  .feature-box:hover{transform:translateY(-8px);border-color:rgba(124,92,252,0.35);box-shadow:0 24px 60px rgba(0,0,0,0.4),0 0 0 1px rgba(124,92,252,0.15),0 0 40px rgba(124,92,252,0.07);}
+  .feature-box:hover::before{opacity:1;transform:scaleX(1);}
+  .feature-box:hover::after{opacity:1;}
+  .box-icon{font-size:2.2rem;margin-bottom:20px;display:inline-flex;width:56px;height:56px;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(124,92,252,0.15),rgba(240,165,0,0.08));border-radius:14px;border:1px solid rgba(124,92,252,0.15);transition:transform 0.3s,box-shadow 0.3s;}
+  .feature-box:hover .box-icon{transform:scale(1.1) rotate(-8deg);box-shadow:0 8px 20px rgba(124,92,252,0.25);}
+  .box-title{font-family:var(--heading-font);font-size:1.1rem;font-weight:700;margin-bottom:10px;background:linear-gradient(135deg,var(--text),rgba(240,238,255,0.8));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .box-content{color:var(--muted);line-height:1.7;font-size:0.88rem;}
+
+  /* ABOUT */
+  .about-section{padding:100px 40px;background:linear-gradient(135deg,rgba(13,13,31,0.9) 0%,rgba(18,18,42,0.95) 100%);border-top:1px solid rgba(124,92,252,0.1);border-bottom:1px solid rgba(124,92,252,0.1);position:relative;overflow:hidden;}
+  .about-section::before{content:'';position:absolute;top:-30%;right:-10%;width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(124,92,252,0.06),transparent 70%);pointer-events:none;}
+  .about-inner{max-width:800px;margin:0 auto;text-align:center;position:relative;z-index:1;}
+  .about-text{color:rgba(240,238,255,0.55);line-height:2;font-size:1rem;}
+
+  /* CONTENT */
+  .content-section{padding:100px 40px;max-width:1000px;margin:0 auto;}
+
+  /* FOOTER */
+  footer{padding:48px 40px;text-align:center;color:var(--muted);font-size:0.82rem;border-top:1px solid rgba(124,92,252,0.12);background:linear-gradient(0deg,rgba(124,92,252,0.04),transparent);position:relative;}
+  footer::before{content:'';position:absolute;top:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--accent2),var(--accent),transparent);opacity:0.4;}
+  footer span{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:700;}
+
+
+  /* ── POPUP ── */
+  .overlay{
+    position:fixed;inset:0;z-index:200;
+    background:rgba(5,5,10,0.9);backdrop-filter:blur(14px);
+    display:none;align-items:center;justify-content:center;padding:20px;
+  }
+  .overlay.active{display:flex;animation:fadeIn 0.25s ease;}
+  .popup{
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:14px;padding:40px;width:100%;max-width:440px;
+    position:relative;box-shadow:0 20px 80px rgba(0,0,0,0.7);
+    animation:popIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  .popup-close{
+    position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:50%;
+    background:var(--card);border:1px solid var(--border);color:var(--muted);
+    cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all 0.2s;
+  }
+  .popup-close:hover{background:var(--danger);color:#fff;border-color:var(--danger);}
+  .popup-title{
+    font-family:var(--heading-font);font-size:1.7rem;font-weight:700;margin-bottom:5px;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  }
+  .popup-sub{color:var(--muted);font-size:0.84rem;margin-bottom:26px;}
+  .form-group{margin-bottom:16px;}
+  .form-label{display:block;font-size:0.8rem;color:var(--muted);margin-bottom:6px;font-weight:600;}
+  .form-input{
+    width:100%;padding:11px 14px;background:var(--card);border:1.5px solid var(--border);
+    border-radius:8px;color:var(--text);font-size:0.9rem;font-family:var(--body-font);
+    transition:border-color 0.2s;outline:none;
+  }
+  .form-input:focus{border-color:var(--accent2);box-shadow:0 0 0 3px rgba(124,111,224,0.1);}
+  .form-input::placeholder{color:#3a3a5a;}
+  .school-select-btn{
+    width:100%;padding:11px 14px;background:var(--card);border:1.5px solid var(--border);
+    border-radius:8px;color:var(--text);font-size:0.9rem;font-family:var(--body-font);
+    cursor:pointer;text-align:left;display:flex;align-items:center;justify-content:space-between;transition:all 0.2s;
+  }
+  .school-select-btn:hover{border-color:var(--accent);}
+  .school-select-btn.selected{border-color:var(--success);color:var(--success);}
+  .school-dropdown{
+    display:none;background:var(--card);border:1px solid var(--border);
+    border-radius:8px;margin-top:6px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,0.5);
+  }
+  .school-dropdown.open{display:block;animation:fadeIn 0.2s ease;}
+  .school-option{
+    padding:10px 14px;cursor:pointer;font-size:0.87rem;color:var(--muted);
+    transition:all 0.15s;border-bottom:1px solid var(--border);
+  }
+  .school-option:last-child{border-bottom:none;}
+  .school-option:hover{background:var(--surface);color:var(--accent);padding-left:20px;}
+  .btn-full{
+    width:100%;padding:13px;border-radius:8px;font-size:0.95rem;font-weight:700;
+    font-family:var(--body-font);background:var(--btn-primary-bg);
+    color:var(--btn-primary-color);border:none;cursor:pointer;transition:all 0.3s;margin-top:6px;
+  }
+  .btn-full:hover{transform:translateY(-1px);filter:brightness(1.1);}
+  .popup-switch{text-align:center;margin-top:16px;font-size:0.83rem;color:var(--muted);}
+  .popup-switch a{color:var(--accent);cursor:pointer;font-weight:600;}
+  .popup-switch a:hover{text-decoration:underline;}
+
+  /* ══ ADMIN SIDEBAR ══ */
+  .admin-sidebar{
+    position:fixed;top:0;right:-480px;width:460px;height:100vh;
+    background:#0d0d16;border-left:1px solid var(--border);
+    z-index:500;overflow-y:auto;transition:right 0.4s cubic-bezier(0.4,0,0.2,1);
+    box-shadow:-10px 0 60px rgba(0,0,0,0.7);display:flex;flex-direction:column;
+  }
+  .admin-sidebar.open{right:0;}
+  .admin-sidebar-bg{
+    position:fixed;inset:0;z-index:499;background:rgba(0,0,0,0.5);
+    display:none;backdrop-filter:blur(4px);
+  }
+  .admin-sidebar-bg.open{display:block;animation:fadeIn 0.3s ease;}
+
+  .admin-top{
+    padding:18px 22px 14px;display:flex;align-items:center;justify-content:space-between;
+    border-bottom:1px solid var(--border);
+    position:sticky;top:0;background:#0d0d16;z-index:10;flex-shrink:0;
+  }
+  .admin-top-badge{
+    display:inline-block;padding:2px 8px;background:rgba(124,111,224,0.15);
+    border:1px solid rgba(124,111,224,0.3);border-radius:20px;
+    font-size:0.65rem;color:var(--accent2);letter-spacing:1px;text-transform:uppercase;
+    font-weight:700;margin-bottom:4px;
+  }
+  .admin-top-title{font-family:'Poppins',sans-serif;font-size:1rem;font-weight:700;color:var(--text);}
+  .admin-close{
+    width:30px;height:30px;border-radius:7px;background:var(--card);
+    border:1px solid var(--border);color:var(--muted);cursor:pointer;font-size:0.95rem;
+    display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;
+  }
+  .admin-close:hover{background:var(--danger);color:#fff;border-color:var(--danger);}
+
+  /* Tabs */
+  .admin-tabs{
+    display:flex;border-bottom:1px solid var(--border);padding:0 14px;gap:2px;
+    position:sticky;top:65px;background:#0d0d16;z-index:9;flex-shrink:0;overflow-x:auto;
+  }
+  .admin-tabs::-webkit-scrollbar{display:none;}
+  .admin-tab{
+    padding:10px 13px;font-size:0.76rem;font-weight:600;cursor:pointer;
+    color:var(--muted);border-bottom:2px solid transparent;transition:all 0.2s;
+    white-space:nowrap;font-family:'Poppins',sans-serif;
+  }
+  .admin-tab.active{color:var(--accent2);border-bottom-color:var(--accent2);}
+  .admin-tab:hover{color:var(--text);}
+
+  .admin-scroll{flex:1;overflow-y:auto;padding:20px;}
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;}
+
+  .admin-field{margin-bottom:18px;}
+  .admin-field-label{
+    display:block;font-size:0.72rem;letter-spacing:1.5px;text-transform:uppercase;
+    color:var(--muted);margin-bottom:7px;font-weight:600;font-family:'Poppins',sans-serif;
+  }
+  .admin-input{
+    width:100%;padding:10px 13px;background:var(--card);border:1.5px solid var(--border);
+    border-radius:8px;color:var(--text);font-size:0.88rem;font-family:var(--body-font);
+    outline:none;transition:border-color 0.2s;
+  }
+  .admin-input:focus{border-color:var(--accent2);}
+  .admin-textarea{
+    width:100%;padding:10px 13px;background:var(--card);border:1.5px solid var(--border);
+    border-radius:8px;color:var(--text);font-size:0.88rem;font-family:var(--body-font);
+    outline:none;resize:vertical;min-height:90px;transition:border-color 0.2s;
+  }
+  .admin-textarea:focus{border-color:var(--accent2);}
+
+  /* Color pickers */
+  .color-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:4px;}
+  .color-field{display:flex;flex-direction:column;gap:5px;}
+  .color-field label{font-size:0.7rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.8px;font-family:'Poppins',sans-serif;}
+  .color-row{display:flex;align-items:center;gap:8px;}
+  .color-swatch{
+    width:34px;height:34px;border-radius:7px;border:2px solid var(--border);
+    cursor:pointer;overflow:hidden;flex-shrink:0;transition:border-color 0.2s;
+  }
+  .color-swatch:hover{border-color:var(--accent2);}
+  .color-swatch input[type="color"]{
+    width:200%;height:200%;transform:translate(-25%,-25%);
+    border:none;cursor:pointer;background:none;padding:0;
+  }
+  .color-hex{
+    flex:1;padding:7px 9px;background:var(--card);border:1px solid var(--border);
+    border-radius:6px;color:var(--text);font-size:0.8rem;font-family:monospace;
+    outline:none;transition:border-color 0.2s;
+  }
+  .color-hex:focus{border-color:var(--accent2);}
+
+  /* Font options */
+  .font-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .font-option{
+    padding:11px 10px;background:var(--card);border:1.5px solid var(--border);
+    border-radius:8px;cursor:pointer;text-align:center;transition:all 0.2s;
+    font-size:0.84rem;color:var(--muted);
+  }
+  .font-option:hover{border-color:var(--accent);color:var(--text);}
+  .font-option.selected{border-color:var(--accent2);color:var(--accent2);background:rgba(124,111,224,0.08);}
+  .font-option span{display:block;font-size:1.1rem;margin-bottom:2px;}
+
+  /* Preset buttons */
+  .presets-wrap{display:flex;flex-wrap:wrap;gap:8px;}
+  .preset-btn{
+    padding:8px 14px;border-radius:6px;font-size:0.76rem;cursor:pointer;
+    font-weight:600;transition:all 0.2s;font-family:'Poppins',sans-serif;
+    border:1px solid;
+  }
+  .preset-btn:hover{transform:translateY(-1px);filter:brightness(1.15);}
+
+  /* Boxes admin */
+  .boxes-admin{display:flex;flex-direction:column;gap:12px;}
+  .box-admin-item{
+    background:var(--card);border:1px solid var(--border);
+    border-radius:10px;padding:14px;
+  }
+  .box-admin-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+  .box-admin-row:last-child{margin-bottom:0;}
+  .box-admin-row input{
+    flex:1;padding:8px 10px;background:#0d0d16;border:1px solid var(--border);
+    border-radius:6px;color:var(--text);font-size:0.82rem;font-family:var(--body-font);outline:none;
+  }
+  .box-admin-row input:focus{border-color:var(--accent2);}
+  .box-admin-row textarea{
+    flex:1;padding:8px 10px;background:#0d0d16;border:1px solid var(--border);
+    border-radius:6px;color:var(--text);font-size:0.82rem;font-family:var(--body-font);
+    outline:none;resize:none;min-height:52px;
+  }
+  .btn-del{
+    padding:7px 10px;background:rgba(224,82,82,0.1);border:1px solid rgba(224,82,82,0.25);
+    border-radius:6px;color:var(--danger);cursor:pointer;font-size:0.85rem;
+    transition:all 0.2s;flex-shrink:0;
+  }
+  .btn-del:hover{background:var(--danger);color:#fff;}
+  .btn-add{
+    padding:9px 16px;background:rgba(82,200,122,0.08);border:1px solid rgba(82,200,122,0.25);
+    border-radius:6px;color:var(--success);cursor:pointer;font-size:0.81rem;
+    font-family:'Poppins',sans-serif;font-weight:600;transition:all 0.2s;margin-top:8px;width:100%;
+  }
+  .btn-add:hover{background:rgba(82,200,122,0.15);}
+
+  .schools-admin{display:flex;flex-direction:column;gap:14px;}
+  .school-admin-card{
+    background:var(--card);border:1px solid var(--border);
+    border-radius:10px;padding:14px;
+  }
+  .school-admin-card-top{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+  .school-admin-card-top input{
+    flex:1;padding:8px 11px;background:#0d0d16;border:1px solid var(--border);
+    border-radius:6px;color:var(--text);font-size:0.85rem;font-family:var(--body-font);outline:none;
+  }
+  .school-admin-card-top input:focus{border-color:var(--accent2);}
+  .class-label{font-size:0.7rem;letter-spacing:1px;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:6px;font-family:'Poppins',sans-serif;}
+  .class-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+  .class-chip{
+    display:flex;align-items:center;gap:4px;
+    padding:4px 10px;background:rgba(124,111,224,0.1);
+    border:1px solid rgba(124,111,224,0.25);border-radius:20px;
+    font-size:0.76rem;color:var(--accent2);
+  }
+  .class-chip-del{
+    background:none;border:none;cursor:pointer;color:var(--muted);
+    font-size:0.75rem;line-height:1;padding:0;margin-left:2px;transition:color 0.15s;
+  }
+  .class-chip-del:hover{color:var(--danger);}
+  .add-class-row{display:flex;gap:6px;}
+  .add-class-input{
+    flex:1;padding:7px 10px;background:#0d0d16;border:1px solid var(--border);
+    border-radius:6px;color:var(--text);font-size:0.82rem;font-family:var(--body-font);outline:none;
+  }
+  .add-class-input:focus{border-color:var(--accent2);}
+  .add-class-btn{
+    padding:7px 12px;background:rgba(82,200,122,0.1);border:1px solid rgba(82,200,122,0.3);
+    border-radius:6px;color:var(--success);cursor:pointer;font-size:0.8rem;
+    font-weight:600;transition:all 0.2s;white-space:nowrap;
+  }
+  .add-class-btn:hover{background:rgba(82,200,122,0.2);}
+
+  /* Admin divider */
+  .adm-div{height:1px;background:var(--border);margin:18px 0;}
+  .adm-head{
+    font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;
+    color:var(--accent);margin-bottom:12px;font-weight:700;
+    display:flex;align-items:center;gap:8px;font-family:'Poppins',sans-serif;
+  }
+  .adm-head::after{content:'';flex:1;height:1px;background:var(--border);}
+
+  /* Save bar */
+  .admin-save-bar{
+    padding:14px 20px;border-top:1px solid var(--border);
+    background:#0d0d16;flex-shrink:0;
+  }
+  .btn-save-main{
+    width:100%;padding:12px;
+    background:linear-gradient(135deg,var(--accent2),#5a4ec8);
+    color:#fff;border:none;border-radius:8px;font-family:'Poppins',sans-serif;
+    font-weight:700;font-size:0.9rem;cursor:pointer;transition:all 0.3s;
+  }
+  .btn-save-main:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(124,111,224,0.4);}
+
+  /* Toast */
+  .save-toast{
+    display:none;position:fixed;bottom:28px;left:50%;transform:translateX(-50%);
+    z-index:1000;background:var(--success);color:#0a0a0f;
+    padding:12px 28px;border-radius:50px;
+    font-weight:700;font-size:0.88rem;
+    box-shadow:0 8px 30px rgba(82,200,122,0.35);
+    white-space:nowrap;font-family:'Poppins',sans-serif;
+  }
+
+  /* Range */
+  .range-row{display:flex;align-items:center;gap:12px;}
+  .range-row input[type="range"]{flex:1;accent-color:var(--accent2);}
+  .range-val{font-size:0.8rem;color:var(--muted);min-width:34px;text-align:right;}
+
+  @keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+  @keyframes shimmer{0%{background-position:0% 50%;}50%{background-position:100% 50%;}100%{background-position:0% 50%;}}
+  @keyframes slideUp{from{opacity:0;transform:translateX(-50%) translateY(10px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
+  @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+        html+='<input class="chap-item-name" value="'+h(ch.name||'')+'" placeholder="Chapter नाम" oninput="updChap('+bi+','+chi+',\'name\',this.value)">';
+        html+='<input class="chap-item-desc" value="'+h(ch.desc||'')+'" placeholder="Description" oninput="updChap('+bi+','+chi+',\'desc\',this.value)">';
+
+  /* ── PROFILE POPUP ── */
+  .profile-avatar-big{
+    width:72px;height:72px;border-radius:50%;
+      html+='<input class="add-chap-name" id="cn-'+bi+'" placeholder="नया Chapter नाम" onkeydown="if(event.key===\'Enter\')addChap('+bi+')">';
+      html+='<input class="add-chap-desc" id="cd-'+bi+'" placeholder="Description (optional)" onkeydown="if(event.key===\'Enter\')addChap('+bi+')">';
+    font-size:1.6rem;font-weight:800;color:#fff;
+    font-family:'Poppins',sans-serif;
+    margin:0 auto 20px;letter-spacing:1px;
+    box-shadow:0 6px 24px rgba(124,111,224,0.35);
+  }
+  .profile-info-row{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:12px 0;border-bottom:1px solid var(--border);
+  }
+  .profile-info-row:last-of-type{border-bottom:none;}
+  .profile-info-label{font-size:0.74rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:1px;font-family:'Poppins',sans-serif;}
+  .profile-info-val{font-size:0.9rem;color:var(--text);font-weight:500;text-align:right;}
+  .profile-edit-btn{
+    width:100%;padding:12px;border-radius:8px;
+    background:rgba(124,111,224,0.12);border:1.5px solid rgba(124,111,224,0.3);
+    color:var(--accent2);font-family:'Poppins',sans-serif;font-weight:600;
+    font-size:0.88rem;cursor:pointer;transition:all 0.2s;margin-top:18px;
+  }
+  .profile-edit-btn:hover{background:rgba(124,111,224,0.22);border-color:var(--accent2);}
+  /* Edit mode fields */
+  .profile-edit-section{display:none;margin-top:4px;}
+  .profile-edit-section.active{display:block;}
+  .profile-field-row{margin-bottom:14px;}
+  .profile-field-row label{display:block;font-size:0.74rem;color:var(--muted);font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;font-family:'Poppins',sans-serif;}
+  .profile-select-wrap{position:relative;}
+  .profile-dd-btn{
+    width:100%;padding:10px 14px;background:var(--card);border:1.5px solid var(--border);
+    border-radius:8px;color:var(--text);font-size:0.88rem;font-family:var(--body-font);
+    cursor:pointer;text-align:left;display:flex;align-items:center;justify-content:space-between;transition:all 0.2s;
+  }
+  .profile-dd-btn:hover{border-color:var(--accent2);}
+  .profile-dd-btn.selected{border-color:var(--success);color:var(--success);}
+  .profile-dd-list{
+    display:none;background:var(--card);border:1px solid var(--border);
+    border-radius:8px;margin-top:4px;overflow:hidden;
+    box-shadow:0 10px 40px rgba(0,0,0,0.5);max-height:180px;overflow-y:auto;
+    position:absolute;width:100%;z-index:10;
+  }
+  .profile-dd-list.open{display:block;animation:fadeIn 0.15s ease;}
+  .profile-dd-opt{
+    padding:9px 14px;cursor:pointer;font-size:0.85rem;color:var(--muted);
+    transition:all 0.15s;border-bottom:1px solid var(--border);
+  }
+  .profile-dd-opt:last-child{border-bottom:none;}
+  .profile-dd-opt:hover{background:var(--surface);color:var(--accent);}
+  .pw-toggle{position:relative;}
+  .pw-toggle input{padding-right:42px;}
+  .pw-eye{
+    position:absolute;right:12px;top:50%;transform:translateY(-50%);
+    background:none;border:none;cursor:pointer;color:var(--muted);font-size:1rem;
+    transition:color 0.2s;
+  }
+  .pw-eye:hover{color:var(--accent2);}
+  .save-profile-btn{
+    width:100%;padding:12px;border-radius:8px;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    color:#fff;border:none;font-family:'Poppins',sans-serif;font-weight:700;
+    font-size:0.92rem;cursor:pointer;transition:all 0.3s;margin-top:6px;
+  }
+  .save-profile-btn:hover{transform:translateY(-1px);filter:brightness(1.08);}
+
+  /* ── SUBJECTS POPUP ── */
+  .subjects-overlay{
+    position:fixed;inset:0;z-index:200;
+    background:rgba(5,5,10,0.92);backdrop-filter:blur(16px);
+    display:none;align-items:center;justify-content:center;padding:20px;
+  }
+  .subjects-overlay.active{display:flex;animation:fadeIn 0.25s ease;}
+  .subjects-popup{
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:16px;padding:32px 30px 28px;
+    width:100%;max-width:580px;max-height:85vh;overflow-y:auto;
+    position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.7);
+    animation:popIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  .subjects-popup::-webkit-scrollbar{width:4px;}
+  .subjects-popup::-webkit-scrollbar-track{background:transparent;}
+  .subjects-popup::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+  .subjects-header{margin-bottom:8px;}
+  .subjects-school-tag{
+    display:inline-block;padding:3px 10px;
+    background:rgba(124,111,224,0.12);border:1px solid rgba(124,111,224,0.25);
+    border-radius:20px;font-size:0.72rem;color:var(--accent2);
+    font-weight:600;letter-spacing:0.5px;margin-bottom:10px;
+    font-family:'Poppins',sans-serif;
+  }
+  .subjects-title{
+    font-family:var(--heading-font);font-size:1.5rem;font-weight:700;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    margin-bottom:4px;
+  }
+  .subjects-sub{font-size:0.82rem;color:var(--muted);margin-bottom:22px;}
+  .subjects-grid{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+    gap:10px;
+  }
+  .subject-card{
+    background:var(--card);border:1.5px solid var(--border);
+    border-radius:10px;padding:16px 14px;
+    cursor:pointer;transition:all 0.22s ease;
+    position:relative;overflow:hidden;
+    display:flex;flex-direction:column;gap:6px;
+  }
+  .subject-card::before{
+    content:'';position:absolute;top:0;left:0;right:0;height:2px;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    opacity:0;transition:opacity 0.2s;
+  }
+  .subject-card:hover{transform:translateY(-3px);border-color:var(--accent2);box-shadow:0 8px 24px rgba(124,111,224,0.15);}
+  .subject-card:hover::before{opacity:1;}
+  .subject-icon{font-size:1.6rem;line-height:1;}
+  .subject-name{font-size:0.88rem;font-weight:700;color:var(--text);line-height:1.3;}
+  .subject-desc{font-size:0.74rem;color:var(--muted);line-height:1.4;}
+  .subjects-empty{
+    text-align:center;padding:40px 20px;color:var(--muted);
+    font-size:0.88rem;
+  }
+  .subjects-empty-icon{font-size:2.5rem;display:block;margin-bottom:10px;opacity:0.4;}
+
+  /* Admin subjects tab */
+  .subj-school-block{
+    background:var(--card);border:1px solid var(--border);
+    border-radius:10px;margin-bottom:14px;overflow:hidden;
+  }
+  .subj-school-hdr{
+    padding:12px 16px;display:flex;align-items:center;justify-content:space-between;
+    cursor:pointer;transition:background 0.15s;
+    border-bottom:1px solid var(--border);
+  }
+  .subj-school-hdr:hover{background:rgba(124,111,224,0.06);}
+  .subj-school-name{font-weight:700;font-size:0.88rem;color:var(--text);}
+  .subj-school-count{font-size:0.72rem;color:var(--muted);}
+  .subj-toggle{font-size:0.75rem;color:var(--muted);transition:transform 0.2s;}
+  .subj-school-body{display:none;padding:14px 16px;}
+  .subj-school-body.open{display:block;}
+  .subj-class-block{margin-bottom:14px;}
+  .subj-class-label{
+    font-size:0.7rem;letter-spacing:1.5px;text-transform:uppercase;
+    color:var(--accent2);font-weight:700;margin-bottom:8px;
+    font-family:'Poppins',sans-serif;display:flex;align-items:center;gap:6px;
+  }
+  .subj-list{display:flex;flex-direction:column;gap:6px;margin-bottom:8px;}
+  .subj-item{
+    display:flex;align-items:center;gap:6px;
+    background:#0d0d16;border:1px solid var(--border);
+    border-radius:7px;padding:7px 10px;
+  }
+  .subj-item-icon{
+    width:28px;padding:5px 4px;background:transparent;border:1px solid var(--border);
+    border-radius:5px;color:var(--text);font-size:0.85rem;text-align:center;
+    font-family:var(--body-font);outline:none;
+  }
+  .subj-item-name{
+    flex:2;padding:5px 8px;background:transparent;border:1px solid var(--border);
+    border-radius:5px;color:var(--text);font-size:0.83rem;
+    font-family:var(--body-font);outline:none;
+  }
+  .subj-item-desc{
+    flex:3;padding:5px 8px;background:transparent;border:1px solid var(--border);
+    border-radius:5px;color:var(--text);font-size:0.78rem;
+    font-family:var(--body-font);outline:none;
+  }
+  .subj-item-icon:focus,.subj-item-name:focus,.subj-item-desc:focus{border-color:var(--accent2);}
+  .add-subj-row{display:flex;gap:6px;margin-top:4px;}
+  .add-subj-icon{
+    width:38px;padding:7px 4px;background:var(--card);border:1px solid var(--border);
+    border-radius:6px;color:var(--text);font-size:0.9rem;text-align:center;
+    font-family:var(--body-font);outline:none;
+  }
+  .add-subj-name{
+    flex:1;padding:7px 10px;background:var(--card);border:1px solid var(--border);
+    border-radius:6px;color:var(--text);font-size:0.83rem;
+    font-family:var(--body-font);outline:none;
+  }
+  .add-subj-desc{
+    flex:2;padding:7px 10px;background:var(--card);border:1px solid var(--border);
+    border-radius:6px;color:var(--text);font-size:0.78rem;
+    font-family:var(--body-font);outline:none;
+  }
+  .add-subj-btn{
+    padding:7px 12px;background:rgba(82,200,122,0.1);border:1px solid rgba(82,200,122,0.3);
+    border-radius:6px;color:var(--success);cursor:pointer;font-size:0.82rem;
+    font-weight:600;transition:all 0.2s;white-space:nowrap;
+  }
+  .add-subj-btn:hover{background:rgba(82,200,122,0.2);}
+
+  /* ── CHAPTERS PAGE ── */
+  .chapters-overlay{
+    position:fixed;inset:0;z-index:250;
+    background:var(--bg);
+    display:none;flex-direction:column;
+    animation:fadeIn 0.2s ease;
+    overflow-y:auto;
+  }
+  .chapters-overlay.active{display:flex;}
+  .chapters-topbar{
+    position:sticky;top:0;z-index:10;
+    background:rgba(10,10,15,0.92);backdrop-filter:blur(16px);
+    border-bottom:1px solid var(--border);
+    padding:14px 20px;display:flex;align-items:center;gap:14px;
+    flex-shrink:0;
+  }
+  .chapters-back{
+    width:36px;height:36px;border-radius:8px;
+    background:var(--card);border:1px solid var(--border);
+    color:var(--text);cursor:pointer;font-size:1.1rem;
+    display:flex;align-items:center;justify-content:center;
+    transition:all 0.2s;flex-shrink:0;
+  }
+  .chapters-back:hover{background:var(--surface);border-color:var(--accent);}
+  .chapters-topbar-info{flex:1;min-width:0;}
+  .chapters-subj-name{
+    font-family:var(--heading-font);font-size:1.1rem;font-weight:700;
+    color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .chapters-subj-meta{font-size:0.72rem;color:var(--muted);margin-top:1px;}
+  .chapters-subj-icon-big{font-size:2rem;flex-shrink:0;}
+  .chapters-body{
+    flex:1;padding:24px 20px 40px;
+    max-width:700px;width:100%;margin:0 auto;
+  }
+  .chapters-count{
+    font-size:0.72rem;letter-spacing:2px;text-transform:uppercase;
+    color:var(--accent);font-weight:700;margin-bottom:16px;
+    font-family:'Poppins',sans-serif;
+  }
+  .chapter-item{
+    background:var(--card);border:1px solid var(--border);
+    border-radius:10px;padding:16px 18px;margin-bottom:10px;
+    display:flex;align-items:flex-start;gap:14px;
+    transition:all 0.2s;cursor:default;
+    animation:fadeUp 0.4s ease both;
+  }
+  .chapter-item:hover{border-color:var(--accent2);transform:translateX(4px);}
+  .chapter-num{
+    width:32px;height:32px;border-radius:8px;flex-shrink:0;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    display:flex;align-items:center;justify-content:center;
+    font-size:0.78rem;font-weight:800;color:#fff;font-family:'Poppins',sans-serif;
+  }
+  .chapter-info{flex:1;min-width:0;}
+  .chapter-name{font-size:0.95rem;font-weight:600;color:var(--text);margin-bottom:3px;}
+  .chapter-desc{font-size:0.78rem;color:var(--muted);line-height:1.5;}
+  .chapters-empty{
+    text-align:center;padding:60px 20px;color:var(--muted);
+  }
+  .chapters-empty-icon{font-size:3rem;display:block;margin-bottom:12px;opacity:0.35;}
+
+  /* Admin chapters section (inside subjects tab) */
+  .chap-admin-block{
+    background:#0a0a14;border:1px solid var(--border);
+    border-radius:8px;padding:12px 14px;margin-top:10px;
+  }
+  .chap-admin-label{
+    font-size:0.68rem;letter-spacing:1.5px;text-transform:uppercase;
+    color:var(--accent);font-weight:700;margin-bottom:10px;
+    font-family:'Poppins',sans-serif;
+  }
+  .chap-list{display:flex;flex-direction:column;gap:6px;margin-bottom:8px;}
+  .chap-item{
+    display:flex;align-items:center;gap:6px;
+    background:var(--card);border:1px solid var(--border);
+    border-radius:6px;padding:6px 8px;
+  }
+  .chap-item-num{
+    width:24px;height:24px;border-radius:5px;flex-shrink:0;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    display:flex;align-items:center;justify-content:center;
+    font-size:0.68rem;font-weight:800;color:#fff;font-family:'Poppins',sans-serif;
+  }
+  .chap-item-name{
+    flex:2;padding:4px 8px;background:transparent;border:1px solid var(--border);
+    border-radius:5px;color:var(--text);font-size:0.82rem;
+    font-family:var(--body-font);outline:none;
+  }
+  .chap-item-desc{
+    flex:3;padding:4px 8px;background:transparent;border:1px solid var(--border);
+    border-radius:5px;color:var(--text);font-size:0.76rem;
+    font-family:var(--body-font);outline:none;
+  }
+  .chap-item-name:focus,.chap-item-desc:focus{border-color:var(--accent2);}
+  .add-chap-row{display:flex;flex-direction:column;gap:6px;margin-top:6px;}
+  .add-chap-name{
+    width:100%;padding:7px 10px;background:var(--card);border:1px solid var(--border);
+    border-radius:6px;color:var(--text);font-size:0.82rem;
+    font-family:var(--body-font);outline:none;
+  }
+  .add-chap-desc{
+    width:100%;padding:7px 10px;background:var(--card);border:1px solid var(--border);
+    border-radius:6px;color:var(--text);font-size:0.78rem;
+    font-family:var(--body-font);outline:none;
+  }
+  .add-chap-name:focus,.add-chap-desc:focus{border-color:var(--accent2);}
+  .add-chap-btn{
+    padding:8px 14px;background:rgba(82,200,122,0.1);border:1px solid rgba(82,200,122,0.3);
+    border-radius:6px;color:var(--success);cursor:pointer;font-size:0.82rem;
+    font-weight:600;transition:all 0.2s;width:100%;
+    font-family:'Poppins',sans-serif;
+  }
+  .add-chap-btn:hover{background:rgba(82,200,122,0.2);}
+
+  /* ── QUIZ PAGE ── */
+  .quiz-overlay{
+    position:fixed;inset:0;z-index:300;
+    background:var(--bg);
+    display:none;flex-direction:column;
+    overflow-y:auto;
+  }
+  .quiz-overlay.active{display:flex;animation:fadeIn 0.2s ease;}
+  .quiz-topbar{
+    position:sticky;top:0;z-index:10;
+    background:rgba(10,10,15,0.95);backdrop-filter:blur(16px);
+    border-bottom:1px solid var(--border);
+    padding:14px 20px;display:flex;align-items:center;gap:14px;flex-shrink:0;
+  }
+  .quiz-back{
+    width:36px;height:36px;border-radius:8px;
+    background:var(--card);border:1px solid var(--border);
+    color:var(--text);cursor:pointer;font-size:1.1rem;
+    display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;
+  }
+  .quiz-back:hover{border-color:var(--accent);}
+  .quiz-topbar-info{flex:1;}
+  .quiz-chap-name{font-family:var(--heading-font);font-size:1rem;font-weight:700;color:var(--text);}
+  .quiz-chap-meta{font-size:0.72rem;color:var(--muted);margin-top:1px;}
+  .quiz-body{flex:1;padding:24px 20px 60px;max-width:680px;width:100%;margin:0 auto;}
+
+  /* Start screen */
+  .quiz-start{text-align:center;padding:40px 20px;}
+  .quiz-start-icon{font-size:4rem;margin-bottom:16px;}
+  .quiz-start-title{font-family:var(--heading-font);font-size:1.8rem;font-weight:700;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px;}
+  .quiz-start-sub{color:var(--muted);font-size:0.9rem;margin-bottom:30px;}
+  .quiz-start-btn{
+    padding:14px 40px;font-size:1rem;font-weight:700;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    color:#fff;border:none;border-radius:8px;cursor:pointer;
+    font-family:var(--body-font);transition:all 0.3s;
+    box-shadow:0 4px 20px rgba(124,111,224,0.3);
+  }
+  .quiz-start-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(124,111,224,0.4);}
+  .quiz-empty{text-align:center;padding:60px 20px;color:var(--muted);}
+  .quiz-empty-icon{font-size:3rem;display:block;margin-bottom:12px;opacity:0.35;}
+
+  /* Quiz in progress */
+  .quiz-progress-bar{
+    height:4px;background:var(--border);border-radius:4px;margin-bottom:28px;overflow:hidden;
+  }
+  .quiz-progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width 0.4s ease;border-radius:4px;}
+  .quiz-q-num{font-size:0.72rem;color:var(--accent);font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;font-family:'Poppins',sans-serif;}
+  .quiz-question{font-size:1.1rem;font-weight:600;color:var(--text);margin-bottom:24px;line-height:1.6;}
+  .quiz-options{display:flex;flex-direction:column;gap:10px;}
+  .quiz-option{
+    padding:14px 18px;background:var(--card);border:1.5px solid var(--border);
+    border-radius:10px;cursor:pointer;font-size:0.9rem;color:var(--text);
+    transition:all 0.2s;text-align:left;display:flex;align-items:center;gap:12px;
+    font-family:var(--body-font);
+  }
+  .quiz-option:hover:not(:disabled){border-color:var(--accent2);background:rgba(124,111,224,0.06);}
+  .quiz-option.correct{border-color:var(--success);background:rgba(82,200,122,0.1);color:var(--success);}
+  .quiz-option.wrong{border-color:var(--danger);background:rgba(224,82,82,0.08);color:var(--danger);}
+  .quiz-option.show-correct{border-color:var(--success);background:rgba(82,200,122,0.06);}
+  .quiz-option:disabled{cursor:default;}
+  .quiz-opt-label{
+    width:28px;height:28px;border-radius:50%;border:1.5px solid var(--border);
+    display:flex;align-items:center;justify-content:center;
+    font-size:0.75rem;font-weight:700;flex-shrink:0;font-family:'Poppins',sans-serif;
+    transition:all 0.2s;
+  }
+  .quiz-option.correct .quiz-opt-label{background:var(--success);border-color:var(--success);color:#fff;}
+  .quiz-option.wrong .quiz-opt-label{background:var(--danger);border-color:var(--danger);color:#fff;}
+  .quiz-option.show-correct .quiz-opt-label{background:var(--success);border-color:var(--success);color:#fff;}
+  .quiz-explanation{
+    margin-top:14px;padding:12px 16px;background:rgba(124,111,224,0.08);
+    border:1px solid rgba(124,111,224,0.2);border-radius:8px;
+    font-size:0.84rem;color:var(--muted);line-height:1.6;display:none;
+  }
+  .quiz-explanation.show{display:block;animation:fadeUp 0.3s ease;}
+  .quiz-next-btn{
+    margin-top:20px;width:100%;padding:13px;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    color:#fff;border:none;border-radius:8px;
+    font-family:var(--body-font);font-weight:700;font-size:0.95rem;
+    cursor:pointer;transition:all 0.3s;display:none;
+  }
+  .quiz-next-btn.show{display:block;animation:fadeUp 0.3s ease;}
+  .quiz-next-btn:hover{filter:brightness(1.1);}
+
+  /* Result screen */
+  .quiz-result{text-align:center;padding:40px 20px;}
+  .quiz-result-icon{font-size:4rem;margin-bottom:16px;}
+  .quiz-result-score{
+    font-family:var(--heading-font);font-size:3rem;font-weight:900;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px;
+  }
+  .quiz-result-label{color:var(--muted);font-size:0.9rem;margin-bottom:24px;}
+  .quiz-result-msg{
+    font-size:1.1rem;font-weight:600;color:var(--text);
+    margin-bottom:28px;padding:16px;background:var(--card);
+    border-radius:10px;border:1px solid var(--border);
+  }
+  .quiz-result-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+  .quiz-retry-btn{
+    padding:12px 28px;background:var(--card);border:1.5px solid var(--border);
+    border-radius:8px;color:var(--text);cursor:pointer;font-family:var(--body-font);
+    font-weight:600;font-size:0.9rem;transition:all 0.2s;
+  }
+  .quiz-retry-btn:hover{border-color:var(--accent2);color:var(--accent2);}
+
+  /* Admin quiz section */
+  .quiz-admin-block{
+    background:#0a0a14;border:1px solid var(--border);
+    border-radius:8px;padding:12px 14px;margin-top:10px;
+  }
+  .quiz-admin-label{
+    font-size:0.68rem;letter-spacing:1.5px;text-transform:uppercase;
+    color:var(--accent2);font-weight:700;margin-bottom:10px;
+    font-family:'Poppins',sans-serif;
+  }
+  .quiz-q-item{
+    background:var(--card);border:1px solid var(--border);
+    border-radius:8px;padding:12px;margin-bottom:10px;
+  }
+  .quiz-q-row{display:flex;gap:6px;align-items:center;margin-bottom:8px;}
+  .quiz-q-input{
+    flex:1;padding:7px 10px;background:#060610;border:1px solid var(--border);
+    border-radius:6px;color:var(--text);font-size:0.83rem;font-family:var(--body-font);outline:none;
+  }
+  .quiz-q-input:focus{border-color:var(--accent2);}
+  .quiz-opt-row{display:flex;gap:6px;align-items:center;margin-bottom:5px;}
+  .quiz-opt-correct{
+    width:20px;height:20px;border-radius:50%;border:2px solid var(--border);
+    background:transparent;cursor:pointer;flex-shrink:0;transition:all 0.2s;
+  }
+  .quiz-opt-correct.selected{background:var(--success);border-color:var(--success);}
+  .quiz-opt-input{
+    flex:1;padding:5px 9px;background:#060610;border:1px solid var(--border);
+    border-radius:5px;color:var(--text);font-size:0.8rem;font-family:var(--body-font);outline:none;
+  }
+  .quiz-opt-input:focus{border-color:var(--accent2);}
+  .quiz-exp-input{
+    width:100%;padding:6px 9px;background:#060610;border:1px solid var(--border);
+    border-radius:5px;color:var(--text);font-size:0.78rem;font-family:var(--body-font);
+    outline:none;margin-top:6px;
+  }
+  .quiz-exp-input:focus{border-color:var(--accent2);}
+  .add-q-btn{
+    padding:9px 16px;background:rgba(124,111,224,0.1);border:1px solid rgba(124,111,224,0.3);
+    border-radius:6px;color:var(--accent2);cursor:pointer;font-size:0.82rem;
+    font-family:'Poppins',sans-serif;font-weight:600;transition:all 0.2s;width:100%;margin-top:8px;
+  }
+  .add-q-btn:hover{background:rgba(124,111,224,0.18);}
+
+  /* ── LEADERBOARD SECTION (main page) ── */
+  .lb-section{
+    padding:80px 40px;
+    background:linear-gradient(135deg,var(--surface) 0%,rgba(124,111,224,0.04) 100%);
+    border-top:1px solid var(--border);
+    position:relative;overflow:hidden;
+  }
+  .lb-section::before{
+    content:'';position:absolute;top:-40%;right:-10%;
+    width:500px;height:500px;border-radius:50%;
+    background:radial-gradient(circle,rgba(124,111,224,0.06),transparent 70%);
+    pointer-events:none;
+  }
+  .lb-section-inner{max-width:680px;margin:0 auto;position:relative;}
+  .lb-section-tabs{display:flex;gap:8px;justify-content:center;margin-bottom:28px;}
+  .lb-tab{
+    padding:8px 20px;border-radius:20px;font-size:0.78rem;font-weight:700;
+    border:1.5px solid var(--border);background:transparent;color:var(--muted);
+    cursor:pointer;transition:all 0.2s;font-family:'Poppins',sans-serif;
+  }
+  .lb-tab.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-color:transparent;box-shadow:0 4px 14px rgba(124,111,224,0.3);}
+  .lb-tab:hover:not(.active){color:var(--text);border-color:var(--accent2);}
+
+  /* Points badge */
+  .lb-pts{
+    font-size:1rem;font-weight:900;color:var(--accent);
+    font-family:'Poppins',sans-serif;white-space:nowrap;
+  }
+  .lb-pts-label{font-size:0.62rem;color:var(--muted);text-align:right;}
+
+  /* Podium */
+  .lb-podium{display:flex;align-items:flex-end;justify-content:center;gap:12px;margin-bottom:32px;}
+  .lb-pod{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;max-width:130px;}
+  .lb-pod-medal{font-size:1.6rem;line-height:1;}
+  .lb-pod-avatar{
+    width:50px;height:50px;border-radius:50%;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:1rem;color:#fff;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    border:2px solid rgba(255,255,255,0.1);
+    transition:transform 0.3s;
+  }
+  .lb-pod:nth-child(2) .lb-pod-avatar{width:60px;height:60px;font-size:1.1rem;border-color:rgba(245,197,24,0.4);box-shadow:0 0 20px rgba(245,197,24,0.2);}
+  .lb-pod-name{font-size:0.78rem;font-weight:700;color:var(--text);text-align:center;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .lb-pod-pts{font-size:0.8rem;font-weight:800;color:var(--accent);font-family:'Poppins',sans-serif;}
+  .lb-pod-bar{width:100%;border-radius:8px 8px 0 0;min-height:10px;}
+  .lb-pod:nth-child(1) .lb-pod-bar{height:55px;background:rgba(192,192,192,0.15);border:1px solid rgba(192,192,192,0.2);}
+  .lb-pod:nth-child(2) .lb-pod-bar{height:80px;background:rgba(245,197,24,0.12);border:1px solid rgba(245,197,24,0.2);}
+  .lb-pod:nth-child(3) .lb-pod-bar{height:40px;background:rgba(205,127,50,0.12);border:1px solid rgba(205,127,50,0.2);}
+
+  /* List */
+  .lb-list{display:flex;flex-direction:column;gap:8px;}
+  .lb-entry{
+    background:var(--card);border:1px solid var(--border);
+    border-radius:12px;padding:14px 16px;
+    display:flex;align-items:center;gap:12px;
+    transition:all 0.25s;animation:fadeUp 0.4s ease both;
+  }
+  .lb-entry.is-me{
+    border-color:var(--accent2);
+    background:linear-gradient(135deg,rgba(124,111,224,0.08),rgba(200,169,110,0.04));
+    box-shadow:0 4px 16px rgba(124,111,224,0.12);
+  }
+  .lb-entry:hover{transform:translateX(5px);border-color:rgba(124,111,224,0.35);}
+  .lb-rank-num{
+    width:30px;height:30px;border-radius:8px;flex-shrink:0;
+    background:var(--surface);border:1px solid var(--border);
+    display:flex;align-items:center;justify-content:center;
+    font-size:0.75rem;font-weight:800;color:var(--muted);
+    font-family:'Poppins',sans-serif;
+  }
+  .lb-entry-avatar{
+    width:38px;height:38px;border-radius:50%;flex-shrink:0;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    display:flex;align-items:center;justify-content:center;
+    font-weight:700;font-size:0.85rem;color:#fff;
+  }
+  .lb-entry-info{flex:1;min-width:0;}
+  .lb-entry-name{font-weight:700;font-size:0.9rem;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;gap:6px;}
+  .lb-entry-meta{font-size:0.7rem;color:var(--muted);margin-top:2px;}
+  .lb-entry-right{text-align:right;flex-shrink:0;}
+  .lb-my-rank-bar{
+    background:rgba(124,111,224,0.06);border:1px solid rgba(124,111,224,0.18);
+    border-radius:10px;padding:10px 14px;margin-bottom:14px;
+    display:flex;align-items:center;gap:10px;
+  }
+  .lb-empty{text-align:center;padding:50px 20px;color:var(--muted);}
+  .lb-empty-icon{font-size:3rem;opacity:0.25;display:block;margin-bottom:12px;}
+
+  /* ── IFRAME QUIZ VIEWER ── */
+  .iqv-overlay{
+    position:fixed;inset:0;z-index:400;
+    background:rgba(5,5,10,0.96);backdrop-filter:blur(16px);
+    display:none;flex-direction:column;
+  }
+  .iqv-overlay.active{display:flex;animation:fadeIn 0.2s ease;}
+  .iqv-topbar{
+    display:flex;align-items:center;gap:12px;
+    padding:12px 16px;
+    background:rgba(10,10,15,0.95);border-bottom:1px solid var(--border);
+    flex-shrink:0;
+  }
+  .iqv-back{
+    width:34px;height:34px;border-radius:8px;
+    background:var(--card);border:1px solid var(--border);
+    color:var(--text);cursor:pointer;font-size:1rem;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;
+  }
+  .iqv-back:hover{border-color:var(--accent);}
+  .iqv-title{font-size:0.9rem;font-weight:700;color:var(--text);flex:1;}
+  .iqv-frame{flex:1;border:none;width:100%;background:#020617;}
+
+  /* Score toast */
+  .score-toast{
+    position:fixed;bottom:30px;left:50%;transform:translateX(-50%);
+    z-index:500;background:var(--card);border:1px solid var(--accent);
+    border-radius:16px;padding:16px 28px;text-align:center;
+    box-shadow:0 8px 40px rgba(0,0,0,0.6);display:none;
+    animation:popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);min-width:260px;
+  }
+  .score-toast.show{display:block;}
+  .score-toast-grade{
+    font-size:2.5rem;font-weight:900;font-family:var(--heading-font);
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  }
+  .score-toast-num{font-size:1rem;color:var(--text);font-weight:700;margin:4px 0;}
+  .score-toast-msg{font-size:0.78rem;color:var(--muted);}
+  .score-toast-close{
+    margin-top:12px;padding:8px 20px;background:var(--accent2);
+    color:#fff;border:none;border-radius:8px;cursor:pointer;
+    font-family:var(--body-font);font-weight:600;font-size:0.82rem;
+  }
+
+
+  /* ── SCHOOL BANNER ── */
+  .school-banner{
+    position:absolute;top:0;left:0;right:0;bottom:0;z-index:0;
+    overflow:hidden;
+  }
+  .school-banner img{
+    width:100%;height:100%;object-fit:cover;
+    filter:brightness(0.35);
+  }
+  .school-banner-overlay{
+    position:absolute;inset:0;
+    background:linear-gradient(to bottom,rgba(10,10,15,0.3) 0%,rgba(10,10,15,0.7) 100%);
+  }
+  .hero{position:relative;}
+  .hero .site-title,.hero .tagline,.hero .shayari-box,.hero .hero-cta{position:relative;z-index:1;}
+
+  /* ── QUIZ ADD PAGE ── */
+  .qa-overlay{
+    position:fixed;inset:0;z-index:350;
+    background:var(--bg);
+    display:none;flex-direction:column;overflow-y:auto;
+  }
+  .qa-overlay.active{display:flex;animation:fadeIn 0.2s ease;}
+  .qa-topbar{
+    position:sticky;top:0;z-index:10;
+    background:rgba(10,10,15,0.95);backdrop-filter:blur(16px);
+    border-bottom:1px solid var(--border);
+    padding:14px 20px;display:flex;align-items:center;gap:14px;flex-shrink:0;
+  }
+  .qa-back{
+    width:36px;height:36px;border-radius:8px;
+    background:var(--card);border:1px solid var(--border);
+    color:var(--text);cursor:pointer;font-size:1.1rem;
+    display:flex;align-items:center;justify-content:center;transition:all 0.2s;
+  }
+  .qa-back:hover{border-color:var(--accent);}
+  .qa-topbar-title{font-size:1rem;font-weight:700;color:var(--text);}
+  .qa-body{max-width:520px;width:100%;margin:0 auto;padding:24px 20px 60px;}
+  .qa-card{
+    background:var(--card);border:1px solid var(--border);
+    border-radius:16px;padding:24px 20px;
+  }
+  .qa-card-title{
+    font-size:1.1rem;font-weight:700;color:var(--text);
+    margin-bottom:20px;display:flex;align-items:center;gap:8px;
+  }
+  .qa-field{margin-bottom:18px;}
+  .qa-label{
+    display:block;font-size:0.72rem;color:var(--muted);
+    font-weight:600;letter-spacing:1px;text-transform:uppercase;
+    margin-bottom:7px;font-family:'Poppins',sans-serif;
+  }
+  .qa-select{
+    width:100%;padding:13px 16px;
+    background:var(--surface);border:1.5px solid var(--border);
+    border-radius:10px;color:var(--text);font-size:0.9rem;
+    font-family:var(--body-font);outline:none;cursor:pointer;
+    transition:border-color 0.2s;
+    -webkit-appearance:none;appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237a7a8a' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 14px center;
+    padding-right:36px;
+  }
+  .qa-select:focus{border-color:var(--accent2);}
+  .qa-select option{background:var(--card);color:var(--text);}
+  .qa-input{
+    width:100%;padding:13px 16px;
+    background:var(--surface);border:1.5px solid var(--border);
+    border-radius:10px;color:var(--text);font-size:0.9rem;
+    font-family:var(--body-font);outline:none;transition:border-color 0.2s;
+  }
+  .qa-input:focus{border-color:var(--accent2);}
+  .qa-input::placeholder{color:#3a3a5a;}
+  .qa-file-zone{
+    border:2px dashed var(--border);border-radius:10px;
+    padding:18px 16px;display:flex;align-items:center;gap:14px;
+    cursor:pointer;transition:all 0.2s;background:var(--surface);
+    position:relative;
+  }
+  .qa-file-zone:hover{border-color:var(--accent2);background:rgba(124,111,224,0.04);}
+  .qa-file-zone.has-file{border-color:var(--success);background:rgba(82,200,122,0.04);}
+  .qa-file-icon{font-size:1.8rem;flex-shrink:0;}
+  .qa-file-text-title{font-size:0.88rem;font-weight:700;color:var(--text);margin-bottom:2px;}
+  .qa-file-text-sub{font-size:0.72rem;color:var(--muted);}
+  .qa-file-input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;}
+  .qa-submit{
+    width:100%;padding:15px;border-radius:12px;border:none;
+    background:linear-gradient(135deg,var(--accent2),#5a4ec8);
+    color:#fff;font-size:1rem;font-weight:700;
+    font-family:var(--body-font);cursor:pointer;
+    transition:all 0.3s;margin-top:4px;
+    box-shadow:0 4px 20px rgba(124,111,224,0.3);
+    display:flex;align-items:center;justify-content:center;gap:10px;
+  }
+  .qa-submit:hover{transform:translateY(-2px);box-shadow:0 6px 28px rgba(124,111,224,0.45);}
+  .qa-submit:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+  .qa-divider{
+    display:flex;align-items:center;gap:10px;margin:16px 0;
+    font-size:0.72rem;color:var(--muted);font-weight:600;letter-spacing:1px;
+  }
+  .qa-divider::before,.qa-divider::after{content:'';flex:1;height:1px;background:var(--border);}
+  /* Floating add quiz button for school admin */
+  @media(max-width:600px){
+    nav{padding:12px 16px;}
+    .hero{padding:90px 18px 60px;}
+    .features-section,.content-section{padding:50px 18px;}
+    .about-section{padding:50px 18px;}
+    .popup{padding:28px 18px;}
+    .admin-sidebar{width:100%;right:-100%;}
+    .subjects-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));}
+    .chapters-body{padding:16px 14px 40px;}
+  }
+</style>
+</head>
+<body>
+
+<canvas id="particlesCanvas"></canvas>
+
+<!-- NAVBAR -->
+<nav>
+  <div class="nav-left">
+    <button class="admin-gear" id="adminGear" onclick="openAdmin()" title="Main Page Admin">⚙</button>
+    <div class="nav-logo" id="navLogo">EduPortal</div>
+  </div>
+  <div class="nav-btns" id="authBtns">
+    <button class="btn btn-outline" onclick="openLogin()">Login</button>
+    <button class="btn btn-solid" onclick="openSignup()">Sign Up</button>
+  </div>
+  <div class="user-menu" id="userMenu" style="display:none;align-items:center;gap:8px;">
+    <button id="lbNavBtn" onclick="scrollToLB()" title="Leaderboard" style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#f5c518,#e8a000);border:none;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(245,197,24,0.35);transition:all 0.25s;flex-shrink:0;">🏆</button>
+    <div class="user-avatar" id="userAvatar" onclick="toggleUserDD()">AB</div>
+    <div class="user-dropdown" id="userDropdown">
+      <div class="user-dd-header">
+        <div class="user-dd-name" id="ddName">—</div>
+        <div class="user-dd-school" id="ddSchool">—</div>
+      </div>
+      <div class="user-dd-item" onclick="closeUserDD();openProfile()">👤 My Profile</div>
+      <div class="user-dd-item" id="ddSchoolAdmin" style="display:none;color:var(--success);">🏫 School Admin</div>
+      <div class="user-dd-item logout" onclick="doLogout()">⎋ Logout</div>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="heroSection">
+  <div class="hero-grid"></div>
+  <div class="school-banner" id="schoolBanner" style="display:none;">
+    <img id="schoolBannerImg" src="" alt="School">
+    <div class="school-banner-overlay"></div>
+  </div>
+  <h1 class="site-title" id="heroTitle">EduPortal</h1>
+  <p class="tagline" id="heroTagline">ज्ञान की रोशनी से जीवन को रोशन करें</p>
+  <div class="shayari-box">
+    <p class="shayari-text" id="shayariText">पढ़ने वाले जब कलम उठाते हैं,
+तो तकदीर भी रुककर देखती है।
+हर अक्षर में एक सपना बसा है,
+जो मंज़िल तक पहुँचाने की कहानी लिखती है।</p>
+  </div>
+  <div class="hero-cta">
+    <button class="btn-hero" id="heroCta" onclick="handleCtaClick()">अभी शुरू करें →</button>
+  </div>
+  <div class="hero-stats" id="heroStats" style="display:none;">
+    <div class="hero-stat">
+      <span class="hero-stat-num" id="statSubjects">0</span>
+      <span class="hero-stat-label">Subjects</span>
+    </div>
+    <div class="hero-stat-divider"></div>
+    <div class="hero-stat">
+      <span class="hero-stat-num" id="statChapters">0</span>
+      <span class="hero-stat-label">Chapters</span>
+    </div>
+    <div class="hero-stat-divider"></div>
+    <div class="hero-stat">
+      <span class="hero-stat-num" id="statQuizzes">0</span>
+      <span class="hero-stat-label">Quizzes</span>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURE BOXES -->
+<section class="features-section">
+  <p class="section-label">हमारी सेवाएं</p>
+  <h2 class="section-title">जो बनाता है हमें खास</h2>
+  <div class="boxes-grid" id="featureBoxes"></div>
+</section>
+
+<!-- ABOUT -->
+<section class="about-section">
+  <div class="about-inner">
+    <p class="section-label">About Us</p>
+    <h2 class="section-title" style="margin-bottom:24px;">हमारे बारे में</h2>
+    <p class="about-text" id="aboutText"></p>
+  </div>
+</section>
+
+<!-- CONTENT -->
+<section class="content-section">
+  <p class="section-label">अधिक जानकारी</p>
+  <h2 class="section-title" style="margin-bottom:24px;text-align:center;">Content</h2>
+  <p class="about-text" id="contentText" style="text-align:center;max-width:700px;margin:0 auto;"></p>
+</section>
+
+<!-- LEADERBOARD SECTION (main page) -->
+<section class="lb-section" id="lbSection" style="display:none;">
+  <div class="lb-section-inner">
+    <p class="section-label">Rankings</p>
+    <h2 class="section-title" style="margin-bottom:6px;">🏆 Leaderboard</h2>
+    <p style="text-align:center;color:var(--muted);font-size:0.82rem;margin-bottom:24px;" id="lbSectionSub">—</p>
+    <div class="lb-section-tabs">
+      <button class="lb-tab active" onclick="switchLB('score',this)">🥇 Best Score</button>
+      <button class="lb-tab" onclick="switchLB('count',this)">📊 Most Quizzes</button>
+    </div>
+    <div id="lbBody"></div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2024 <span id="footerName">EduPortal</span> — सभी अधिकार सुरक्षित</p>
+  <p style="margin-top:6px;font-size:0.75rem;">Made with ❤ for Education</p>
+</footer>
+
+<!-- IFRAME QUIZ VIEWER -->
+<div class="iqv-overlay" id="iqvOverlay">
+  <div class="iqv-topbar">
+    <button class="iqv-back" onclick="closeIqv()">←</button>
+    <div class="iqv-title" id="iqvTitle">Quiz</div>
+  </div>
+  <iframe class="iqv-frame" id="iqvFrame" src="" allow="accelerometer"></iframe>
+</div>
+
+<!-- SCORE TOAST -->
+<div class="score-toast" id="scoreToast">
+  <div class="score-toast-grade" id="stGrade">A</div>
+  <div class="score-toast-num" id="stNum">Score</div>
+  <div class="score-toast-msg" id="stMsg">शानदार!</div>
+  <button class="score-toast-close" onclick="G('scoreToast').classList.remove('show')">✕ बंद करें</button>
+</div>
+
+<!-- ADMIN PASSWORD PROMPT -->
+<div class="overlay" id="adminPassOverlay" onclick="closeOnBg(event,'adminPassOverlay')" style="z-index:500;">
+  <div class="popup" style="max-width:360px;">
+    <button class="popup-close" onclick="closePopup('adminPassOverlay')">✕</button>
+    <div style="text-align:center;margin-bottom:16px;">
+      <div style="font-size:2.5rem;margin-bottom:8px;">🔐</div>
+      <div class="popup-title" style="margin-bottom:4px;">Admin Password</div>
+      <p class="popup-sub" id="adminPassLabel">School Admin access ke liye password डालें</p>
+    </div>
+    <div class="form-group">
+      <label class="form-label">🔒 Password</label>
+      <div style="position:relative;">
+        <input type="password" class="form-input" id="adminPassInput" placeholder="Password डालें" onkeydown="if(event.key==='Enter')verifyAdminPass()">
+        <button onclick="togglePwVis('adminPassInput',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:1rem;">👁</button>
+      </div>
+    </div>
+    <div id="adminPassError" style="color:var(--danger);font-size:0.78rem;margin-bottom:10px;display:none;">❌ गलत password!</div>
+    <button class="btn-full" onclick="verifyAdminPass()">🔓 Enter करें</button>
+  </div>
+</div>
+
+<!-- QUIZ ADD PAGE -->
+<div class="qa-overlay" id="qaOverlay">
+  <div class="qa-topbar">
+    <button class="qa-back" onclick="closeQA()">←</button>
+    <div class="qa-topbar-title">📝 Quiz Add करें</div>
+  </div>
+  <div class="qa-body">
+    <div class="qa-card">
+      <div class="qa-card-title">➕ New Quiz</div>
+
+      <div class="qa-field">
+        <label class="qa-label">Class</label>
+        <select class="qa-select" id="qaClass" onchange="qaLoadSubjects()">
+          <option value="">Class चुनें</option>
+        </select>
+      </div>
+
+      <div class="qa-field">
+        <label class="qa-label">Subject</label>
+        <select class="qa-select" id="qaSubject" onchange="qaLoadChapters()">
+          <option value="">पहले Class चुनें</option>
+        </select>
+      </div>
+
+      <div class="qa-field">
+        <label class="qa-label">Chapter</label>
+        <select class="qa-select" id="qaChapter" onchange="qaLoadQuizSlot()">
+          <option value="">पहले Subject चुनें</option>
+        </select>
+      </div>
+
+      <div class="qa-field">
+        <label class="qa-label">Quiz Name</label>
+        <input class="qa-input" id="qaQuizName" placeholder="जैसे: Quiz 1, Practice Test...">
+      </div>
+
+      <div class="qa-field">
+        <label class="qa-label">Description (optional)</label>
+        <input class="qa-input" id="qaQuizDesc" placeholder="जैसे: Top Questions, Chapter Summary...">
+      </div>
+
+      <div class="qa-field">
+        <label class="qa-label">📄 Quiz HTML File</label>
+        <div class="qa-file-zone" id="qaFileZone">
+          <input type="file" accept=".html" class="qa-file-input" id="qaFileInput" onchange="qaHandleFile(event)">
+          <div class="qa-file-icon" id="qaFileIcon">📁</div>
+          <div>
+            <div class="qa-file-text-title" id="qaFileTitle">File चुनें</div>
+            <div class="qa-file-text-sub" id="qaFileSub">कोई file नहीं चुनी</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="qa-divider">या manually questions जोड़ें</div>
+
+      <button class="qa-submit" id="qaSubmit" onclick="qaSubmit()">
+        ➕ Add Quiz
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- QUIZ PAGE -->
+<div class="quiz-overlay" id="quizOverlay">
+  <div class="quiz-topbar">
+    <button class="quiz-back" id="quizBack" onclick="closeQuiz()">←</button>
+    <div class="quiz-topbar-info">
+      <div class="quiz-chap-name" id="quizChapName">Chapter</div>
+      <div class="quiz-chap-meta" id="quizChapMeta">Subject • Class</div>
+    </div>
+  </div>
+  <div class="quiz-body" id="quizBody"></div>
+</div>
+
+<!-- CHAPTERS PAGE -->
+<div class="chapters-overlay" id="chaptersOverlay">
+  <div class="chapters-topbar">
+    <button class="chapters-back" onclick="closeChapters()">←</button>
+    <div class="chapters-subj-icon-big" id="chapSubjIcon">📖</div>
+    <div class="chapters-topbar-info">
+      <div class="chapters-subj-name" id="chapSubjName">Subject</div>
+      <div class="chapters-subj-meta" id="chapSubjMeta">Class • School</div>
+    </div>
+  </div>
+  <div class="chapters-body">
+    <div class="chapters-count" id="chapCount">0 CHAPTERS</div>
+    <div id="chapList"></div>
+  </div>
+</div>
+
+<!-- SUBJECTS POPUP -->
+<div class="subjects-overlay" id="subjectsOverlay" onclick="closeOnBg(event,'subjectsOverlay')">
+  <div class="subjects-popup">
+    <button class="popup-close" onclick="closePopup('subjectsOverlay')">✕</button>
+    <div class="subjects-header">
+      <div class="subjects-school-tag" id="subjectsTag">School • Class</div>
+      <div class="subjects-title" id="subjectsTitle">Subjects</div>
+      <p class="subjects-sub" id="subjectsSub">अपना subject चुनें</p>
+    </div>
+    <div class="subjects-grid" id="subjectsGrid"></div>
+  </div>
+</div>
+
+<!-- LOGIN POPUP -->
+<div class="overlay" id="loginOverlay" onclick="closeOnBg(event,'loginOverlay')">
+  <div class="popup">
+    <button class="popup-close" onclick="closePopup('loginOverlay')">✕</button>
+    <div class="popup-title">वापस स्वागत है!</div>
+    <p class="popup-sub">अपने account में login करें</p>
+    <div class="form-group">
+      <label class="form-label">📱 Phone Number</label>
+      <input type="tel" class="form-input" id="loginPhone" placeholder="Phone number डालें" maxlength="10">
+    </div>
+    <div class="form-group">
+      <label class="form-label">🔒 Password</label>
+      <input type="password" class="form-input" id="loginPass" placeholder="Password डालें">
+    </div>
+    <button class="btn-full" onclick="handleLogin()">Login करें</button>
+    <div class="popup-switch">Account नहीं है? <a onclick="switchToSignup()">Sign Up करें</a></div>
+  </div>
+</div>
+
+<!-- SIGNUP POPUP -->
+<div class="overlay" id="signupOverlay" onclick="closeOnBg(event,'signupOverlay')">
+  <div class="popup">
+    <button class="popup-close" onclick="closePopup('signupOverlay')">✕</button>
+    <div class="popup-title">नया Account बनाएं</div>
+    <p class="popup-sub">अपनी जानकारी भरें और शुरू करें</p>
+    <div class="form-group">
+      <label class="form-label">👤 पूरा नाम</label>
+      <input type="text" class="form-input" id="signupName" placeholder="आपका पूरा नाम">
+    </div>
+    <div class="form-group">
+      <label class="form-label">📱 Phone Number</label>
+      <input type="tel" class="form-input" id="signupPhone" placeholder="10 digit phone number" maxlength="10">
+    </div>
+    <div class="form-group">
+      <label class="form-label">🔒 Password बनाएं</label>
+      <input type="password" class="form-input" id="signupPass" placeholder="मजबूत password चुनें">
+    </div>
+    <div class="form-group">
+      <label class="form-label">🏫 अपना School चुनें</label>
+      <button class="school-select-btn" id="schoolSelectBtn" onclick="toggleSchoolDropdown()">
+        <span id="schoolSelectedText">School select करें</span><span>▾</span>
+      </button>
+      <div class="school-dropdown" id="schoolDropdown"></div>
+    </div>
+    <div class="form-group" id="classGroup" style="display:none;">
+      <label class="form-label">📖 अपनी Class चुनें</label>
+      <button class="school-select-btn" id="classSelectBtn" onclick="toggleClassDropdown()">
+        <span id="classSelectedText">Class select करें</span><span>▾</span>
+      </button>
+      <div class="school-dropdown" id="classDropdown"></div>
+    </div>
+    <button class="btn-full" onclick="handleSignup()">Account बनाएं</button>
+    <div class="popup-switch">पहले से account है? <a onclick="switchToLogin()">Login करें</a></div>
+  </div>
+</div>
+
+<!-- PROFILE POPUP -->
+<div class="overlay" id="profileOverlay" onclick="closeOnBg(event,'profileOverlay')">
+  <div class="popup" style="max-width:420px;">
+    <button class="popup-close" onclick="closePopup('profileOverlay')">✕</button>
+
+    <!-- View Mode -->
+    <div id="profileViewMode">
+      <div class="profile-avatar-big" id="profileAvatar">AB</div>
+      <div class="popup-title" style="text-align:center;" id="profileViewName">—</div>
+      <p class="popup-sub" style="text-align:center;margin-bottom:20px;" id="profileViewSub">—</p>
+
+      <div class="profile-info-row">
+        <span class="profile-info-label">👤 नाम</span>
+        <span class="profile-info-val" id="pv-name">—</span>
+      </div>
+      <div class="profile-info-row">
+        <span class="profile-info-label">📱 Phone</span>
+        <span class="profile-info-val" id="pv-phone">—</span>
+      </div>
+      <div class="profile-info-row">
+        <span class="profile-info-label">🏫 School</span>
+        <span class="profile-info-val" id="pv-school">—</span>
+      </div>
+      <div class="profile-info-row">
+        <span class="profile-info-label">📖 Class</span>
+        <span class="profile-info-val" id="pv-class">—</span>
+      </div>
+      <div class="profile-info-row">
+        <span class="profile-info-label">🔒 Password</span>
+        <span class="profile-info-val">••••••••</span>
+      </div>
+
+      <button class="profile-edit-btn" onclick="showProfileEdit()">✏️ Profile Edit करें</button>
+      <button class="profile-edit-btn" onclick="closePopup('profileOverlay');setTimeout(function(){document.getElementById('lbSection').scrollIntoView({behavior:'smooth'});},200);" style="margin-top:10px;background:rgba(245,197,24,0.1);border-color:rgba(245,197,24,0.3);color:#f5c518;">🏆 Leaderboard देखें</button>
+    </div>
+
+    <!-- Edit Mode -->
+    <div id="profileEditMode" style="display:none;">
+      <div class="popup-title" style="margin-bottom:4px;">Profile Edit करें</div>
+      <p class="popup-sub" style="margin-bottom:20px;">अपनी जानकारी अपडेट करें</p>
+
+      <div class="profile-field-row">
+        <label>👤 नाम</label>
+        <input type="text" class="form-input" id="editName" placeholder="पूरा नाम">
+      </div>
+
+      <div class="profile-field-row">
+        <label>🏫 School</label>
+        <div class="profile-select-wrap">
+          <button class="profile-dd-btn" id="editSchoolBtn" onclick="togglePDD('editSchoolList')">
+            <span id="editSchoolText">School चुनें</span><span>▾</span>
+          </button>
+          <div class="profile-dd-list" id="editSchoolList"></div>
+        </div>
+      </div>
+
+      <div class="profile-field-row" id="editClassRow" style="display:none;">
+        <label>📖 Class</label>
+        <div class="profile-select-wrap">
+          <button class="profile-dd-btn" id="editClassBtn" onclick="togglePDD('editClassList')">
+            <span id="editClassText">Class चुनें</span><span>▾</span>
+          </button>
+          <div class="profile-dd-list" id="editClassList"></div>
+        </div>
+      </div>
+
+      <div class="profile-field-row">
+        <label>🔒 नया Password <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;">(खाली छोड़ें = नहीं बदलेगा)</span></label>
+        <div class="pw-toggle">
+          <input type="password" class="form-input" id="editPass" placeholder="नया password (optional)">
+          <button class="pw-eye" onclick="togglePwVis('editPass',this)">👁</button>
+        </div>
+      </div>
+
+      <div class="profile-field-row">
+        <label>🔒 Password Confirm करें</label>
+        <div class="pw-toggle">
+          <input type="password" class="form-input" id="editPassConfirm" placeholder="Password दोबारा लिखें">
+          <button class="pw-eye" onclick="togglePwVis('editPassConfirm',this)">👁</button>
+        </div>
+      </div>
+
+      <button class="save-profile-btn" onclick="saveProfile()">💾 Save करें</button>
+      <button class="profile-edit-btn" style="margin-top:10px;" onclick="showProfileView()">← वापस जाएं</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN SIDEBAR -->
+<div class="admin-sidebar-bg" id="adminBg" onclick="closeAdmin()"></div>
+<div class="admin-sidebar" id="adminSidebar">
+  <div class="admin-top">
+    <div>
+      <div class="admin-top-badge" id="adminTopBadge">Global Admin</div>
+      <div class="admin-top-title" id="adminTopTitle">Website Customize करें</div>
+    </div>
+    <button class="admin-close" onclick="closeAdmin()">✕</button>
+  </div>
+  <div class="admin-tabs">
+    <div class="admin-tab active" data-tab="content" onclick="switchTab('content',this)">📝 Content</div>
+    <div class="admin-tab" data-tab="theme" onclick="switchTab('theme',this)">🎨 Theme</div>
+    <div class="admin-tab" data-tab="boxes" onclick="switchTab('boxes',this)">📦 Boxes</div>
+    <div class="admin-tab" data-tab="subjects" onclick="switchTab('subjects',this)">📚 Subjects</div>
+    <div class="admin-tab" id="tabQuizAdd" data-tab="quizadd" onclick="switchTab('quizadd',this)" style="display:none;color:var(--success);">➕ Quiz</div>
+    <div class="admin-tab" id="tabUsers" data-tab="users" onclick="switchTab('users',this)" style="display:none;color:#f59e0b;">👥 Users</div>
+    <div class="admin-tab" id="tabSchools" data-tab="schools" onclick="switchTab('schools',this)">🏫 Schools</div>
+  </div>
+  <div class="admin-scroll">
+
+    <!-- CONTENT TAB -->
+    <div class="tab-panel active" id="tab-content">
+      <div class="admin-field">
+        <label class="admin-field-label">🌐 Website नाम</label>
+        <input class="admin-input" id="adminTitle" placeholder="Website का नाम">
+      </div>
+      <div class="admin-field">
+        <label class="admin-field-label">✏️ Tagline</label>
+        <input class="admin-input" id="adminTagline" placeholder="Tagline लिखें (School के नाम के नीचे)">
+      </div>
+      <div class="admin-field" id="adminBannerField">
+        <label class="admin-field-label">🖼️ School Banner Photo</label>
+        <div id="adminBannerPreview" style="display:none;margin-bottom:8px;position:relative;border-radius:10px;overflow:hidden;height:100px;">
+          <img id="adminBannerImg" src="" style="width:100%;height:100%;object-fit:cover;">
+          <button onclick="removeBanner()" style="position:absolute;top:6px;right:6px;padding:4px 8px;background:rgba(224,82,82,0.85);border:none;border-radius:5px;color:#fff;cursor:pointer;font-size:0.75rem;">🗑 हटाएं</button>
+        </div>
+        <label style="display:flex;align-items:center;gap:10px;background:var(--card);border:2px dashed var(--border);border-radius:8px;padding:12px 14px;cursor:pointer;" onmouseover="this.style.borderColor='var(--accent2)'" onmouseout="this.style.borderColor='var(--border)'">
+          <span style="font-size:1.4rem;">📸</span>
+          <div><div style="font-size:0.84rem;font-weight:600;color:var(--text);">School की photo upload करें</div><div style="font-size:0.72rem;color:var(--muted);">Hero section के background में दिखेगी</div></div>
+          <input type="file" accept="image/*" style="display:none;" onchange="uploadBanner(event)">
+        </label>
+      </div>
+      <div class="admin-field">
+        <label class="admin-field-label">📜 Shayari</label>
+        <textarea class="admin-textarea" id="adminShayari" style="font-style:italic;font-family:'Cormorant Garamond',serif;font-size:1.05rem;" placeholder="शायरी लिखें..."></textarea>
+      </div>
+      <div class="admin-field">
+        <label class="admin-field-label">🔘 Main Button Text</label>
+        <input class="admin-input" id="adminCtaBtn" placeholder="Button का text">
+      </div>
+      <div class="adm-div"></div>
+      <div class="admin-field">
+        <label class="admin-field-label">ℹ️ About Us</label>
+        <textarea class="admin-textarea" id="adminAbout" placeholder="About us का content..."></textarea>
+      </div>
+      <div class="admin-field">
+        <label class="admin-field-label">📄 Content Section</label>
+        <textarea class="admin-textarea" id="adminContent" placeholder="Content section..."></textarea>
+      </div>
+    </div>
+
+    <!-- THEME TAB -->
+    <div class="tab-panel" id="tab-theme">
+      <div class="adm-head">🌗 Background & Surface</div>
+      <div class="color-grid">
+        <div class="color-field"><label>Page BG</label><div class="color-row"><div class="color-swatch"><input type="color" id="clr-bg" oninput="liveClr('--bg',this.value);syncH('hex-bg',this.value)"></div><input class="color-hex" id="hex-bg" maxlength="7" oninput="hexClr('clr-bg','--bg',this.value)" placeholder="#0a0a0f"></div></div>
+        <div class="color-field"><label>Surface</label><div class="color-row"><div class="color-swatch"><input type="color" id="clr-surface" oninput="liveClr('--surface',this.value);syncH('hex-surface',this.value)"></div><input class="color-hex" id="hex-surface" maxlength="7" oninput="hexClr('clr-surface','--surface',this.value)" placeholder="#12121a"></div></div>
+        <div class="color-field"><label>Card</label><div class="color-row"><div class="color-swatch"><input type="color" id="clr-card" oninput="liveClr('--card',this.value);syncH('hex-card',this.value)"></div><input class="color-hex" id="hex-card" maxlength="7" oninput="hexClr('clr-card','--card',this.value)" placeholder="#1a1a26"></div></div>
+        <div class="color-field"><label>Border</label><div class="color-row"><div class="color-swatch"><input type="color" id="clr-border" oninput="liveClr('--border',this.value);syncH('hex-border',this.value)"></div><input class="color-hex" id="hex-border" maxlength="7" oninput="hexClr('clr-border','--border',this.value)" placeholder="#2a2a3d"></div></div>
+      </div>
+      <div class="adm-div"></div>
+      <div class="adm-head">✨ Accent & Text</div>
+      <div class="color-grid">
+        <div class="color-field"><label>Accent 1</label><div class="color-row"><div class="color-swatch"><input type="color" id="clr-accent" oninput="liveClr('--accent',this.value);syncH('hex-accent',this.value)"></div><input class="color-hex" id="hex-accent" maxlength="7" oninput="hexClr('clr-accent','--accent',this.value)" placeholder="#c8a96e"></div></div>
+        <div class="color-field"><label>Accent 2</label><div class="color-row"><div class="color-swatch"><input type="color" id="clr-accent2" oninput="liveClr('--accent2',this.value);syncH('hex-accent2',this.value)"></div><input class="color-hex" id="hex-accent2" maxlength="7" oninput="hexClr('clr-accent2','--accent2',this.value)" placeholder="#7c6fe0"></div></div>
+        <div class="color-field"><label>Text</label><div class="color-row"><div class="color-swatch"><input type="color" id="clr-text" oninput="liveClr('--text',this.value);syncH('hex-text',this.value)"></div><input class="color-hex" id="hex-text" maxlength="7" oninput="hexClr('clr-text','--text',this.value)" placeholder="#e8e4d9"></div></div>
+        <div class="color-field"><label>Muted</label><div class="color-row"><div class="color-swatch"><input type="color" id="clr-muted" oninput="liveClr('--muted',this.value);syncH('hex-muted',this.value)"></div><input class="color-hex" id="hex-muted" maxlength="7" oninput="hexClr('clr-muted','--muted',this.value)" placeholder="#7a7a8a"></div></div>
+      </div>
+      <div class="adm-div"></div>
+      <div class="adm-head">🔘 Buttons</div>
+      <div class="color-grid">
+        <div class="color-field"><label>Primary BG</label><div class="color-row"><div class="color-swatch"><input type="color" id="clr-btnbg" oninput="updBtn()"></div><input class="color-hex" id="hex-btnbg" maxlength="7" oninput="updBtn()" placeholder="#c8a96e"></div></div>
+        <div class="color-field"><label>Primary Text</label><div class="color-row"><div class="color-swatch"><input type="color" id="clr-btnclr" oninput="updBtn()"></div><input class="color-hex" id="hex-btnclr" maxlength="7" oninput="updBtn()" placeholder="#0a0a0f"></div></div>
+        <div class="color-field"><label>Hero Btn Clr 1</label><div class="color-row"><div class="color-swatch"><input type="color" id="clr-hb1" oninput="updBtn()"></div><input class="color-hex" id="hex-hb1" maxlength="7" oninput="updBtn()" placeholder="#c8a96e"></div></div>
+        <div class="color-field"><label>Hero Btn Clr 2</label><div class="color-row"><div class="color-swatch"><input type="color" id="clr-hb2" oninput="updBtn()"></div><input class="color-hex" id="hex-hb2" maxlength="7" oninput="updBtn()" placeholder="#7c6fe0"></div></div>
+      </div>
+      <div class="adm-div"></div>
+      <div class="adm-head">🔤 Fonts</div>
+      <div class="admin-field">
+        <label class="admin-field-label">Body Font</label>
+        <div class="font-grid" id="bodyFontGrid">
+          <div class="font-option selected" onclick="setBodyFont('Noto Sans Devanagari',this)"><span style="font-family:'Noto Sans Devanagari'">अ</span>Noto Sans</div>
+          <div class="font-option" onclick="setBodyFont('Baloo 2',this)"><span style="font-family:'Baloo 2'">अ</span>Baloo 2</div>
+          <div class="font-option" onclick="setBodyFont('Poppins',this)"><span style="font-family:'Poppins'">Aa</span>Poppins</div>
+          <div class="font-option" onclick="setBodyFont('Rajdhani',this)"><span style="font-family:'Rajdhani'">Aa</span>Rajdhani</div>
+        </div>
+      </div>
+      <div class="admin-field">
+        <label class="admin-field-label">Heading Font</label>
+        <div class="font-grid" id="headingFontGrid">
+          <div class="font-option selected" onclick="setHeadingFont('Playfair Display',this)"><span style="font-family:'Playfair Display'">Aa</span>Playfair</div>
+          <div class="font-option" onclick="setHeadingFont('Cormorant Garamond',this)"><span style="font-family:'Cormorant Garamond'">Aa</span>Cormorant</div>
+          <div class="font-option" onclick="setHeadingFont('Poppins',this)"><span style="font-family:'Poppins'">Aa</span>Poppins</div>
+          <div class="font-option" onclick="setHeadingFont('Rajdhani',this)"><span style="font-family:'Rajdhani'">Aa</span>Rajdhani</div>
+        </div>
+      </div>
+      <div class="adm-div"></div>
+      <div class="adm-head">🎨 Quick Presets</div>
+      <div class="presets-wrap">
+        <button class="preset-btn" style="background:#0a0a0f;color:#c8a96e;border-color:#2a2a3d;" onclick="applyPreset('dark')">🌑 Dark Gold</button>
+        <button class="preset-btn" style="background:#f5f5f0;color:#333;border-color:#ddd;" onclick="applyPreset('light')">☀️ Light</button>
+        <button class="preset-btn" style="background:#071a12;color:#22d17c;border-color:#154428;" onclick="applyPreset('forest')">🌿 Forest</button>
+        <button class="preset-btn" style="background:#0d0520;color:#b06cff;border-color:#251450;" onclick="applyPreset('purple')">🔮 Purple</button>
+        <button class="preset-btn" style="background:#160b04;color:#ff8c42;border-color:#3d2212;" onclick="applyPreset('sunset')">🌅 Sunset</button>
+        <button class="preset-btn" style="background:#001a33;color:#00bfff;border-color:#003366;" onclick="applyPreset('ocean')">🌊 Ocean</button>
+      </div>
+    </div>
+
+    <!-- BOXES TAB -->
+    <div class="tab-panel" id="tab-boxes">
+      <div class="boxes-admin" id="adminBoxes"></div>
+      <button class="btn-add" onclick="addBox()">+ नया Box जोड़ें</button>
+    </div>
+
+    <!-- SUBJECTS TAB -->
+    <div class="tab-panel" id="tab-subjects">
+      <p style="font-size:0.76rem;color:var(--muted);margin-bottom:16px;line-height:1.6;">
+        हर school की हर class के लिए subjects add करें। Icon (emoji), Subject नाम और छोटा description लिखें।
+      </p>
+      <div id="adminSubjectsTree"></div>
+    </div>
+
+    <!-- QUIZ ADD TAB (School Admin only) -->
+    <div class="tab-panel" id="tab-quizadd">
+      <div style="background:rgba(82,200,122,0.06);border:1px solid rgba(82,200,122,0.2);border-radius:10px;padding:12px 14px;margin-bottom:16px;">
+        <div style="font-size:0.72rem;color:var(--success);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;font-family:'Poppins',sans-serif;">🏫 School & Class</div>
+        <div style="font-size:0.9rem;font-weight:600;color:var(--text);" id="qaAdminSchoolInfo">—</div>
+      </div>
+
+      <div class="admin-field">
+        <label class="admin-field-label">📚 Subject चुनें</label>
+        <select class="qa-select" id="qaAdminSubject" onchange="qaAdminLoadChapters()" style="background:var(--card);border-color:var(--border);color:var(--text);border-radius:8px;padding:11px 14px;">
+          <option value="">Subject चुनें</option>
+        </select>
+      </div>
+
+      <div class="admin-field">
+        <label class="admin-field-label">📖 Chapter चुनें</label>
+        <select class="qa-select" id="qaAdminChapter" style="background:var(--card);border-color:var(--border);color:var(--text);border-radius:8px;padding:11px 14px;">
+          <option value="">Chapter चुनें</option>
+        </select>
+      </div>
+
+      <div class="admin-field">
+        <label class="admin-field-label">📝 Quiz Name</label>
+        <input class="admin-input" id="qaAdminName" placeholder="जैसे: Quiz 1, Practice Test...">
+      </div>
+
+      <div class="admin-field">
+        <label class="admin-field-label">📄 Quiz HTML File</label>
+        <div id="qaAdminFileZone" style="border:2px dashed var(--border);border-radius:8px;padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;background:var(--card);transition:all 0.2s;" onmouseover="this.style.borderColor='var(--accent2)'" onmouseout="this.style.borderColor=qaAdminFile?'var(--success)':'var(--border)'">
+          <span style="font-size:1.5rem;" id="qaAdminFileIcon">📁</span>
+          <div style="flex:1;">
+            <div style="font-size:0.86rem;font-weight:700;color:var(--text);" id="qaAdminFileName">File चुनें</div>
+            <div style="font-size:0.7rem;color:var(--muted);" id="qaAdminFileSub">.html file — score auto capture होगा</div>
+          </div>
+          <input type="file" accept=".html" style="position:absolute;opacity:0;width:1px;height:1px;" id="qaAdminFileInput" onchange="qaAdminHandleFile(event)">
+          <button onclick="document.getElementById('qaAdminFileInput').click()" style="padding:7px 14px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:6px;font-size:0.8rem;font-weight:700;cursor:pointer;flex-shrink:0;font-family:var(--body-font);">📂 चुनें</button>
+        </div>
+      </div>
+
+      <button onclick="qaAdminSubmit()" style="width:100%;padding:13px;border-radius:10px;background:linear-gradient(135deg,var(--success),#38a85a);color:#fff;border:none;font-family:var(--body-font);font-weight:700;font-size:0.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+        ➕ Quiz Add करें
+      </button>
+      <div id="qaAdminMsg" style="margin-top:10px;text-align:center;font-size:0.82rem;color:var(--success);display:none;"></div>
+    </div>
+
+    <!-- USERS TAB (School Admin only) -->
+    <div class="tab-panel" id="tab-users">
+      <div id="usersAdminContent"></div>
+    </div>
+
+    <!-- SCHOOLS TAB -->
+    <div class="tab-panel" id="tab-schools">
+      <div class="admin-field">
+        <label class="admin-field-label">Schools & Classes</label>
+        <p style="font-size:0.76rem;color:var(--muted);margin-bottom:14px;line-height:1.5;">हर school के लिए अलग classes add करें। Classes comma से अलग करें।</p>
+        <div class="schools-admin" id="adminSchools"></div>
+        <button class="btn-add" onclick="addSchool()" style="margin-top:10px;">+ School जोड़ें</button>
+      </div>
+    </div>
+
+  </div><!-- /admin-scroll -->
+  <div class="admin-save-bar">
+    <button class="btn-save-main" onclick="saveAdmin()">💾 Save All Changes</button>
+  </div>
+</div>
+
+<div class="save-toast" id="saveToast">✅ Saved!</div>
+
+
+<script>
+// ══════════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════════
+const DEF={
+  title:'EduPortal',
+  tagline:'ज्ञान की रोशनी से जीवन को रोशन करें',
+  shayari:'पढ़ने वाले जब कलम उठाते हैं,\nतो तकदीर भी रुककर देखती है।\nहर अक्षर में एक सपना बसा है,\nजो मंज़िल तक पहुँचाने की कहानी लिखती है।',
+  ctaBtn:'अभी शुरू करें →',
+  about:'EduPortal एक अग्रणी शैक्षिक मंच है जो छात्रों और शिक्षकों को एक साथ जोड़ता है।',
+  content:'यहाँ आप अपनी वेबसाइट के बारे में और अधिक जानकारी जोड़ सकते हैं।',
+  boxes:[
+    {icon:'📚',title:'Smart Learning',content:'आधुनिक तकनीक से पढ़ाई मज़ेदार बनाएं।'},
+    {icon:'🏆',title:'Competitions',content:'सभी प्रतियोगिताएं एक जगह।'},
+    {icon:'👨‍🏫',title:'Expert Teachers',content:'अनुभवी शिक्षकों से सीखें।'},
+    {icon:'📊',title:'Progress Tracking',content:'अपनी प्रगति track करें।'},
+  ],
+  schools:[
+    {name:'Delhi Public School',classes:['Class 6','Class 7','Class 8','Class 9','Class 10','Class 11','Class 12']},
+    {name:'Kendriya Vidyalaya',classes:['Class 6','Class 7','Class 8','Class 9','Class 10','Class 11','Class 12']},
+    {name:'Ryan International',classes:['Class 1','Class 2','Class 3','Class 4','Class 5','Class 6','Class 7','Class 8','Class 9','Class 10']},
+    {name:'DAV Public School',classes:['Class 6','Class 7','Class 8','Class 9','Class 10','Class 11','Class 12']},
+    {name:"St. Mary's School",classes:['Class 1','Class 2','Class 3','Class 4','Class 5','Class 6','Class 7','Class 8','Class 9','Class 10']},
+  ],
+  subjects:{},
+  colors:{bg:'#0a0a0f',surface:'#12121a',card:'#1a1a26',border:'#2a2a3d',accent:'#c8a96e',accent2:'#7c6fe0',text:'#e8e4d9',muted:'#7a7a8a',btnbg:'#c8a96e',btnclr:'#0a0a0f',hb1:'#c8a96e',hb2:'#7c6fe0'},
+  bodyFont:'Noto Sans Devanagari',headingFont:'Playfair Display',
+};
+
+function schoolDef(n){
+  return {
+    title:n,tagline:n+' में आपका स्वागत है',
+    shayari:'ज्ञान वो दीपक है जो अँधेरे को मिटाता है,\nहर छात्र का सपना रोशन हो जाता है।',
+    ctaBtn:'Subjects देखें →',
+    about:n+' एक प्रतिष्ठित शैक्षिक संस्थान है।',
+    content:n+' के बारे में यहाँ और जानकारी जोड़ें।',
+    boxes:[
+      {icon:'📚',title:'हमारी Library',content:'हजारों किताबें उपलब्ध।'},
+      {icon:'🏆',title:'Sports',content:'खेल-कूद में भाग लें।'},
+      {icon:'👨‍🏫',title:'Expert Faculty',content:'समर्पित शिक्षक।'},
+      {icon:'📊',title:'Results',content:'उत्कृष्ट परिणाम।'},
+    ],
+    subjects:{},
+    colors:{bg:'#0a0a0f',surface:'#12121a',card:'#1a1a26',border:'#2a2a3d',accent:'#c8a96e',accent2:'#7c6fe0',text:'#e8e4d9',muted:'#7a7a8a',btnbg:'#c8a96e',btnclr:'#0a0a0f',hb1:'#c8a96e',hb2:'#7c6fe0'},
+    bodyFont:'Noto Sans Devanagari',headingFont:'Playfair Display',
+  };
+}
+
+function G(id){return document.getElementById(id);}
+function sKey(n){return 'edu_school_'+n.replace(/\s+/g,'_');}
+function getSD(n){try{const r=localStorage.getItem(sKey(n));if(r)return JSON.parse(r);}catch(e){}return JSON.parse(JSON.stringify(schoolDef(n)));}
+function setSD(n,d){localStorage.setItem(sKey(n),JSON.stringify(d));}
+
+let S=JSON.parse(JSON.stringify(DEF));
+try{const sv=localStorage.getItem('edu_v5');if(sv){const p=JSON.parse(sv);if(p.schools&&typeof p.schools[0]==='string')p.schools=p.schools.map(n=>({name:n,classes:[]}));S=p;}}catch(e){}
+let CU=null;
+try{CU=JSON.parse(sessionStorage.getItem('cu')||'null');}catch(e){}
+let AD=null,ES=null,_AD=null;
+
+// ══════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════
+function renderSite(){
+  AD=CU&&CU.school?getSD(CU.school):S;
+  var D=AD;
+  G('navLogo').textContent=S.title;
+  G('heroTitle').textContent = CU && CU.school ? (AD.title || CU.school) : S.title;
+  // Tagline: if logged in show school's custom tagline (not school•class)
+  G('heroTagline').textContent = CU&&CU.school ? (D.tagline||[CU.school,CU.cls].filter(Boolean).join(' • ')) : D.tagline;
+  G('shayariText').textContent=D.shayari;
+  G('heroCta').textContent=D.ctaBtn;
+  G('aboutText').textContent=D.about;
+  G('contentText').textContent=D.content;
+  G('footerName').textContent=S.title;
+  document.title=S.title;
+  // School banner photo
+  var bannerEl=G('schoolBanner');
+  var bannerImg=G('schoolBannerImg');
+  if(CU&&CU.school&&D.bannerPhoto){
+    bannerImg.src=D.bannerPhoto;
+    bannerEl.style.display='block';
+  } else {
+    bannerEl.style.display='none';
+    bannerImg.src='';
+  }
+  var c=Object.assign({},DEF.colors,D.colors||{});
+  applyColors(c);
+  applyFonts(D.bodyFont,D.headingFont);
+  G('featureBoxes').innerHTML=(D.boxes||[]).map(function(b,i){
+    return '<div class="feature-box" style="animation:fadeUp 0.6s '+(0.1+i*0.1)+'s ease both;opacity:0"><div class="box-icon">'+b.icon+'</div><div class="box-title">'+b.title+'</div><div class="box-content">'+b.content+'</div></div>';
+  }).join('');
+  var schools=S.schools||[];
+  G('schoolDropdown').innerHTML=schools.map(function(s){
+    var nm=typeof s==='string'?s:s.name;
+    return '<div class="school-option" onclick="selSchool(\''+nm.replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\')">'+nm+'</div>';
+  }).join('');
+  renderAuth();
+  // Update hero stats if logged in
+  if(CU&&CU.school&&CU.cls){
+    var _data=getSD(CU.school);
+    var _subs=_data.subjects||{};
+    var _list=(_subs[CU.school]&&_subs[CU.school][CU.cls])?_subs[CU.school][CU.cls]:(_subs[CU.cls]||[]);
+    var _sc=_list.length;
+    var _ch=_list.reduce(function(a,s){return a+(s.chapters?s.chapters.length:0);},0);
+    var _qz=_list.reduce(function(a,s){return a+(s.chapters?s.chapters.reduce(function(b,c){return b+(c.quizzes?c.quizzes.length:0);},0):0);},0);
+    if(G('statSubjects'))G('statSubjects').textContent=_sc;
+    if(G('statChapters'))G('statChapters').textContent=_ch;
+    if(G('statQuizzes'))G('statQuizzes').textContent=_qz;
+    if(G('heroStats'))G('heroStats').style.display=(_sc||_ch||_qz)?'flex':'none';
+  } else {
+    if(G('heroStats'))G('heroStats').style.display='none';
+  }
+}
+
+function applyColors(c){
+  var r=document.documentElement.style;
+  r.setProperty('--bg',c.bg);r.setProperty('--surface',c.surface);
+  r.setProperty('--card',c.card);r.setProperty('--border',c.border);
+  r.setProperty('--accent',c.accent);r.setProperty('--accent2',c.accent2);
+  r.setProperty('--text',c.text);r.setProperty('--muted',c.muted);
+  r.setProperty('--btn-primary-bg',c.btnbg);r.setProperty('--btn-primary-color',c.btnclr);
+  r.setProperty('--hero-btn-bg','linear-gradient(135deg,'+c.hb1+','+c.hb2+')');
+}
+function applyFonts(body,heading){
+  var r=document.documentElement.style;
+  if(body){r.setProperty('--body-font',"'"+body+"',sans-serif");document.body.style.fontFamily="'"+body+"',sans-serif";}
+  if(heading)r.setProperty('--heading-font',"'"+heading+"',serif");
+}
+
+// ══════════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════════
+function renderAuth(){
+  var on=!!CU;
+  G('authBtns').style.display=on?'none':'flex';
+  G('userMenu').style.display=on?'flex':'none';
+  G('adminGear').style.display=on?'none':'flex';
+  if(on) updateLBSection(); else G('lbSection').style.display='none';
+  if(on){
+    var ini=CU.name.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);
+    G('userAvatar').textContent=ini;
+    G('ddName').textContent=CU.name;
+    G('ddSchool').textContent=[CU.school,CU.cls].filter(Boolean).join(' • ')||'Student';
+    // Show approval status
+    var freshUsers=JSON.parse(localStorage.getItem('edu_users')||'[]');
+    var freshU=freshUsers.find(function(u){return u.phone===CU.phone;});
+    var st=freshU?freshU.status:CU.status;
+    var statusBadge=st==='approved'?'':st==='rejected'?'<div style="font-size:0.7rem;color:var(--danger);font-weight:700;margin-top:2px;">❌ Access Rejected</div>':'<div style="font-size:0.7rem;color:#f59e0b;font-weight:700;margin-top:2px;">⏳ Approval Pending</div>';
+    G('ddSchool').innerHTML=[CU.school,CU.cls].filter(Boolean).join(' • ')+(statusBadge?'</span>'+statusBadge:'');
+    // Sync status to session
+    if(freshU&&freshU.status!==CU.status){CU.status=freshU.status;sessionStorage.setItem('cu',JSON.stringify(CU));}
+    G('ddSchoolAdmin').style.display='flex';
+    G('ddSchoolAdmin').onclick=function(){closeUserDD();openSchoolAdmin();};
+  } else {
+    G('ddSchoolAdmin').style.display='none';
+  }
+}
+function doLogout(){CU=null;sessionStorage.removeItem('cu');closeUserDD();renderSite();toast('👋 Logout हो गए!');}
+function toggleUserDD(){G('userDropdown').classList.toggle('open');}
+function closeUserDD(){G('userDropdown').classList.remove('open');}
+
+document.addEventListener('click',function(e){
+  var m=G('userMenu');if(m&&!m.contains(e.target))closeUserDD();
+  var sb=G('schoolSelectBtn'),dd=G('schoolDropdown');
+  if(sb&&!sb.contains(e.target)&&dd&&!dd.contains(e.target))dd.classList.remove('open');
+  var cb=G('classSelectBtn'),cd=G('classDropdown');
+  if(cb&&!cb.contains(e.target)&&cd&&!cd.contains(e.target))cd.classList.remove('open');
+  ['editSchoolBtn,editSchoolList','editClassBtn,editClassList'].forEach(function(pair){
+    var parts=pair.split(',');var btn=G(parts[0]),list=G(parts[1]);
+    if(btn&&list&&!btn.contains(e.target)&&!list.contains(e.target))list.classList.remove('open');
+  });
+});
+
+// ══════════════════════════════════════════════
+// POPUPS
+// ══════════════════════════════════════════════
+function openLogin(){G('loginOverlay').classList.add('active');document.body.style.overflow='hidden';}
+function openSignup(){G('signupOverlay').classList.add('active');document.body.style.overflow='hidden';}
+function closePopup(id){G(id).classList.remove('active');document.body.style.overflow='';}
+function closeOnBg(e,id){if(e.target===G(id))closePopup(id);}
+function switchToSignup(){closePopup('loginOverlay');setTimeout(openSignup,100);}
+function switchToLogin(){closePopup('signupOverlay');setTimeout(openLogin,100);}
+
+function toggleSchoolDropdown(){G('schoolDropdown').classList.toggle('open');}
+function toggleClassDropdown(){G('classDropdown').classList.toggle('open');}
+
+function selSchool(nm){
+  G('schoolSelectedText').textContent=nm;
+  G('schoolSelectBtn').classList.add('selected');
+  G('schoolDropdown').classList.remove('open');
+  G('classSelectedText').textContent='Class select करें';
+  G('classSelectBtn').classList.remove('selected');
+  var school=S.schools.find(function(s){return (typeof s==='string'?s:s.name)===nm;});
+  var classes=school&&school.classes?school.classes:[];
+  G('classDropdown').innerHTML=classes.map(function(c){
+    return '<div class="school-option" onclick="selClass(\''+c.replace(/'/g,"\\'")+'\')">📖 '+c+'</div>';
+  }).join('');
+  G('classGroup').style.display=classes.length?'block':'none';
+}
+function selClass(cls){
+  G('classSelectedText').textContent=cls;
+  G('classSelectBtn').classList.add('selected');
+  G('classDropdown').classList.remove('open');
+}
+
+function handleLogin(){
+  var phone=G('loginPhone').value.trim(),pass=G('loginPass').value;
+  if(!phone||!pass){toast('⚠️ सभी fields भरें!');return;}
+  var users=JSON.parse(localStorage.getItem('edu_users')||'[]');
+  var user=users.find(function(u){return u.phone===phone&&u.pass===pass;});
+  if(!user){toast('❌ Phone या Password गलत है!');return;}
+  CU=user;sessionStorage.setItem('cu',JSON.stringify(user));
+  closePopup('loginOverlay');renderSite();toast('✅ Welcome back, '+user.name+'!');
+  G('loginPhone').value='';G('loginPass').value='';
+}
+function handleSignup(){
+  var name=G('signupName').value.trim(),phone=G('signupPhone').value.trim();
+  var pass=G('signupPass').value;
+  var school=G('schoolSelectedText').textContent;
+  var cls=G('classSelectedText').textContent;
+  if(!name||!phone||!pass){toast('⚠️ सभी fields भरें!');return;}
+  if(school==='School select करें'){toast('⚠️ School चुनें!');return;}
+  var sObj=S.schools.find(function(s){return (typeof s==='string'?s:s.name)===school;});
+  if(sObj&&sObj.classes&&sObj.classes.length&&cls==='Class select करें'){toast('⚠️ Class चुनें!');return;}
+  if(phone.length<10){toast('⚠️ Valid phone number डालें!');return;}
+  var users=JSON.parse(localStorage.getItem('edu_users')||'[]');
+  if(users.find(function(u){return u.phone===phone;})){toast('⚠️ Phone already registered!');return;}
+  var user={name:name,phone:phone,pass:pass,school:school,cls:cls!=='Class select करें'?cls:'',status:'pending'};
+  users.push(user);localStorage.setItem('edu_users',JSON.stringify(users));
+  CU=user;sessionStorage.setItem('cu',JSON.stringify(user));
+  closePopup('signupOverlay');renderSite();toast('🎉 Welcome, '+name+'!');
+  ['signupName','signupPhone','signupPass'].forEach(function(id){G(id).value='';});
+  G('schoolSelectedText').textContent='School select करें';
+  G('schoolSelectBtn').classList.remove('selected');
+  G('classSelectedText').textContent='Class select करें';
+  G('classSelectBtn').classList.remove('selected');
+  G('classGroup').style.display='none';
+}
+
+// ══════════════════════════════════════════════
+// HERO BUTTON
+// ══════════════════════════════════════════════
+function handleCtaClick(){
+  if(CU&&CU.school&&CU.cls)openSubjectsPopup();
+  else openSignup();
+}
+
+// ══════════════════════════════════════════════
+// SUBJECTS POPUP
+// ══════════════════════════════════════════════
+function openSubjectsPopup(){
+  var school=CU.school,cls=CU.cls;
+  var data=getSD(school);
+  var subs=data.subjects||{};
+  var subjs=[];
+  if(subs[school]&&subs[school][cls])subjs=subs[school][cls];
+  else if(subs[cls])subjs=subs[cls];
+  G('subjectsTag').textContent=school+' • '+cls;
+  G('subjectsTitle').textContent=cls+' — Subjects';
+  G('subjectsSub').textContent=subjs.length?'अपना subject चुनें':'अभी कोई subject add नहीं किया गया';
+  G('subjectsGrid').innerHTML=subjs.length?subjs.map(function(sub,i){
+    var chCount=sub.chapters&&sub.chapters.length?sub.chapters.length+' chapters':'Chapters →';
+    return '<div class="subject-card" onclick="openChapters('+i+')" style="cursor:pointer;"><div class="subject-icon">'+(sub.icon||'📖')+'</div><div class="subject-name">'+(sub.name||'')+'</div>'+(sub.desc?'<div class="subject-desc">'+sub.desc+'</div>':'')+'<div style="font-size:0.7rem;color:var(--accent2);margin-top:4px;font-weight:600;">'+chCount+'</div></div>';
+  }).join(''):'<div class="subjects-empty" style="grid-column:1/-1;"><span class="subjects-empty-icon">📭</span>School Admin se subjects add karein.</div>';
+  G('subjectsOverlay').classList.add('active');
+  document.body.style.overflow='hidden';
+}
+
+// ══════════════════════════════════════════════
+// CHAPTERS
+// ══════════════════════════════════════════════
+function openChapters(subjIdx){
+  _qz.subjIdx=subjIdx;
+  var school=CU.school,cls=CU.cls;
+  var data=getSD(school);
+  var subs=data.subjects||{};
+  var subjs=[];
+  if(subs[school]&&subs[school][cls])subjs=subs[school][cls];
+  else if(subs[cls])subjs=subs[cls];
+  var sub=subjs[subjIdx];
+  if(!sub)return;
+  G('chapSubjIcon').textContent=sub.icon||'📖';
+  G('chapSubjName').textContent=sub.name||'Subject';
+  G('chapSubjMeta').textContent=cls+' • '+school;
+  renderChapList(sub.chapters||[]);
+  G('subjectsOverlay').classList.remove('active');
+  G('chaptersOverlay').classList.add('active');
+  G('chaptersOverlay').scrollTop=0;
+  document.body.style.overflow='hidden';
+}
+function renderChapList(chapters){
+  G('chapCount').textContent=chapters.length+' CHAPTER'+(chapters.length!==1?'S':'');
+  G('chapList').innerHTML=chapters.length?chapters.map(function(ch,i){
+    var qzCount=ch.quizzes&&ch.quizzes.length?ch.quizzes.length:0;
+    var hasFile=!!(ch.quizFile&&ch.quizFile.trim());
+    var btns='';
+    if(hasFile){
+      btns+='<button onclick="openIqv(this.dataset.url,this.dataset.title)" data-url="'+ch.quizFile.replace(/"/g,'&quot;')+'" data-title="'+(ch.name||'Quiz').replace(/"/g,'&quot;')+'" style="margin-top:8px;width:100%;padding:9px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:8px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:var(--body-font);">📄 Quiz File खोलें</button>';
+    }
+    if(qzCount>0){
+      btns+='<button onclick="openQuiz('+i+')" style="margin-top:6px;width:100%;padding:9px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:8px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:var(--body-font);">📝 '+qzCount+' Quiz'+(qzCount>1?'zes':'')+' देखें</button>';
+    }
+    if(!hasFile&&!qzCount) btns='<div style="font-size:0.7rem;color:var(--muted);margin-top:6px;">📭 अभी कोई quiz नहीं</div>';
+    return '<div class="chapter-item" style="animation-delay:'+(i*0.05)+'s;flex-direction:column;align-items:stretch;">'
+      +'<div style="display:flex;align-items:flex-start;gap:14px;">'
+      +'<div class="chapter-num">'+(i+1)+'</div>'
+      +'<div class="chapter-info" style="flex:1;"><div class="chapter-name">'+(ch.name||'')+'</div>'
+      +(ch.desc?'<div class="chapter-desc">'+ch.desc+'</div>':'')
+      +'</div></div>'+btns+'</div>';
+  }).join(''):'<div class="chapters-empty"><span class="chapters-empty-icon">📂</span>अभी कोई chapter नहीं।</div>';
+}
+function closeChapters(){
+  G('chaptersOverlay').classList.remove('active');
+  openSubjectsPopup();
+}
+
+// ══════════════════════════════════════════════
+// ADMIN — OPEN/CLOSE
+// ══════════════════════════════════════════════
+var GLOBAL_ADMIN_PW='ReBi5409N@';
+function openAdmin(){
+  var pw=GLOBAL_ADMIN_PW;
+  if(pw){
+    G('adminPassLabel').textContent='Global Admin Password डालें';
+    G('adminPassInput').value='';
+    G('adminPassError').style.display='none';
+    G('adminPassOverlay').classList.add('active');
+    document.body.style.overflow='hidden';
+    // Store that we're opening global admin
+    G('adminPassOverlay').dataset.mode='global';
+    setTimeout(function(){G('adminPassInput').focus();},200);
+  } else {
+    _openAdminDirect();
+  }
+}
+function _openAdminDirect(){
+  ES=null;fillAdmin(S,false);updateAdminHdr(false);
+  G('adminSidebar').classList.add('open');G('adminBg').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function openSchoolAdmin(){
+  if(!CU||!CU.school){toast('⚠️ पहले Login करें!');return;}
+  var pw=getClassPw(CU.school,CU.cls||'');
+  if(pw){
+    G('adminPassLabel').textContent=CU.school+(CU.cls?' — '+CU.cls:'')+' Admin Password डालें';
+    G('adminPassInput').value='';
+    G('adminPassError').style.display='none';
+    G('adminPassOverlay').dataset.mode='school';
+    G('adminPassOverlay').classList.add('active');
+    document.body.style.overflow='hidden';
+    setTimeout(function(){G('adminPassInput').focus();},200);
+  } else {
+    _openSchoolAdminDirect();
+  }
+}
+
+function verifyAdminPass(){
+  var entered=G('adminPassInput').value;
+  var mode=G('adminPassOverlay').dataset.mode;
+  var correct='';
+  if(mode==='global'){
+    correct=GLOBAL_ADMIN_PW;
+  } else {
+    correct=getClassPw(CU.school,CU.cls||'');
+  }
+  if(entered===correct){
+    G('adminPassError').style.display='none';
+    closePopup('adminPassOverlay');
+    if(mode==='global') _openAdminDirect();
+    else _openSchoolAdminDirect();
+  } else {
+    G('adminPassError').style.display='block';
+    G('adminPassInput').value='';
+    G('adminPassInput').focus();
+  }
+}
+
+function _openSchoolAdminDirect(){
+  ES=CU.school;var data=getSD(ES);
+  fillAdmin(data,true);updateAdminHdr(true);
+  G('adminSidebar').classList.add('open');G('adminBg').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function updateAdminHdr(isSchool){
+  if(isSchool){
+    G('adminTopBadge').textContent='🏫 School Admin';
+    G('adminTopTitle').textContent=ES+' — Customize';
+    G('tabSchools').style.display='none';
+    G('tabQuizAdd').style.display='flex';
+    G('tabUsers').style.display='flex';
+  } else {
+    G('adminTopBadge').textContent='Global Admin';
+    G('adminTopTitle').textContent='Website Customize करें';
+    G('tabSchools').style.display='';
+    G('tabQuizAdd').style.display='none';
+    G('tabUsers').style.display='none';
+  }
+}
+function closeAdmin(){
+  G('adminSidebar').classList.remove('open');G('adminBg').classList.remove('open');
+  document.body.style.overflow='';ES=null;
+  if(AD)applyColors(Object.assign({},DEF.colors,AD.colors||{}));
+}
+function switchTab(name,el){
+  document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.admin-tab').forEach(function(t){t.classList.remove('active');});
+  G('tab-'+name).classList.add('active');el.classList.add('active');
+  if(name==='quizadd')qaAdminInit();
+  if(name==='users')renderUsersTab();
+}
+
+// ══════════════════════════════════════════════
+// ADMIN — FILL FIELDS
+// ══════════════════════════════════════════════
+function fillAdmin(data,isSchool){
+  _AD=JSON.parse(JSON.stringify(data));
+  G('adminTitle').value=_AD.title||'';G('adminTagline').value=_AD.tagline||'';
+  G('adminShayari').value=_AD.shayari||'';G('adminCtaBtn').value=_AD.ctaBtn||'';
+  G('adminAbout').value=_AD.about||'';G('adminContent').value=_AD.content||'';
+  // Banner photo - only show for school admin
+  var bannerField=G('adminBannerField');
+  if(bannerField) bannerField.style.display=isSchool?'block':'none';
+  if(isSchool&&_AD.bannerPhoto){
+    G('adminBannerImg').src=_AD.bannerPhoto;
+    G('adminBannerPreview').style.display='block';
+  } else if(G('adminBannerPreview')){
+    G('adminBannerPreview').style.display='none';
+  }
+  var c=Object.assign({},DEF.colors,_AD.colors||{});
+  ['bg','surface','card','border','accent','accent2','text','muted','btnbg','btnclr','hb1','hb2'].forEach(function(k){
+    var cv=G('clr-'+k),hv=G('hex-'+k),val=c[k]||'#000000';
+    if(cv)cv.value=val;if(hv)hv.value=val;
+  });
+  applyColors(c);applyFonts(_AD.bodyFont||DEF.bodyFont,_AD.headingFont||DEF.headingFont);
+  document.querySelectorAll('#bodyFontGrid .font-option').forEach(function(el){
+    el.classList.toggle('selected',el.textContent.includes((_AD.bodyFont||'Noto').split(' ')[0]));
+  });
+  document.querySelectorAll('#headingFontGrid .font-option').forEach(function(el){
+    el.classList.toggle('selected',el.textContent.includes((_AD.headingFont||'Playfair').split(' ')[0]));
+  });
+  renderAdminBoxes();
+  if(!isSchool)renderAdminSchools();
+  renderAdminSubjects();
+  switchTab('content',document.querySelector('.admin-tab[data-tab="content"]'));
+}
+
+// ══════════════════════════════════════════════
+// COLOR/FONT HELPERS
+// ══════════════════════════════════════════════
+function liveClr(v,val){
+  document.documentElement.style.setProperty(v,val);
+  var km={'--bg':'bg','--surface':'surface','--card':'card','--border':'border','--accent':'accent','--accent2':'accent2','--text':'text','--muted':'muted','--btn-primary-bg':'btnbg','--btn-primary-color':'btnclr'};
+  var k=km[v];if(k&&_AD){if(!_AD.colors)_AD.colors={};_AD.colors[k]=val;}
+}
+function syncH(hid,val){var e=G(hid);if(e)e.value=val;}
+function hexClr(pid,v,val){if(/^#[0-9A-Fa-f]{6}$/.test(val)){liveClr(v,val);var p=G(pid);if(p)p.value=val;}}
+function updBtn(){
+  var bg=G('clr-btnbg').value||'#c8a96e',clr=G('clr-btnclr').value||'#0a0a0f';
+  var h1=G('clr-hb1').value||'#c8a96e',h2=G('clr-hb2').value||'#7c6fe0';
+  document.documentElement.style.setProperty('--btn-primary-bg',bg);
+  document.documentElement.style.setProperty('--btn-primary-color',clr);
+  document.documentElement.style.setProperty('--hero-btn-bg','linear-gradient(135deg,'+h1+','+h2+')');
+  if(_AD){if(!_AD.colors)_AD.colors={};Object.assign(_AD.colors,{btnbg:bg,btnclr:clr,hb1:h1,hb2:h2});}
+  ['btnbg','btnclr','hb1','hb2'].forEach(function(k){var h=G('hex-'+k),c=G('clr-'+k);if(h&&c)h.value=c.value;});
+}
+function setBodyFont(font,el){
+  document.querySelectorAll('#bodyFontGrid .font-option').forEach(function(e){e.classList.remove('selected');});
+  el.classList.add('selected');if(_AD)_AD.bodyFont=font;
+  document.documentElement.style.setProperty('--body-font',"'"+font+"',sans-serif");
+  document.body.style.fontFamily="'"+font+"',sans-serif";
+}
+function setHeadingFont(font,el){
+  document.querySelectorAll('#headingFontGrid .font-option').forEach(function(e){e.classList.remove('selected');});
+  el.classList.add('selected');if(_AD)_AD.headingFont=font;
+  document.documentElement.style.setProperty('--heading-font',"'"+font+"',serif");
+}
+var PRESETS={
+  dark:{bg:'#0a0a0f',surface:'#12121a',card:'#1a1a26',border:'#2a2a3d',accent:'#c8a96e',accent2:'#7c6fe0',text:'#e8e4d9',muted:'#7a7a8a',btnbg:'#c8a96e',btnclr:'#0a0a0f',hb1:'#c8a96e',hb2:'#7c6fe0'},
+  light:{bg:'#f4f4ef',surface:'#ffffff',card:'#efefea',border:'#ddddd5',accent:'#8b6914',accent2:'#5a4fc8',text:'#1a1a14',muted:'#66665a',btnbg:'#8b6914',btnclr:'#ffffff',hb1:'#8b6914',hb2:'#5a4fc8'},
+  forest:{bg:'#071a12',surface:'#0a2218',card:'#0e2d1f',border:'#154428',accent:'#22d17c',accent2:'#4ecdc4',text:'#d4edda',muted:'#5a9e72',btnbg:'#22d17c',btnclr:'#071a12',hb1:'#22d17c',hb2:'#4ecdc4'},
+  purple:{bg:'#0d0520',surface:'#120830',card:'#180b3f',border:'#251450',accent:'#b06cff',accent2:'#ff6cce',text:'#e8d8ff',muted:'#7a5da0',btnbg:'#b06cff',btnclr:'#0d0520',hb1:'#b06cff',hb2:'#ff6cce'},
+  sunset:{bg:'#160b04',surface:'#1f1008',card:'#2a160a',border:'#3d2212',accent:'#ff8c42',accent2:'#ff4e6a',text:'#ffe8d4',muted:'#9a6244',btnbg:'#ff8c42',btnclr:'#160b04',hb1:'#ff8c42',hb2:'#ff4e6a'},
+  ocean:{bg:'#001a33',surface:'#002244',card:'#003366',border:'#004488',accent:'#00bfff',accent2:'#00ffcc',text:'#d0eeff',muted:'#4a90b8',btnbg:'#00bfff',btnclr:'#001a33',hb1:'#00bfff',hb2:'#00ffcc'},
+};
+function applyPreset(n){
+  if(_AD)_AD.colors=JSON.parse(JSON.stringify(PRESETS[n]||PRESETS.dark));
+  applyColors(_AD.colors);
+  var c=_AD.colors;
+  ['bg','surface','card','border','accent','accent2','text','muted','btnbg','btnclr','hb1','hb2'].forEach(function(k){
+    var cv=G('clr-'+k),hv=G('hex-'+k);if(cv)cv.value=c[k]||'#000000';if(hv)hv.value=c[k]||'';
+  });
+  toast('🎨 Preset applied!');
+}
+
+// ══════════════════════════════════════════════
+// ADMIN — BOXES
+// ══════════════════════════════════════════════
+function renderAdminBoxes(){
+  var boxes=(_AD&&_AD.boxes)||[];
+  G('adminBoxes').innerHTML=boxes.map(function(b,i){
+    return '<div class="box-admin-item"><div class="box-admin-row"><input value="'+b.icon+'" placeholder="Icon" style="max-width:58px;text-align:center;" oninput="_AD.boxes['+i+'].icon=this.value"><input value="'+b.title+'" placeholder="Title" oninput="_AD.boxes['+i+'].title=this.value"><button class="btn-del" onclick="delBox('+i+')">🗑</button></div><div class="box-admin-row"><textarea placeholder="Content..." oninput="_AD.boxes['+i+'].content=this.value">'+b.content+'</textarea></div></div>';
+  }).join('');
+}
+function addBox(){if(_AD){_AD.boxes.push({icon:'⭐',title:'नया Box',content:'content...'});renderAdminBoxes();}}
+function delBox(i){if(_AD){_AD.boxes.splice(i,1);renderAdminBoxes();}}
+
+// ══════════════════════════════════════════════
+// ADMIN — SCHOOLS
+// ══════════════════════════════════════════════
+function renderAdminSchools(){
+  G('adminSchools').innerHTML=S.schools.map(function(s,i){
+    var classList=(s.classes||[]).map(function(c,ci){
+      var pwKey='adm_pw_'+s.name.replace(/\s/g,'_')+'_'+c.replace(/\s/g,'_');
+      var hasPw=!!(localStorage.getItem(pwKey));
+      return '<div style="display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 10px;margin-bottom:6px;">'
+        +'<span style="font-size:0.82rem;font-weight:600;color:var(--text);flex:1;">📖 '+h(c)+'</span>'
+        +(hasPw?'<span style="font-size:0.68rem;color:var(--success);font-weight:700;">🔐 Set</span>':'<span style="font-size:0.68rem;color:var(--muted);">🔓 No PW</span>')
+        +'<input type="text" id="pw-'+i+'-'+ci+'" placeholder="Password set करें" style="width:130px;padding:5px 8px;background:#060610;border:1px solid var(--border);border-radius:5px;color:var(--text);font-size:0.75rem;outline:none;">'
+        +'<button onclick="saveClassPw('+i+','+ci+')" style="padding:5px 10px;background:rgba(82,200,122,0.1);border:1px solid rgba(82,200,122,0.3);border-radius:5px;color:var(--success);cursor:pointer;font-size:0.72rem;font-weight:700;flex-shrink:0;">💾</button>'
+        +'<button class="class-chip-del" onclick="delClass('+i+','+ci+')" style="flex-shrink:0;">✕</button>'
+        +'</div>';
+    }).join('');
+    return '<div class="school-admin-card">'
+      +'<div class="school-admin-card-top"><input value="'+s.name+'" placeholder="School" oninput="S.schools['+i+'].name=this.value" data-si="'+i+'"><button class="btn-del" onclick="delSchool('+i+')">🗑</button></div>'
+      +'<div class="class-label">📖 Classes — 🔐 Admin Passwords</div>'
+      +(classList||'<p style="color:var(--muted);font-size:0.8rem;margin-bottom:8px;">कोई class नहीं।</p>')
+      +'<div class="add-class-row" style="margin-top:8px;"><input class="add-class-input" id="newClass-'+i+'" placeholder="Class 9" onkeydown="if(event.key===\'Enter\')addClassToSchool('+i+')"><button class="add-class-btn" onclick="addClassToSchool('+i+')">+ Add</button></div>'
+      +'</div>';
+  }).join('');
+}
+
+function saveClassPw(si,ci){
+  var school=S.schools[si];
+  var cls=school&&school.classes&&school.classes[ci];
+  if(!cls)return;
+  var pwKey='adm_pw_'+school.name.replace(/\s/g,'_')+'_'+cls.replace(/\s/g,'_');
+  var val=G('pw-'+si+'-'+ci).value.trim();
+  if(val) localStorage.setItem(pwKey,val);
+  else localStorage.removeItem(pwKey);
+  toast('✅ '+(val?'"'+cls+'" ka password set हो गया!':'"'+cls+'" ka password हटा दिया!'));
+}
+
+function getClassPw(school,cls){
+  var pwKey='adm_pw_'+school.replace(/\s/g,'_')+'_'+cls.replace(/\s/g,'_');
+  try{return localStorage.getItem(pwKey)||'';}catch(e){return '';}
+}
+function addSchool(){S.schools.push({name:'नया School',classes:[]});renderAdminSchools();}
+function delSchool(i){S.schools.splice(i,1);renderAdminSchools();}
+function addClassToSchool(i){
+  var inp=G('newClass-'+i),val=inp.value.trim();
+  if(!val){toast('⚠️ Class नाम लिखें!');return;}
+  if(!S.schools[i].classes)S.schools[i].classes=[];
+  if(S.schools[i].classes.includes(val)){toast('⚠️ पहले से है!');return;}
+  S.schools[i].classes.push(val);inp.value='';renderAdminSchools();
+}
+function delClass(si,ci){S.schools[si].classes.splice(ci,1);renderAdminSchools();}
+
+// ══════════════════════════════════════════════
+// ADMIN — SUBJECTS + CHAPTERS
+// ══════════════════════════════════════════════
+function renderAdminSubjects(){
+  if(ES){
+    // SCHOOL ADMIN
+    var school=ES,cls=CU&&CU.cls;
+    if(!cls){G('adminSubjectsTree').innerHTML='<p style="color:var(--muted)">Class नहीं मिली।</p>';return;}
+    if(!_AD.subjects)_AD.subjects={};
+    if(!_AD.subjects[school])_AD.subjects[school]={};
+    if(!_AD.subjects[school][cls])_AD.subjects[school][cls]=[];
+    var list=_AD.subjects[school][cls];
+    var html='<div style="background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;">';
+    html+='<div style="padding:10px 16px;border-bottom:1px solid var(--border);background:rgba(124,111,224,0.06);font-size:0.7rem;color:var(--accent2);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;">📖 '+cls+' — '+list.length+' subjects</div>';
+    html+='<div style="padding:14px 16px;">';
+    list.forEach(function(sub,bi){
+      html+='<div style="background:#0d0d1e;border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px;">';
+      html+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">';
+      html+='<input style="width:44px;padding:6px 4px;background:#060610;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:1rem;text-align:center;outline:none;" value="'+h(sub.icon||'')+'" placeholder="📖" oninput="updSubj('+bi+',\'icon\',this.value)">';
+      html+='<input style="flex:1;padding:6px 10px;background:#060610;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.85rem;outline:none;" value="'+h(sub.name||'')+'" placeholder="Subject नाम" oninput="updSubj('+bi+',\'name\',this.value)">';
+      html+='<button class="btn-del" onclick="delSubj('+bi+')" style="padding:5px 9px;">🗑</button></div>';
+      html+='<div style="margin-bottom:10px;"><input style="width:100%;padding:6px 10px;background:#060610;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.8rem;outline:none;" value="'+h(sub.desc||'')+'" placeholder="Description" oninput="updSubj('+bi+',\'desc\',this.value)"></div>';
+      var chapters=sub.chapters||[];
+      html+='<div class="chap-admin-block"><div class="chap-admin-label">📑 Chapters — '+chapters.length+'</div>';
+      chapters.forEach(function(ch,chi){
+        html+='<div class="chap-item" style="flex-direction:column;align-items:stretch;">';
+        html+='<div style="display:flex;align-items:center;gap:6px;">';
+        html+='<div class="chap-item-num">'+(chi+1)+'</div>';
+        html+='<input class="chap-item-name" value="'+h(ch.name||'')+ '" placeholder="Chapter naam" oninput="updChap('+bi+','+chi+',\'name\',this.value)">';
+        html+='<input class="chap-item-desc" value="'+h(ch.desc||'')+ '" placeholder="Description" oninput="updChap('+bi+','+chi+',\'desc\',this.value)">';
+        html+='<button class="btn-del" onclick="delChap('+bi+','+chi+')" style="padding:4px 8px;font-size:0.8rem;">🗑</button>';
+        html+='</div></div>';
+      });
+      html+='<div style="display:flex;flex-direction:column;gap:6px;margin-top:8px;">';
+      html+='<input class="add-chap-name" id="cn-'+bi+'" placeholder="naya Chapter naam" onkeydown="if(event.key===&quot;Enter&quot;)addChap('+bi+')">';
+      html+='<input class="add-chap-desc" id="cd-'+bi+'" placeholder="Description (optional)" onkeydown="if(event.key===&quot;Enter&quot;)addChap('+bi+')">';
+      html+='<button class="add-chap-btn" onclick="addChap('+bi+')">+ Chapter जोड़ें</button>';
+      html+='</div></div></div>';
+    });
+    html+='<div style="border-top:1px solid var(--border);padding-top:14px;margin-top:4px;">';
+    html+='<div style="font-size:0.7rem;color:var(--accent);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">+ नया Subject जोड़ें</div>';
+    html+='<div style="display:flex;gap:6px;margin-bottom:6px;"><input id="si-icon" style="width:44px;padding:7px 4px;background:#060610;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:1rem;text-align:center;outline:none;" placeholder="📖"><input id="si-name" style="flex:1;padding:7px 10px;background:#060610;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.85rem;outline:none;" placeholder="Subject नाम" onkeydown="if(event.key===\'Enter\')addSubj()"></div>';
+    html+='<div style="display:flex;gap:6px;"><input id="si-desc" style="flex:1;padding:7px 10px;background:#060610;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.82rem;outline:none;" placeholder="Description" onkeydown="if(event.key===\'Enter\')addSubj()"><button class="add-subj-btn" onclick="addSubj()" style="flex-shrink:0;">+ Add</button></div>';
+    html+='</div></div></div>';
+    G('adminSubjectsTree').innerHTML=html;
+    return;
+  }
+  // GLOBAL ADMIN
+  var schools=S.schools||[];
+  var sd=(_AD&&_AD.subjects)||{};
+  if(!schools.length){G('adminSubjectsTree').innerHTML='<p style="color:var(--muted);font-size:0.82rem;">पहले Schools add करें।</p>';return;}
+  var html='';
+  schools.forEach(function(sc,si){
+    var sname=typeof sc==='string'?sc:sc.name;
+    var classes=sc.classes||[];
+    var total=classes.reduce(function(a,c){return a+((sd[sname]&&sd[sname][c])?sd[sname][c].length:0);},0);
+    var cHtml='';
+    classes.forEach(function(cls,ci){
+      var list=(sd[sname]&&sd[sname][cls])||[];
+      cHtml+='<div class="subj-class-block"><div class="subj-class-label">📖 '+cls+' — '+list.length+' subjects</div>';
+      list.forEach(function(sub,bi){
+        cHtml+='<div class="chap-item"><span style="font-size:1.1rem;padding:0 4px;">'+(sub.icon||'📖')+'</span><span class="chap-item-name" style="flex:1;">'+(sub.name||'')+'</span><span style="font-size:0.7rem;color:var(--muted);padding:0 6px;">'+((sub.chapters&&sub.chapters.length)||0)+' ch</span></div>';
+      });
+      cHtml+='</div>';
+    });
+    html+='<div class="subj-school-block"><div class="subj-school-hdr" onclick="toggleSubjBlock(this)"><div><div class="subj-school-name">🏫 '+sname+'</div><div class="subj-school-count">'+total+' subjects</div></div><span class="subj-toggle">▶</span></div><div class="subj-school-body">'+(cHtml||'<p style="color:var(--muted);font-size:0.8rem;">Classes add करें।</p>')+'</div></div>';
+  });
+  G('adminSubjectsTree').innerHTML=html;
+}
+
+function h(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function getSubjArr(){
+  var school=ES,cls=CU&&CU.cls;
+  if(!_AD.subjects)_AD.subjects={};
+  if(!_AD.subjects[school])_AD.subjects[school]={};
+  if(!_AD.subjects[school][cls])_AD.subjects[school][cls]=[];
+  return _AD.subjects[school][cls];
+}
+function autoSave(){
+  if(ES){var saved=getSD(ES);saved.subjects=_AD.subjects;setSD(ES,saved);}
+}
+function updSubj(bi,field,val){var arr=getSubjArr();if(arr[bi])arr[bi][field]=val;}
+function delSubj(bi){getSubjArr().splice(bi,1);autoSave();renderAdminSubjects();}
+function addSubj(){
+  var icon=G('si-icon').value.trim()||'📖';
+  var name=G('si-name').value.trim();
+  var desc=G('si-desc').value.trim()||'';
+  if(!name){toast('⚠️ Subject नाम लिखें!');return;}
+  getSubjArr().push({icon:icon,name:name,desc:desc,chapters:[]});
+  G('si-icon').value='';G('si-name').value='';G('si-desc').value='';
+  autoSave();renderAdminSubjects();toast('✅ Subject add हो गया!');
+}
+function updChap(bi,chi,field,val){var arr=getSubjArr();if(arr[bi]&&arr[bi].chapters&&arr[bi].chapters[chi])arr[bi].chapters[chi][field]=val;}
+function delChap(bi,chi){var arr=getSubjArr();if(arr[bi]&&arr[bi].chapters)arr[bi].chapters.splice(chi,1);autoSave();renderAdminSubjects();}
+function addChap(bi){
+  var nameEl=G('cn-'+bi),descEl=G('cd-'+bi);
+  var name=nameEl&&nameEl.value.trim();
+  var desc=descEl&&descEl.value.trim()||'';
+  if(!name){toast('⚠️ Chapter नाम लिखें!');return;}
+  var arr=getSubjArr();
+  if(!arr[bi].chapters)arr[bi].chapters=[];
+  arr[bi].chapters.push({name:name,desc:desc});
+  if(nameEl)nameEl.value='';if(descEl)descEl.value='';
+  autoSave();renderAdminSubjects();toast('✅ Chapter जोड़ा गया!');
+}
+function toggleSubjBlock(hdr){
+  var body=hdr.nextElementSibling;var tog=hdr.querySelector('.subj-toggle');
+  var open=body.classList.toggle('open');
+  tog.style.transform=open?'rotate(90deg)':'rotate(0deg)';
+}
+
+// ══════════════════════════════════════════════
+// ADMIN — SAVE
+// ══════════════════════════════════════════════
+function saveAdmin(){
+  _AD.title=G('adminTitle').value||_AD.title;
+  _AD.tagline=G('adminTagline').value;_AD.shayari=G('adminShayari').value;
+  _AD.ctaBtn=G('adminCtaBtn').value;_AD.about=G('adminAbout').value;_AD.content=G('adminContent').value;
+  _AD.colors=_AD.colors||{};
+  ['bg','surface','card','border','accent','accent2','text','muted','btnbg','btnclr','hb1','hb2'].forEach(function(k){
+    var el=G('clr-'+k);if(el)_AD.colors[k]=el.value;
+  });
+  document.querySelectorAll('.box-admin-item').forEach(function(item,i){
+    var ins=item.querySelectorAll('input'),ta=item.querySelector('textarea');
+    if(_AD.boxes&&_AD.boxes[i]){
+      _AD.boxes[i].icon=ins[0]&&ins[0].value||_AD.boxes[i].icon;
+      _AD.boxes[i].title=ins[1]&&ins[1].value||_AD.boxes[i].title;
+      _AD.boxes[i].content=ta&&ta.value||_AD.boxes[i].content;
+    }
+  });
+  var wasSchool=ES;
+  if(wasSchool){
+    setSD(wasSchool,_AD);toast('✅ '+wasSchool+' save हो गया!');  } else {
+    document.querySelectorAll('.school-admin-card-top input[data-si]').forEach(function(inp){
+      var i=parseInt(inp.getAttribute('data-si'));if(S.schools[i])S.schools[i].name=inp.value;
+    });
+    Object.assign(S,{title:_AD.title,tagline:_AD.tagline,shayari:_AD.shayari,ctaBtn:_AD.ctaBtn,about:_AD.about,content:_AD.content,boxes:_AD.boxes,subjects:_AD.subjects||{},colors:_AD.colors,bodyFont:_AD.bodyFont,headingFont:_AD.headingFont});
+    localStorage.setItem('edu_v5',JSON.stringify(S));
+    toast('✅ Global site save हो गया!');
+  }
+  G('adminSidebar').classList.remove('open');G('adminBg').classList.remove('open');
+  document.body.style.overflow='';ES=null;renderSite();
+}
+
+function toast(msg){
+  var t=G('saveToast');t.textContent=msg;t.style.display='block';
+  t.style.animation='none';t.offsetHeight;t.style.animation='slideUp 0.3s ease';
+  setTimeout(function(){t.style.display='none';},3500);
+}
+
+// ══════════════════════════════════════════════
+// PROFILE
+// ══════════════════════════════════════════════
+function openProfile(){
+  if(!CU){toast('⚠️ पहले Login करें!');return;}
+  showProfileView();G('profileOverlay').classList.add('active');document.body.style.overflow='hidden';
+}
+function showProfileView(){
+  G('profileViewMode').style.display='block';G('profileEditMode').style.display='none';
+  var u=CU,ini=u.name.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);
+  G('profileAvatar').textContent=ini;G('profileViewName').textContent=u.name;
+  G('profileViewSub').textContent=[u.school,u.cls].filter(Boolean).join(' • ')||'Student';
+  G('pv-name').textContent=u.name;G('pv-phone').textContent=u.phone;
+  G('pv-school').textContent=u.school||'—';G('pv-class').textContent=u.cls||'—';
+}
+function showProfileEdit(){
+  G('profileViewMode').style.display='none';G('profileEditMode').style.display='block';
+  G('editName').value=CU.name||'';G('editPass').value='';G('editPassConfirm').value='';
+  G('editSchoolList').innerHTML=S.schools.map(function(s){
+    var nm=typeof s==='string'?s:s.name;
+    return '<div class="profile-dd-opt" onclick="pickEditSchool(\''+nm.replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\')">'+nm+'</div>';
+  }).join('');
+  if(CU.school){G('editSchoolText').textContent=CU.school;G('editSchoolBtn').classList.add('selected');loadEditClasses(CU.school,CU.cls||'');}
+  else{G('editSchoolText').textContent='School चुनें';G('editSchoolBtn').classList.remove('selected');G('editClassRow').style.display='none';}
+}
+function togglePDD(id){
+  ['editSchoolList','editClassList'].forEach(function(lid){if(lid!==id&&G(lid))G(lid).classList.remove('open');});
+  G(id).classList.toggle('open');
+}
+function pickEditSchool(name){
+  G('editSchoolText').textContent=name;G('editSchoolBtn').classList.add('selected');
+  G('editSchoolList').classList.remove('open');loadEditClasses(name,'');
+}
+function loadEditClasses(sname,pre){
+  var sc=S.schools.find(function(s){return (typeof s==='string'?s:s.name)===sname;});
+  var classes=sc&&sc.classes?sc.classes:[];
+  if(classes.length){
+    G('editClassList').innerHTML=classes.map(function(c){return '<div class="profile-dd-opt" onclick="pickEditClass(\''+c.replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\')">'+c+'</div>';}).join('');
+    G('editClassText').textContent=pre||'Class चुनें';
+    G('editClassBtn').classList.toggle('selected',!!pre);
+    G('editClassRow').style.display='block';
+  } else {G('editClassRow').style.display='none';}
+}
+function pickEditClass(cls){G('editClassText').textContent=cls;G('editClassBtn').classList.add('selected');G('editClassList').classList.remove('open');}
+function togglePwVis(id,btn){
+  var inp=G(id);if(inp.type==='password'){inp.type='text';btn.textContent='🙈';}else{inp.type='password';btn.textContent='👁';}
+}
+function saveProfile(){
+  var name=G('editName').value.trim(),school=G('editSchoolText').textContent,cls=G('editClassText').textContent;
+  var np=G('editPass').value,cp=G('editPassConfirm').value;
+  if(!name){toast('⚠️ नाम खाली नहीं!');return;}
+  if(school==='School चुनें'){toast('⚠️ School चुनें!');return;}
+  var sObj=S.schools.find(function(s){return (typeof s==='string'?s:s.name)===school;});
+  if(sObj&&sObj.classes&&sObj.classes.length&&cls==='Class चुनें'){toast('⚠️ Class चुनें!');return;}
+  if(np&&np!==cp){toast('❌ Passwords match नहीं!');return;}
+  if(np&&np.length<4){toast('⚠️ Password कम से कम 4 अक्षर!');return;}
+  var users=JSON.parse(localStorage.getItem('edu_users')||'[]');
+  var idx=users.findIndex(function(u){return u.phone===CU.phone;});
+  if(idx===-1){toast('❌ User नहीं मिला!');return;}
+  var oldSchool=users[idx].school, oldCls=users[idx].cls;
+  var newCls=cls==='Class चुनें'?'':cls;
+  // Reset to pending if school or class changed
+  var schoolOrClsChanged=(school!==oldSchool)||(newCls!==oldCls);
+  users[idx].name=name;
+  users[idx].school=school;
+  users[idx].cls=newCls;
+  if(np)users[idx].pass=np;
+  if(schoolOrClsChanged) users[idx].status='pending';
+  localStorage.setItem('edu_users',JSON.stringify(users));
+  CU=JSON.parse(JSON.stringify(users[idx]));
+  sessionStorage.setItem('cu',JSON.stringify(CU));
+  closePopup('profileOverlay');renderSite();
+  if(schoolOrClsChanged){
+    toast('✅ Profile update हुई! नई class/school के लिए approval pending है।');
+  } else {
+    toast('✅ Profile update हो गई!');
+  }
+}
+
+// ══════════════════════════════════════════════
+// QUIZ — Multiple quizzes per chapter
+// Data: chapter.quizzes = [{name, questions:[{q,opts,ans,exp}]}]
+// ══════════════════════════════════════════════
+var _qz={subjIdx:null,chapIdx:null,quizIdx:null,questions:[],cur:0,score:0,answered:false};
+
+// Chapter click → Quiz List page
+function openQuiz(chapIdx){
+  var school=CU.school,cls=CU.cls;
+  var data=getSD(school);
+  var subs=data.subjects||{};
+  var subjs=(subs[school]&&subs[school][cls])?subs[school][cls]:(subs[cls]||[]);
+  var sub=subjs[_qz.subjIdx];
+  var chap=sub&&sub.chapters&&sub.chapters[chapIdx];
+  if(!chap)return;
+  _qz.chapIdx=chapIdx;
+  _qz.quizIdx=null;
+  G('quizChapName').textContent=chap.name||'Chapter';
+  G('quizChapMeta').textContent=(sub.name||'Subject')+' • '+cls;
+  G('chaptersOverlay').classList.remove('active');
+  G('quizOverlay').classList.add('active');
+  G('quizOverlay').scrollTop=0;
+  document.body.style.overflow='hidden';
+  renderQuizList(chap);
+}
+
+// Show list of quizzes for this chapter
+function renderQuizList(chap){
+  var quizzes=chap.quizzes||[];
+  // backward compat: if old single quiz exists, wrap it
+  if(!quizzes.length&&chap.quiz&&chap.quiz.length){
+    quizzes=[{name:'Quiz 1',questions:chap.quiz}];
+  }
+  var body=G('quizBody');
+  if(!quizzes.length){
+    body.innerHTML='<div class="quiz-empty"><span class="quiz-empty-icon">📝</span>'
+      +'इस chapter में अभी कोई quiz नहीं है।<br>'
+      +'<span style="font-size:0.8rem;">School Admin → Chapter → Quiz add करें।</span></div>';
+    return;
+  }
+  var html='<div style="margin-bottom:20px;">'
+    +'<div style="font-size:0.72rem;letter-spacing:2px;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:16px;font-family:Poppins,sans-serif;">'+quizzes.length+' QUIZ'+(quizzes.length!==1?'ZES':'')+'</div>';
+  quizzes.forEach(function(qz,qi){
+    var qCount=qz.questions&&qz.questions.length?qz.questions.length:0;
+    var hasFile=!!(qz.quizFile&&qz.quizFile.trim());
+    var meta=hasFile?'📄 File Quiz':'📝 '+qCount+' questions';
+    var iconBg=hasFile?'linear-gradient(135deg,#10b981,#059669)':'linear-gradient(135deg,var(--accent),var(--accent2))';
+    html+='<div onclick="startQuizByIdx('+qi+')" style="background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:12px;cursor:pointer;display:flex;align-items:center;gap:16px;transition:all 0.2s;" onmouseover="this.style.borderColor=\'var(--accent2)\';this.style.transform=\'translateY(-2px)\'" onmouseout="this.style.borderColor=\'var(--border)\';this.style.transform=\'\';">'
+      +'<div style="width:44px;height:44px;border-radius:10px;background:'+iconBg+';display:flex;align-items:center;justify-content:center;font-weight:800;font-size:'+(hasFile?'1.4rem':'1rem')+';color:#fff;flex-shrink:0;">'+(hasFile?'📄':(qi+1))+'</div>'
+      +'<div style="flex:1;">'
+      +'<div style="font-weight:700;font-size:0.95rem;color:var(--text);margin-bottom:3px;">'+(qz.name||'Quiz '+(qi+1))+'</div>'
+      +'<div style="font-size:0.75rem;color:var(--muted);">'+meta+'</div>'
+      +'</div>'
+      +'<div style="color:var(--accent2);font-size:1.2rem;">→</div>'
+      +'</div>';
+  });
+  html+='</div>';
+  body.innerHTML=html;
+}
+
+function startQuizByIdx(qi){
+  // Always check fresh status from localStorage
+  var freshSt='pending';
+  if(CU){
+    var allU=JSON.parse(localStorage.getItem('edu_users')||'[]');
+    var freshU=allU.find(function(x){return x.phone===CU.phone;});
+    freshSt=freshU?freshU.status:CU.status;
+    // Sync to session
+    if(freshU&&freshU.status!==CU.status){CU.status=freshU.status;sessionStorage.setItem('cu',JSON.stringify(CU));}
+  }
+  if(freshSt==='rejected'){
+    G('quizBody').innerHTML='<div class="quiz-empty"><span class="quiz-empty-icon">❌</span>आपकी access reject कर दी गई है।<br><span style="font-size:0.8rem;">School Admin से संपर्क करें।</span></div>';
+    G('chaptersOverlay').classList.remove('active');
+    G('quizOverlay').classList.add('active');
+    return;
+  }
+  if(!freshSt||freshSt==='pending'){
+    G('quizBody').innerHTML='<div class="quiz-empty"><span class="quiz-empty-icon">⏳</span>आपकी request अभी pending है।<br><span style="font-size:0.8rem;">School Admin से approve करवाएं, तभी quiz दे सकेंगे।</span></div>';
+    G('chaptersOverlay').classList.remove('active');
+    G('quizOverlay').classList.add('active');
+    return;
+  }
+  var school=CU.school,cls=CU.cls;
+  var data=getSD(school);
+  var subs=data.subjects||{};
+  var subjs=(subs[school]&&subs[school][cls])?subs[school][cls]:(subs[cls]||[]);
+  var sub=subjs[_qz.subjIdx];
+  var chap=sub&&sub.chapters&&sub.chapters[_qz.chapIdx];
+  if(!chap)return;
+  var quizzes=chap.quizzes||[];
+  if(!quizzes.length&&chap.quiz&&chap.quiz.length) quizzes=[{name:'Quiz 1',questions:chap.quiz}];
+  var qz=quizzes[qi];
+  if(!qz)return;
+  _qz.quizIdx=qi;
+  // If quiz has a file, open it in iframe
+  if(qz.quizFile&&qz.quizFile.trim()){
+    G('subjectsOverlay').classList.remove('active');
+    G('chaptersOverlay').classList.remove('active');
+    G('quizOverlay').classList.remove('active');
+    openIqv(qz.quizFile, qz.name||'Quiz '+(qi+1));
+    return;
+  }
+  // Otherwise use built-in quiz engine
+  _qz.questions=qz.questions||[];
+  _qz.cur=0;_qz.score=0;_qz.answered=false;
+  G('quizChapName').textContent=(qz.name||'Quiz '+(qi+1))+' — '+chap.name;
+  if(!_qz.questions.length){
+    G('quizBody').innerHTML='<div class="quiz-empty"><span class="quiz-empty-icon">📝</span>इस quiz में कोई question नहीं है।</div>';
+    return;
+  }
+  renderQuizStart(_qz.questions.length,qz.name||'Quiz '+(qi+1));
+}
+
+function renderQuizStart(total,name){
+  G('quizBody').innerHTML='<div class="quiz-start">'
+    +'<div class="quiz-start-icon">🧠</div>'
+    +'<div class="quiz-start-title">'+(name||'Quiz Time!')+'</div>'
+    +'<div class="quiz-start-sub">'+total+' questions • अपना best दो!</div>'
+    +'<button class="quiz-start-btn" onclick="startQuiz()">Quiz शुरू करें →</button>'
+    +'</div>';
+}
+function startQuiz(){_qz.cur=0;_qz.score=0;_qz.answered=false;showQuestion();}
+function showQuestion(){
+  var qs=_qz.questions,qi=_qz.cur;
+  if(qi>=qs.length){showResult();return;}
+  var q=qs[qi],pct=Math.round((qi/qs.length)*100),labels=['A','B','C','D'];
+  var html='<div class="quiz-progress-bar"><div class="quiz-progress-fill" style="width:'+pct+'%"></div></div>';
+  html+='<div class="quiz-q-num">Question '+(qi+1)+' / '+qs.length+'</div>';
+  html+='<div class="quiz-question">'+(q.q||'')+'</div>';
+  html+='<div class="quiz-options" id="quizOpts">';
+  (q.opts||[]).forEach(function(opt,i){
+    html+='<button class="quiz-option" id="qopt-'+i+'" onclick="answerQ('+i+')">'
+      +'<span class="quiz-opt-label">'+labels[i]+'</span><span>'+(opt||'')+'</span></button>';
+  });
+  html+='</div><div class="quiz-explanation" id="quizExp">'+(q.exp||'')+'</div>';
+  html+='<button class="quiz-next-btn" id="quizNext" onclick="nextQ()">'+(qi===qs.length-1?'Result देखें 🏆':'अगला सवाल →')+'</button>';
+  G('quizBody').innerHTML=html;G('quizOverlay').scrollTop=0;
+}
+function answerQ(idx){
+  if(_qz.answered)return;_qz.answered=true;
+  var q=_qz.questions[_qz.cur],opts=document.querySelectorAll('.quiz-option');
+  opts.forEach(function(b){b.disabled=true;});
+  if(idx===q.ans){opts[idx].classList.add('correct');_qz.score++;}
+  else{opts[idx].classList.add('wrong');if(opts[q.ans])opts[q.ans].classList.add('show-correct');}
+  if(q.exp&&G('quizExp'))G('quizExp').classList.add('show');
+  if(G('quizNext'))G('quizNext').classList.add('show');
+}
+function nextQ(){_qz.cur++;_qz.answered=false;if(_qz.cur>=_qz.questions.length)showResult();else showQuestion();}
+function showResult(){
+  var total=_qz.questions.length,score=_qz.score,pct=Math.round((score/total)*100);
+  // Save to leaderboard
+  var school=CU&&CU.school,cls=CU&&CU.cls;
+  var data=school?getSD(school):{};
+  var subs=data.subjects||{};
+  var subjs=(subs[school]&&subs[school][cls])?subs[school][cls]:(subs[cls]||[]);
+  var sub=subjs[_qz.subjIdx];
+  var chap=sub&&sub.chapters&&sub.chapters[_qz.chapIdx];
+  var qz=chap&&chap.quizzes&&chap.quizzes[_qz.quizIdx];
+  saveScore(pct,score,total,qz?qz.name:'Quiz',chap?chap.name:'',sub?sub.name:'');
+  var icon=pct>=80?'🏆':pct>=50?'👍':'💪';
+  var msg=pct>=80?'शानदार! आपने बहुत अच्छा किया!':pct>=50?'अच्छा प्रयास!':'मेहनत जारी रखें!';
+  G('quizBody').innerHTML='<div class="quiz-result">'
+    +'<div class="quiz-result-icon">'+icon+'</div>'
+    +'<div class="quiz-result-score">'+score+'/'+total+'</div>'
+    +'<div class="quiz-result-label">'+pct+'% Correct</div>'
+    +'<div class="quiz-result-msg">'+msg+'</div>'
+    +'<div class="quiz-result-btns">'
+    +'<button class="quiz-retry-btn" onclick="startQuiz()">🔄 फिर से</button>'
+    +'<button class="quiz-retry-btn" onclick="backToQuizList()" style="border-color:var(--accent);color:var(--accent);">← Quiz List</button>'
+    +'<button class="quiz-retry-btn" onclick="G(\'quizOverlay\').classList.remove(\'active\');openLB();" style="border-color:#f5c518;color:#f5c518;">🏆 Leaderboard</button>'
+    +'</div></div>';
+}
+function backToQuizList(){
+  var school=CU.school,cls=CU.cls;
+  var data=getSD(school);
+  var subs=data.subjects||{};
+  var subjs=(subs[school]&&subs[school][cls])?subs[school][cls]:(subs[cls]||[]);
+  var sub=subjs[_qz.subjIdx];
+  var chap=sub&&sub.chapters&&sub.chapters[_qz.chapIdx];
+  if(chap){G('quizChapName').textContent=chap.name||'Chapter';renderQuizList(chap);}
+  G('quizOverlay').scrollTop=0;
+}
+function closeQuiz(){
+  G('quizOverlay').classList.remove('active');
+  var school=CU.school,cls=CU.cls;
+  var data=getSD(school);
+  var subs=data.subjects||{};
+  var subjs=(subs[school]&&subs[school][cls])?subs[school][cls]:(subs[cls]||[]);
+  var sub=subjs[_qz.subjIdx];
+  if(sub){
+    G('chapSubjIcon').textContent=sub.icon||'📖';
+    G('chapSubjName').textContent=sub.name||'Subject';
+    G('chapSubjMeta').textContent=cls+' • '+school;
+    renderChapList(sub.chapters||[]);
+  }
+  G('chaptersOverlay').classList.add('active');
+  G('chaptersOverlay').scrollTop=0;
+  document.body.style.overflow='hidden';
+}
+
+// ── Banner photo ──
+function uploadBanner(event){
+  var file=event.target.files&&event.target.files[0];
+  if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    if(!_AD)return;
+    _AD.bannerPhoto=ev.target.result;
+    G('adminBannerImg').src=ev.target.result;
+    G('adminBannerPreview').style.display='block';
+    // Live preview
+    G('schoolBannerImg').src=ev.target.result;
+    G('schoolBanner').style.display='block';
+    toast('✅ Banner photo add हो गई!');
+  };
+  reader.readAsDataURL(file);
+}
+function removeBanner(){
+  if(!_AD)return;
+  _AD.bannerPhoto='';
+  G('adminBannerImg').src='';
+  G('adminBannerPreview').style.display='none';
+  G('schoolBanner').style.display='none';
+  G('schoolBannerImg').src='';
+  toast('🗑 Banner हटा दिया!');
+}
+function getChapQuizzes(bi,chi){
+  var arr=getSubjArr();
+  var chap=arr[bi]&&arr[bi].chapters&&arr[bi].chapters[chi];
+  if(!chap)return null;
+  if(!chap.quizzes)chap.quizzes=[];
+  return chap.quizzes;
+}
+function addQuiz(bi,chi){
+  var qzs=getChapQuizzes(bi,chi);
+  if(!qzs)return;
+  var nameEl=G('nqz-'+bi+'-'+chi);
+  var name=nameEl&&nameEl.value.trim()||'Quiz '+(qzs.length+1);
+  qzs.push({name:name,questions:[]});
+  if(nameEl)nameEl.value='';
+  autoSave();renderAdminSubjects();toast('✅ Quiz add हो गई!');
+}
+function delQuiz(bi,chi,qi){
+  var qzs=getChapQuizzes(bi,chi);if(!qzs)return;
+  qzs.splice(qi,1);autoSave();renderAdminSubjects();
+}
+function addQ(bi,chi,qi){
+  var qzs=getChapQuizzes(bi,chi);if(!qzs||!qzs[qi])return;
+  if(!qzs[qi].questions)qzs[qi].questions=[];
+  qzs[qi].questions.push({q:'',opts:['','','',''],ans:0,exp:''});
+  autoSave();renderAdminSubjects();toast('✅ Question add हो गया!');
+}
+function delQ(bi,chi,qi,qni){
+  var qzs=getChapQuizzes(bi,chi);
+  if(qzs&&qzs[qi]&&qzs[qi].questions)qzs[qi].questions.splice(qni,1);
+  autoSave();renderAdminSubjects();
+}
+function updQzName(bi,chi,qi,val){
+  var qzs=getChapQuizzes(bi,chi);if(qzs&&qzs[qi])qzs[qi].name=val;
+}
+function updQ(bi,chi,qi,qni,field,val){
+  var qzs=getChapQuizzes(bi,chi);
+  if(qzs&&qzs[qi]&&qzs[qi].questions&&qzs[qi].questions[qni])qzs[qi].questions[qni][field]=val;
+}
+function updOpt(bi,chi,qi,qni,oi,val){
+  var qzs=getChapQuizzes(bi,chi);
+  if(qzs&&qzs[qi]&&qzs[qi].questions&&qzs[qi].questions[qni]){
+    if(!qzs[qi].questions[qni].opts)qzs[qi].questions[qni].opts=['','','',''];
+    qzs[qi].questions[qni].opts[oi]=val;
+  }
+}
+function setAns(bi,chi,qi,qni,oi){
+  var qzs=getChapQuizzes(bi,chi);
+  if(qzs&&qzs[qi]&&qzs[qi].questions&&qzs[qi].questions[qni]){
+    qzs[qi].questions[qni].ans=oi;autoSave();renderAdminSubjects();
+  }
+}
+
+
+
+// ══════════════════════════════════════════════
+// IFRAME QUIZ VIEWER
+// ══════════════════════════════════════════════
+function openIqv(url,title){
+  G('iqvTitle').textContent=title||'Quiz';
+  // Check if stored in localStorage
+  if(url&&url.startsWith('__stored__:')){
+    var key=url.replace('__stored__:','');
+    var content=localStorage.getItem(key);
+    if(content){
+      var blob=new Blob([content],{type:'text/html'});
+      G('iqvFrame').src=URL.createObjectURL(blob);
+    } else {
+      toast('⚠️ Quiz file नहीं मिली! दोबारा upload करें।');return;
+    }
+  } else {
+    G('iqvFrame').src=url;
+  }
+  G('iqvOverlay').classList.add('active');
+  document.body.style.overflow='hidden';
+}
+function closeIqv(){
+  G('iqvOverlay').classList.remove('active');
+  G('iqvFrame').src='';
+  // Return to quiz list if we came from there
+  if(_qz.chapIdx!==null){
+    var school=CU.school,cls=CU.cls;
+    var data=getSD(school);
+    var subs=data.subjects||{};
+    var subjs=(subs[school]&&subs[school][cls])?subs[school][cls]:(subs[cls]||[]);
+    var sub=subjs[_qz.subjIdx];
+    var chap=sub&&sub.chapters&&sub.chapters[_qz.chapIdx];
+    if(chap){
+      G('quizChapName').textContent=chap.name||'Chapter';
+      renderQuizList(chap);
+      G('quizOverlay').classList.add('active');
+    } else {
+      G('chaptersOverlay').classList.add('active');
+    }
+  } else {
+    G('chaptersOverlay').classList.add('active');
+  }
+  document.body.style.overflow='hidden';
+}
+window.addEventListener('message',function(e){
+  if(!e.data||e.data.type!=='quizScore')return;
+  var d=e.data;
+  // Save to leaderboard
+  saveScore(d.pct||0,d.score||0,d.total||0,d.subject||'Quiz',d.chapter||'','');
+  var grade=d.grade||(d.pct>=90?'A+':d.pct>=75?'A':d.pct>=60?'B':d.pct>=45?'C':'D');
+  var msg=d.pct>=75?'Shandaar! Bilkul taiyaar ho! 🎉':d.pct>=50?'Aur practice karo 💪':'Dobara padho 📖';
+  G('stGrade').textContent=grade;
+  G('stNum').textContent=(d.score||0)+' / '+(d.total||0)+' ('+Math.round(d.pct||0)+'%)';
+  G('stMsg').textContent=msg;
+  G('scoreToast').classList.add('show');
+  setTimeout(function(){closeIqv();},800);
+});
+
+// ══════════════════════════════════════════════
+// QUIZ FILE UPLOAD (in-website)
+// ══════════════════════════════════════════════
+function uploadQzFile(event,bi,chi,qi){
+  var file=event.target.files&&event.target.files[0];
+  if(!file)return;
+  if(!file.name.endsWith('.html')){toast('⚠️ Sirf .html file allowed hai!');return;}
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    var content=ev.target.result;
+    if(content.indexOf("type:'quizScore'")===-1&&content.indexOf('type:"quizScore"')===-1){
+      content=injectPostMsg(content);
+    }
+    var storeKey='qzf_'+ES+'_b'+bi+'_c'+chi+'_q'+qi+'_'+Date.now();
+    try{localStorage.setItem(storeKey,content);}catch(e){toast('⚠️ File too large!');return;}
+    var arr=getSubjArr();
+    if(arr[bi]&&arr[bi].chapters&&arr[bi].chapters[chi]){
+      if(!arr[bi].chapters[chi].quizzes)arr[bi].chapters[chi].quizzes=[];
+      if(!arr[bi].chapters[chi].quizzes[qi])arr[bi].chapters[chi].quizzes[qi]={name:'Quiz '+(qi+1),questions:[]};
+      arr[bi].chapters[chi].quizzes[qi].quizFile='__stored__:'+storeKey;
+      arr[bi].chapters[chi].quizzes[qi].quizFileName=file.name;
+      autoSave();renderAdminSubjects();
+      toast('✅ '+file.name+' Quiz '+( qi+1)+' mein upload ho gayi!');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function removeQzFile(bi,chi,qi){
+  var arr=getSubjArr();
+  if(arr[bi]&&arr[bi].chapters&&arr[bi].chapters[chi]&&arr[bi].chapters[chi].quizzes&&arr[bi].chapters[chi].quizzes[qi]){
+    var key=arr[bi].chapters[chi].quizzes[qi].quizFile;
+    if(key&&key.startsWith('__stored__:'))localStorage.removeItem(key.replace('__stored__:',''));
+    arr[bi].chapters[chi].quizzes[qi].quizFile='';
+    arr[bi].chapters[chi].quizzes[qi].quizFileName='';
+    autoSave();renderAdminSubjects();
+    toast('🗑 Quiz file हटा दी!');
+  }
+}
+
+
+function injectPostMsg(html){
+  var pm="if(window.parent!==window){var _g=typeof pct!=='undefined'?(pct>=90?'A+':pct>=75?'A':pct>=60?'B':pct>=45?'C':'D'):'?';window.parent.postMessage({type:'quizScore',score:typeof correct!=='undefined'?correct:(typeof score!=='undefined'?score:0),total:typeof questions!=='undefined'?questions.length:0,pct:typeof pct!=='undefined'?pct:0,grade:_g},'*');}";
+  var patterns=["setTimeout(function(){document.getElementById('meter-fill')","setTimeout(function(){document.getElementById(\"meter-fill\")"];
+  for(var i=0;i<patterns.length;i++){
+    var idx=html.indexOf(patterns[i]);
+    if(idx!==-1){
+      var ci=html.indexOf('},300);}',idx);
+      if(ci!==-1){html=html.slice(0,ci+8)+'\n  '+pm+html.slice(ci+8);return html;}
+    }
+  }
+  var si=html.lastIndexOf('<\/script>');
+  if(si!==-1) html=html.slice(0,si)+'\n'+pm+'\n'+html.slice(si);
+  return html;
+}
+
+
+
+
+// ══════════════════════════════════════════════
+// USERS TAB (School Admin)
+// ══════════════════════════════════════════════
+function renderUsersTab(){
+  if(!ES||!CU)return;
+  var allUsers=JSON.parse(localStorage.getItem('edu_users')||'[]');
+  // Sirf is school ke users
+  var schoolUsers=allUsers.filter(function(u){return u.school===ES;});
+
+  // School ki sabhi classes
+  var school=S.schools.find(function(s){return (typeof s==='string'?s:s.name)===ES;});
+  var classes=school&&school.classes?school.classes:[];
+  // Agar logged-in admin ki class hai toh sirf wahi class dikhao
+  var adminCls=CU.cls;
+
+  function userCard(u){
+    var statusClr=u.status==='approved'?'var(--success)':u.status==='rejected'?'var(--danger)':'#f59e0b';
+    var statusLabel=u.status==='approved'?'✅ Approved':u.status==='rejected'?'❌ Rejected':'⏳ Pending';
+    var ini=u.name.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);
+    var btns='';
+    if(u.status!=='approved') btns+='<button onclick="approveUser(\''+u.phone+'\')" style="padding:6px 12px;background:rgba(82,200,122,0.15);border:1px solid rgba(82,200,122,0.4);border-radius:6px;color:var(--success);cursor:pointer;font-size:0.78rem;font-weight:700;">✅ Approve</button>';
+    if(u.status!=='rejected') btns+='<button onclick="rejectUser(\''+u.phone+'\')" style="padding:6px 12px;background:rgba(224,82,82,0.1);border:1px solid rgba(224,82,82,0.3);border-radius:6px;color:var(--danger);cursor:pointer;font-size:0.78rem;font-weight:700;margin-left:6px;">❌ Reject</button>';
+    return '<div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;">'
+      +'<div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.9rem;color:#fff;flex-shrink:0;">'+ini+'</div>'
+      +'<div style="flex:1;min-width:0;">'
+      +'<div style="font-weight:700;font-size:0.9rem;color:var(--text);">'+h(u.name)+'</div>'
+      +'<div style="font-size:0.75rem;color:var(--muted);">'+h(u.phone)+'</div>'
+      +'<div style="font-size:0.72rem;font-weight:700;color:'+statusClr+';margin-top:2px;">'+statusLabel+'</div>'
+      +'</div>'
+      +'<div style="display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end;">'+btns+'</div>'
+      +'</div>';
+  }
+
+  // Class-wise sections build karo
+  var classesToShow = adminCls ? [adminCls] : (classes.length ? classes : ['(No Class)']);
+  var html = '<div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:10px;padding:12px 14px;margin-bottom:16px;">'
+    +'<div style="font-size:0.7rem;color:#f59e0b;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:2px;">ℹ️ Approval System</div>'
+    +'<div style="font-size:0.78rem;color:var(--muted);line-height:1.5;">Approve होने के बाद ही student quiz दे सकेगा। School/Class बदलने पर re-approval जरूरी है।</div>'
+    +'</div>';
+
+  classesToShow.forEach(function(cls){
+    var clsUsers=schoolUsers.filter(function(u){return u.cls===cls;});
+    var pending=clsUsers.filter(function(u){return !u.status||u.status==='pending';});
+    var approved=clsUsers.filter(function(u){return u.status==='approved';});
+    var rejected=clsUsers.filter(function(u){return u.status==='rejected';});
+
+    html+='<div style="margin-bottom:20px;">';
+    html+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);">';
+    html+='<div style="font-size:0.72rem;color:var(--accent2);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;">📖 '+h(cls)+'</div>';
+    html+='<div style="font-size:0.7rem;color:var(--muted);">'+clsUsers.length+' users</div>';
+    if(pending.length) html+='<div style="font-size:0.68rem;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);color:#f59e0b;border-radius:10px;padding:2px 7px;font-weight:700;">'+pending.length+' pending</div>';
+    html+='</div>';
+
+    if(pending.length){
+      html+='<div style="font-size:0.68rem;color:#f59e0b;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">⏳ Pending</div>';
+      html+=pending.map(userCard).join('');
+    }
+    if(approved.length){
+      html+='<div style="font-size:0.68rem;color:var(--success);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin:10px 0 6px;">✅ Approved</div>';
+      html+=approved.map(userCard).join('');
+    }
+    if(rejected.length){
+      html+='<details style="margin-top:6px;"><summary style="font-size:0.72rem;color:var(--muted);cursor:pointer;">Rejected ('+rejected.length+')</summary><div style="margin-top:8px;">'+rejected.map(userCard).join('')+'</div></details>';
+    }
+    if(!clsUsers.length){
+      html+='<div style="font-size:0.8rem;color:var(--muted);padding:8px 0;">कोई user नहीं।</div>';
+    }
+    html+='</div>';
+  });
+
+  G('usersAdminContent').innerHTML=html;
+}
+
+function approveUser(phone){
+  var users=JSON.parse(localStorage.getItem('edu_users')||'[]');
+  var idx=users.findIndex(function(u){return u.phone===phone;});
+  if(idx===-1)return;
+  users[idx].status='approved';
+  localStorage.setItem('edu_users',JSON.stringify(users));
+  // Update session if this is current user
+  if(CU&&CU.phone===phone){CU.status='approved';sessionStorage.setItem('cu',JSON.stringify(CU));}
+  renderUsersTab();
+  toast('✅ User approve हो गया!');
+}
+
+function rejectUser(phone){
+  var users=JSON.parse(localStorage.getItem('edu_users')||'[]');
+  var idx=users.findIndex(function(u){return u.phone===phone;});
+  if(idx===-1)return;
+  users[idx].status='rejected';
+  localStorage.setItem('edu_users',JSON.stringify(users));
+  renderUsersTab();
+  toast('❌ User reject कर दिया।');
+}
+
+
+var qaAdminFile=null, qaAdminFileName='';
+
+function qaAdminInit(){
+  if(!ES||!CU)return;
+  // Show school + class info
+  G('qaAdminSchoolInfo').textContent=ES+(CU.cls?' — '+CU.cls:'');
+  // Load subjects for this class
+  var data=getSD(ES);
+  var subs=data.subjects||{};
+  var cls=CU.cls||'';
+  var list=(subs[ES]&&subs[ES][cls])?subs[ES][cls]:(subs[cls]||[]);
+  var opts='<option value="">Subject चुनें</option>';
+  list.forEach(function(sub,i){
+    opts+='<option value="'+i+'">'+h(sub.icon||'')+(sub.name?' '+sub.name:'Subject '+(i+1))+'</option>';
+  });
+  G('qaAdminSubject').innerHTML=opts;
+  G('qaAdminChapter').innerHTML='<option value="">Subject चुनें पहले</option>';
+  G('qaAdminName').value='';
+  qaAdminFile=null;qaAdminFileName='';
+  G('qaAdminFileIcon').textContent='📁';
+  G('qaAdminFileName').textContent='File चुनें';
+  G('qaAdminFileSub').textContent='.html file — score auto capture होगा';
+  G('qaAdminFileZone').style.borderColor='var(--border)';
+  var msg=G('qaAdminMsg');if(msg)msg.style.display='none';
+}
+
+function qaAdminLoadChapters(){
+  var si=G('qaAdminSubject').value;
+  if(si===''){G('qaAdminChapter').innerHTML='<option value="">Subject चुनें पहले</option>';return;}
+  var data=getSD(ES);
+  var subs=data.subjects||{};
+  var cls=CU.cls||'';
+  var list=(subs[ES]&&subs[ES][cls])?subs[ES][cls]:(subs[cls]||[]);
+  var sub=list[parseInt(si)];
+  var chapters=sub&&sub.chapters?sub.chapters:[];
+  var opts='<option value="">Chapter चुनें</option>';
+  chapters.forEach(function(ch,i){
+    opts+='<option value="'+i+'">'+h(ch.name||'Chapter '+(i+1))+'</option>';
+  });
+  G('qaAdminChapter').innerHTML=opts;
+}
+
+function qaAdminHandleFile(event){
+  var file=event.target.files&&event.target.files[0];
+  if(!file)return;
+  if(!file.name.endsWith('.html')){toast('⚠️ Sirf .html file!');return;}
+  qaAdminFileName=file.name;
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    qaAdminFile=ev.target.result;
+    if(qaAdminFile.indexOf("type:'quizScore'")===-1&&qaAdminFile.indexOf('type:"quizScore"')===-1){
+      qaAdminFile=injectPostMsg(qaAdminFile);
+    }
+    G('qaAdminFileIcon').textContent='📝';
+    G('qaAdminFileName').textContent=file.name;
+    G('qaAdminFileSub').textContent='✅ Ready — score capture होगा';
+    G('qaAdminFileZone').style.borderColor='var(--success)';
+  };
+  reader.readAsText(file);
+}
+function qaAdminSubmit(){
+  var si=G('qaAdminSubject').value;
+  var chi=G('qaAdminChapter').value;
+  var name=G('qaAdminName').value.trim();
+  if(si===''){toast('⚠️ Subject चुनें!');return;}
+  if(chi===''){toast('⚠️ Chapter चुनें!');return;}
+  if(!name){toast('⚠️ Quiz का नाम लिखें!');return;}
+  if(!qaAdminFile){toast('⚠️ File चुनें!');return;}
+  var cls=CU.cls||'';
+  var storeKey='qzf_'+ES+'_c'+chi+'_s'+si+'_'+Date.now();
+  try{localStorage.setItem(storeKey,qaAdminFile);}catch(e){toast('⚠️ File too large!');return;}
+  // Add to _AD (which will be saved on Save All Changes)
+  if(!_AD.subjects)_AD.subjects={};
+  if(!_AD.subjects[ES])_AD.subjects[ES]={};
+  if(!_AD.subjects[ES][cls])_AD.subjects[ES][cls]=[];
+  var subList=_AD.subjects[ES][cls];
+  var sub=subList[parseInt(si)];
+  if(!sub||!sub.chapters||!sub.chapters[parseInt(chi)]){toast('⚠️ Chapter नहीं मिला!');return;}
+  var chap=sub.chapters[parseInt(chi)];
+  if(!chap.quizzes)chap.quizzes=[];
+  chap.quizzes.push({name:name,questions:[],quizFile:'__stored__:'+storeKey,quizFileName:qaAdminFileName});
+  // Auto save
+  autoSave();
+  // Show success
+  var msg=G('qaAdminMsg');
+  msg.textContent='🎉 "'+name+'" — '+sub.name+' → '+chap.name+' mein add ho gayi!';
+  msg.style.display='block';
+  // Reset form
+  G('qaAdminName').value='';
+  qaAdminFile=null;qaAdminFileName='';
+  G('qaAdminFileIcon').textContent='📁';
+  G('qaAdminFileName').textContent='File चुनें';
+  G('qaAdminFileSub').textContent='.html file — score auto capture होगा';
+  G('qaAdminFileZone').style.borderColor='var(--border)';
+  toast('✅ Quiz add ho gayi!');
+}
+
+
+var _qaFile=null, _qaFileName='';
+
+function openQA(){
+  if(!CU||!CU.school){toast('⚠️ Login करें!');return;}
+  _qaFile=null;_qaFileName='';
+  G('qaFileIcon').textContent='📁';
+  G('qaFileTitle').textContent='File चुनें';
+  G('qaFileSub').textContent='कोई file नहीं चुनी';
+  G('qaFileZone').classList.remove('has-file');
+  G('qaQuizName').value='';
+  G('qaQuizDesc').value='';
+  // Fill class dropdown from user's school classes
+  var school=S.schools.find(function(s){return (typeof s==='string'?s:s.name)===CU.school;});
+  var classes=school&&school.classes?school.classes:[];
+  var classOpts='<option value="">Class चुनें</option>';
+  classes.forEach(function(cls){
+    classOpts+='<option value="'+h(cls)+'"'+(cls===CU.cls?' selected':'')+'>'+cls+'</option>';
+  });
+  G('qaClass').innerHTML=classOpts;
+  G('qaSubject').innerHTML='<option value="">Subject चुनें</option>';
+  G('qaChapter').innerHTML='<option value="">Chapter चुनें</option>';
+  // If user has a class, auto-load subjects
+  if(CU.cls) qaLoadSubjects();
+  G('qaOverlay').classList.add('active');
+  document.body.style.overflow='hidden';
+}
+
+function closeQA(){
+  G('qaOverlay').classList.remove('active');
+  document.body.style.overflow='';
+}
+
+function qaLoadSubjects(){
+  var cls=G('qaClass').value;
+  if(!cls){G('qaSubject').innerHTML='<option value="">Class चुनें पहले</option>';G('qaChapter').innerHTML='<option value="">Chapter चुनें</option>';return;}
+  var data=getSD(CU.school);
+  var subs=data.subjects||{};
+  var list=(subs[CU.school]&&subs[CU.school][cls])?subs[CU.school][cls]:(subs[cls]||[]);
+  var opts='<option value="">Subject चुनें</option>';
+  list.forEach(function(sub,i){opts+='<option value="'+i+'">'+h(sub.name||'Subject '+(i+1))+'</option>';});
+  G('qaSubject').innerHTML=opts;
+  G('qaChapter').innerHTML='<option value="">Subject चुनें पहले</option>';
+}
+
+function qaLoadChapters(){
+  var cls=G('qaClass').value;
+  var si=G('qaSubject').value;
+  if(si===''){G('qaChapter').innerHTML='<option value="">Subject चुनें पहले</option>';return;}
+  var data=getSD(CU.school);
+  var subs=data.subjects||{};
+  var list=(subs[CU.school]&&subs[CU.school][cls])?subs[CU.school][cls]:(subs[cls]||[]);
+  var sub=list[parseInt(si)];
+  var chapters=sub&&sub.chapters?sub.chapters:[];
+  var opts='<option value="">Chapter चुनें</option>';
+  chapters.forEach(function(ch,i){opts+='<option value="'+i+'">'+h(ch.name||'Chapter '+(i+1))+'</option>';});
+  G('qaChapter').innerHTML=opts;
+}
+
+function qaLoadQuizSlot(){}
+
+function qaHandleFile(event){
+  var file=event.target.files&&event.target.files[0];
+  if(!file)return;
+  if(!file.name.endsWith('.html')){toast('⚠️ Sirf .html file!');return;}
+  _qaFileName=file.name;
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    _qaFile=ev.target.result;
+    if(_qaFile.indexOf("type:'quizScore'")===-1&&_qaFile.indexOf('type:"quizScore"')===-1){
+      _qaFile=injectPostMsg(_qaFile);
+    }
+    G('qaFileIcon').textContent='📝';
+    G('qaFileTitle').textContent=file.name;
+    G('qaFileSub').textContent='✅ File ready — score capture होगा';
+    G('qaFileZone').classList.add('has-file');
+    toast('✅ '+file.name+' ready!');
+  };
+  reader.readAsText(file);
+}
+
+function qaSubmit(){
+  var cls=G('qaClass').value;
+  var si=G('qaSubject').value;
+  var chi=G('qaChapter').value;
+  var name=G('qaQuizName').value.trim();
+  var desc=G('qaQuizDesc').value.trim();
+  if(!cls){toast('⚠️ Class चुनें!');return;}
+  if(si===''){toast('⚠️ Subject चुनें!');return;}
+  if(chi===''){toast('⚠️ Chapter चुनें!');return;}
+  if(!name){toast('⚠️ Quiz का नाम लिखें!');return;}
+  if(!_qaFile){toast('⚠️ Quiz HTML file चुनें!');return;}
+  // Save file to localStorage
+  var storeKey='qzf_'+CU.school+'_c'+chi+'_s'+si+'_'+Date.now();
+  try{localStorage.setItem(storeKey,_qaFile);}catch(e){toast('⚠️ File too large!');return;}
+  // Add quiz to chapter
+  var data=getSD(CU.school);
+  if(!data.subjects)data.subjects={};
+  if(!data.subjects[CU.school])data.subjects[CU.school]={};
+  if(!data.subjects[CU.school][cls])data.subjects[CU.school][cls]=[];
+  var subList=data.subjects[CU.school][cls];
+  var sub=subList[parseInt(si)];
+  if(!sub){toast('⚠️ Subject नहीं मिला!');return;}
+  if(!sub.chapters)sub.chapters=[];
+  var chap=sub.chapters[parseInt(chi)];
+  if(!chap){toast('⚠️ Chapter नहीं मिला!');return;}
+  if(!chap.quizzes)chap.quizzes=[];
+  var newQuiz={
+    name:name,
+    desc:desc,
+    questions:[],
+    quizFile:'__stored__:'+storeKey,
+    quizFileName:_qaFileName
+  };
+  chap.quizzes.push(newQuiz);
+  setSD(CU.school,data);
+  toast('🎉 "'+name+'" successfully add हो गई!');
+  closeQA();
+  _qaFile=null;_qaFileName='';
+}
+
+// Show/hide FAB based on login state
+
+
+// ══════════════════════════════════════════════
+// PARTICLES + SCROLL ANIMATIONS
+// ══════════════════════════════════════════════
+(function(){
+  var canvas=document.getElementById('particlesCanvas');
+  if(!canvas)return;
+  var ctx=canvas.getContext('2d');
+  var W,H;
+  var particles=[];
+  function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
+  resize();window.addEventListener('resize',resize);
+  var cols=['#7c5cfc','#f0a500','#00d4aa','#d4b8ff'];
+  for(var i=0;i<55;i++){
+    particles.push({
+      x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,
+      r:Math.random()*1.8+0.4,dx:(Math.random()-0.5)*0.35,dy:(Math.random()-0.5)*0.35,
+      col:cols[Math.floor(Math.random()*cols.length)],a:Math.random()*0.4+0.1
+    });
+  }
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    particles.forEach(function(p){
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=p.col;ctx.globalAlpha=p.a;ctx.fill();
+      p.x+=p.dx;p.y+=p.dy;
+      if(p.x<0||p.x>W)p.dx*=-1;if(p.y<0||p.y>H)p.dy*=-1;
+    });
+    ctx.globalAlpha=1;
+    for(var i=0;i<particles.length;i++)for(var j=i+1;j<particles.length;j++){
+      var dx=particles[i].x-particles[j].x,dy=particles[i].y-particles[j].y;
+      var d=Math.sqrt(dx*dx+dy*dy);
+      if(d<110){
+        ctx.beginPath();ctx.moveTo(particles[i].x,particles[i].y);
+        ctx.lineTo(particles[j].x,particles[j].y);
+        ctx.strokeStyle='rgba(124,111,224,'+(0.07*(1-d/110))+')';
+        ctx.lineWidth=0.5;ctx.stroke();
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+  // Scroll reveal
+  function initReveal(){
+    document.querySelectorAll('.features-section,.about-section,.content-section').forEach(function(el){
+      el.style.opacity='0';el.style.transform='translateY(30px)';
+      el.style.transition='opacity 0.7s ease,transform 0.7s ease';
+    });
+  }
+  function checkReveal(){
+    document.querySelectorAll('.features-section,.about-section,.content-section').forEach(function(el){
+      if(el.getBoundingClientRect().top<window.innerHeight-80){
+        el.style.opacity='1';el.style.transform='translateY(0)';
+      }
+    });
+  }
+  window.addEventListener('scroll',checkReveal,{passive:true});
+  setTimeout(function(){initReveal();checkReveal();},600);
+})();
+
+
+
+// ══════════════════════════════════════════════
+// SCORE SAVING + LEADERBOARD
+// Points = (bestPct * 2) + (quizCount * 15) + (avgPct * 0.5)
+// ══════════════════════════════════════════════
+function calcPoints(bestPct, quizCount, avgPct){
+  return Math.round(bestPct * 2 + quizCount * 15 + avgPct * 0.5);
+}
+
+function saveScore(pct, score, total, quizName, chapName, subjName){
+  if(!CU||!CU.school||!CU.cls) return;
+  var key='lb_'+CU.school.replace(/\s/g,'_')+'_'+CU.cls.replace(/\s/g,'_');
+  var allScores=[];
+  try{allScores=JSON.parse(localStorage.getItem(key)||'[]');}catch(e){}
+  var quizKey=(subjName||'')+'|'+(chapName||'')+'|'+(quizName||'');
+  var existing=allScores.find(function(s){return s.phone===CU.phone&&s.qkey===quizKey;});
+  var entry={
+    phone:CU.phone, name:CU.name, cls:CU.cls,
+    pct:Math.round(pct), score:score, total:total,
+    quiz:quizName||'Quiz', chap:chapName||'', subj:subjName||'',
+    qkey:quizKey, time:Date.now()
+  };
+  if(existing){
+    if(entry.pct > existing.pct){
+      Object.assign(existing, entry);
+    }
+  } else {
+    allScores.push(entry);
+  }
+  localStorage.setItem(key, JSON.stringify(allScores));
+  updateLBSection();
+}
+
+function getUserStats(school, cls){
+  var key='lb_'+school.replace(/\s/g,'_')+'_'+cls.replace(/\s/g,'_');
+  var all=[];
+  try{all=JSON.parse(localStorage.getItem(key)||'[]');}catch(e){}
+  var users={};
+  all.forEach(function(s){
+    if(!users[s.phone]){
+      users[s.phone]={phone:s.phone,name:s.name,cls:s.cls,attempts:[],quizCount:0,bestPct:0,avgPct:0,points:0};
+    }
+    var u=users[s.phone];
+    u.attempts.push(s);
+    u.quizCount++;
+    if(s.pct>u.bestPct) u.bestPct=s.pct;
+  });
+  Object.keys(users).forEach(function(k){
+    var u=users[k];
+    var sum=u.attempts.reduce(function(a,b){return a+b.pct;},0);
+    u.avgPct=u.attempts.length?Math.round(sum/u.attempts.length):0;
+    u.points=calcPoints(u.bestPct, u.quizCount, u.avgPct);
+  });
+  return Object.values(users);
+}
+
+function updateLBSection(){
+  if(!CU||!CU.school||!CU.cls){G('lbSection').style.display='none';return;}
+  G('lbSection').style.display='block';
+  G('lbSectionSub').textContent=CU.school+' • '+CU.cls;
+  renderLB('score');
+}
+
+function openLB(){
+  if(!CU||!CU.school) return;
+  scrollToLB();
+}
+function scrollToLB(){
+  var el=G('lbSection');
+  if(el&&el.style.display!=='none') el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function switchLB(mode, el){
+  document.querySelectorAll('.lb-tab').forEach(function(t){t.classList.remove('active');});
+  el.classList.add('active');
+  renderLB(mode);
+}
+
+function renderLB(mode){
+  if(!CU||!CU.school||!CU.cls){G('lbBody').innerHTML='';return;}
+  var users=getUserStats(CU.school,CU.cls);
+
+  if(!users.length){
+    G('lbBody').innerHTML='<div class="lb-empty"><span class="lb-empty-icon">🏆</span>अभी कोई quiz attempt नहीं हुई।<br><span style="font-size:0.8rem;">Quiz देने के बाद यहाँ ranking दिखेगी।</span></div>';
+    return;
+  }
+
+  // Sort by points (default) or quiz count
+  if(mode==='score'){
+    users.sort(function(a,b){return b.points-a.points||b.bestPct-a.bestPct;});
+  } else {
+    users.sort(function(a,b){return b.quizCount-a.quizCount||b.points-a.points;});
+  }
+
+  var html='';
+
+  // My rank banner (if not in top 3)
+  var myIdx=users.findIndex(function(u){return u.phone===CU.phone;});
+  if(myIdx>2&&myIdx>=0){
+    var me=users[myIdx];
+    html+='<div class="lb-my-rank-bar">'
+      +'<div style="font-size:0.75rem;color:var(--muted);">आपकी rank</div>'
+      +'<div style="font-size:1.1rem;font-weight:900;color:var(--accent2);font-family:Poppins,sans-serif;">#'+(myIdx+1)+'</div>'
+      +'<div style="flex:1;"></div>'
+      +'<div style="font-size:0.8rem;color:var(--accent);font-weight:700;">'+me.points+' pts</div>'
+      +'</div>';
+  }
+
+  // Podium — top 3 in order: 2nd, 1st, 3rd
+  var top3=users.slice(0,3);
+  var medals=['🥈','🥇','🥉'];
+  var podOrder=top3.length>=2?[1,0,2]:[0];
+  html+='<div class="lb-podium">';
+  podOrder.forEach(function(idx){
+    if(!top3[idx])return;
+    var u=top3[idx];
+    var rank=idx+1;
+    var medal=rank===1?'🥇':rank===2?'🥈':'🥉';
+    var ini=u.name.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);
+    html+='<div class="lb-pod">'
+      +'<div class="lb-pod-medal">'+medal+'</div>'
+      +'<div class="lb-pod-avatar'+(rank===1?' r1':'')+'">'+ini+'</div>'
+      +'<div class="lb-pod-name">'+h(u.name)+'</div>'
+      +'<div class="lb-pod-pts">'+u.points+' pts</div>'
+      +'<div class="lb-pod-bar"></div>'
+      +'</div>';
+  });
+  html+='</div>';
+
+  // Full ranked list
+  html+='<div class="lb-list">';
+  users.forEach(function(u,i){
+    var ini=u.name.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);
+    var isMe=u.phone===CU.phone;
+    var rank=i+1;
+    var rankIcon=rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':rank;
+    html+='<div class="lb-entry'+(isMe?' is-me':'')+'" style="animation-delay:'+(i*0.05)+'s">';
+    html+='<div class="lb-rank-num">'+(typeof rankIcon==='string'?rankIcon:'#'+rank)+'</div>';
+    html+='<div class="lb-entry-avatar">'+ini+'</div>';
+    html+='<div class="lb-entry-info">'
+      +'<div class="lb-entry-name">'+h(u.name)
+      +(isMe?' <span style="font-size:0.6rem;background:rgba(124,111,224,0.2);color:var(--accent2);border-radius:8px;padding:1px 6px;font-weight:700;">आप</span>':'')
+      +'</div>'
+      +'<div class="lb-entry-meta">'+u.quizCount+' quizzes • best '+u.bestPct+'% • avg '+u.avgPct+'%</div>'
+      +'</div>'
+      +'<div class="lb-entry-right">'
+      +'<div class="lb-pts">'+u.points+'</div>'
+      +'<div class="lb-pts-label">points</div>'
+      +'</div>'
+      +'</div>';
+  });
+  html+='</div>';
+
+  // Points formula note
+  html+='<div style="margin-top:20px;padding:12px 14px;background:rgba(200,169,110,0.06);border:1px solid rgba(200,169,110,0.15);border-radius:8px;font-size:0.72rem;color:var(--muted);text-align:center;">'
+    +'📊 Points = (Best Score × 2) + (Quizzes × 15) + (Average × 0.5)'
+    +'</div>';
+
+  G('lbBody').innerHTML=html;
+}
+
+renderSite();
+</script>
+</body>
+</html>
