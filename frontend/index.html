@@ -1,3 +1,9 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduPortal</title>
 <style>
   :root {
     --bg: #06060f;
@@ -1101,6 +1107,7 @@
     .chapters-body{padding:16px 14px 40px;}
   }
 </style>
+<script src="api.js"></script>
 </head>
 <body>
 
@@ -1697,189 +1704,179 @@
 <div class="save-toast" id="saveToast">✅ Saved!</div>
 
 
+
 <script>
 // ══════════════════════════════════════════════
-// DATA
+// EDUPORTAL — API-Connected Frontend
+// All data from server, token stored in localStorage
 // ══════════════════════════════════════════════
-const DEF={
-  title:'EduPortal',
-  tagline:'ज्ञान की रोशनी से जीवन को रोशन करें',
-  shayari:'पढ़ने वाले जब कलम उठाते हैं,\nतो तकदीर भी रुककर देखती है।\nहर अक्षर में एक सपना बसा है,\nजो मंज़िल तक पहुँचाने की कहानी लिखती है।',
-  ctaBtn:'अभी शुरू करें →',
-  about:'EduPortal एक अग्रणी शैक्षिक मंच है जो छात्रों और शिक्षकों को एक साथ जोड़ता है।',
-  content:'यहाँ आप अपनी वेबसाइट के बारे में और अधिक जानकारी जोड़ सकते हैं।',
-  boxes:[
-    {icon:'📚',title:'Smart Learning',content:'आधुनिक तकनीक से पढ़ाई मज़ेदार बनाएं।'},
-    {icon:'🏆',title:'Competitions',content:'सभी प्रतियोगिताएं एक जगह।'},
-    {icon:'👨‍🏫',title:'Expert Teachers',content:'अनुभवी शिक्षकों से सीखें।'},
-    {icon:'📊',title:'Progress Tracking',content:'अपनी प्रगति track करें।'},
-  ],
-  schools:[
-    {name:'Delhi Public School',classes:['Class 6','Class 7','Class 8','Class 9','Class 10','Class 11','Class 12']},
-    {name:'Kendriya Vidyalaya',classes:['Class 6','Class 7','Class 8','Class 9','Class 10','Class 11','Class 12']},
-    {name:'Ryan International',classes:['Class 1','Class 2','Class 3','Class 4','Class 5','Class 6','Class 7','Class 8','Class 9','Class 10']},
-    {name:'DAV Public School',classes:['Class 6','Class 7','Class 8','Class 9','Class 10','Class 11','Class 12']},
-    {name:"St. Mary's School",classes:['Class 1','Class 2','Class 3','Class 4','Class 5','Class 6','Class 7','Class 8','Class 9','Class 10']},
-  ],
-  subjects:{},
-  colors:{bg:'#0a0a0f',surface:'#12121a',card:'#1a1a26',border:'#2a2a3d',accent:'#c8a96e',accent2:'#7c6fe0',text:'#e8e4d9',muted:'#7a7a8a',btnbg:'#c8a96e',btnclr:'#0a0a0f',hb1:'#c8a96e',hb2:'#7c6fe0'},
-  bodyFont:'Noto Sans Devanagari',headingFont:'Playfair Display',
-};
 
-function schoolDef(n){
-  return {
-    title:n,tagline:n+' में आपका स्वागत है',
-    shayari:'ज्ञान वो दीपक है जो अँधेरे को मिटाता है,\nहर छात्र का सपना रोशन हो जाता है।',
-    ctaBtn:'Subjects देखें →',
-    about:n+' एक प्रतिष्ठित शैक्षिक संस्थान है।',
-    content:n+' के बारे में यहाँ और जानकारी जोड़ें।',
-    boxes:[
-      {icon:'📚',title:'हमारी Library',content:'हजारों किताबें उपलब्ध।'},
-      {icon:'🏆',title:'Sports',content:'खेल-कूद में भाग लें।'},
-      {icon:'👨‍🏫',title:'Expert Faculty',content:'समर्पित शिक्षक।'},
-      {icon:'📊',title:'Results',content:'उत्कृष्ट परिणाम।'},
-    ],
-    subjects:{},
-    colors:{bg:'#0a0a0f',surface:'#12121a',card:'#1a1a26',border:'#2a2a3d',accent:'#c8a96e',accent2:'#7c6fe0',text:'#e8e4d9',muted:'#7a7a8a',btnbg:'#c8a96e',btnclr:'#0a0a0f',hb1:'#c8a96e',hb2:'#7c6fe0'},
-    bodyFont:'Noto Sans Devanagari',headingFont:'Playfair Display',
-  };
-}
+// API Configuration — change after Render deploy
+window.API_BASE = '/.netlify/functions';
+
+// ── GLOBALS ──
+let S={title:'EduPortal',tagline:'ज्ञान की रोशनी से जीवन को रोशन करें',shayari:'पढ़ने वाले जब कलम उठाते हैं,\nतो तकदीर भी रुककर देखती है।',ctaBtn:'अभी शुरू करें →',about:'',content:'',boxes:[],schools:[],colors:{bg:'#06060f',surface:'#0d0d1f',card:'#12122a',border:'#1e1e3f',accent:'#f0a500',accent2:'#7c5cfc',text:'#f0eeff',muted:'#6e6e9a',btnbg:'#f0a500',btnclr:'#06060f',hb1:'#7c5cfc',hb2:'#f0a500'},bodyFont:'Plus Jakarta Sans',headingFont:'Sora'};
+let CU=null; // current user
+let AD=null; // active data (school or global)
+let ES=null; // editing school name
+let _AD=null;// admin draft data
+let _qz={subjIdx:null,chapIdx:null,quizIdx:null,questions:[],cur:0,score:0,answered:false};
+let _subjectsCache=[];// cached subjects for current user
+const GLOBAL_ADMIN_PW='ReBi5409N@';
 
 function G(id){return document.getElementById(id);}
-function sKey(n){return 'edu_school_'+n.replace(/\s+/g,'_');}
-function getSD(n){try{const r=localStorage.getItem(sKey(n));if(r)return JSON.parse(r);}catch(e){}return JSON.parse(JSON.stringify(schoolDef(n)));}
-function setSD(n,d){localStorage.setItem(sKey(n),JSON.stringify(d));}
 
-let S=JSON.parse(JSON.stringify(DEF));
-try{const sv=localStorage.getItem('edu_v5');if(sv){const p=JSON.parse(sv);if(p.schools&&typeof p.schools[0]==='string')p.schools=p.schools.map(n=>({name:n,classes:[]}));S=p;}}catch(e){}
-let CU=null;
-try{CU=JSON.parse(sessionStorage.getItem('cu')||'null');}catch(e){}
-let AD=null,ES=null,_AD=null;
+// ── API HELPER ──
+async function api(method,path,body){
+  const h={'Content-Type':'application/json'};
+  const tok=localStorage.getItem('ep_token');
+  if(tok)h['Authorization']='Bearer '+tok;
+  try{
+    const r=await fetch(window.API_BASE+path,{method,headers:h,body:body?JSON.stringify(body):undefined});
+    const d=await r.json();
+    if(!r.ok)throw new Error(d.error||'Server error');
+    return d;
+  }catch(e){console.error('API',method,path,e);throw e;}
+}
+
+// ══════════════════════════════════════════════
+// INIT — load site settings on page load
+// ══════════════════════════════════════════════
+async function initSite(){
+  try{
+    // Load global settings + schools
+    const [settings,schools]=await Promise.all([
+      api('GET','/site/settings'),
+      api('GET','/schools')
+    ]);
+    S=Object.assign(S,{
+      title:settings.title||'EduPortal',
+      tagline:settings.tagline||S.tagline,
+      shayari:settings.shayari||S.shayari,
+      ctaBtn:settings.cta_btn||settings.ctaBtn||S.ctaBtn,
+      about:settings.about||'',
+      content:settings.content||'',
+      boxes:settings.boxes||S.boxes,
+      colors:settings.colors||S.colors,
+      bodyFont:settings.body_font||settings.bodyFont||S.bodyFont,
+      headingFont:settings.heading_font||settings.headingFont||S.headingFont,
+      schools:schools
+    });
+    // Restore session
+    const tok=localStorage.getItem('ep_token');
+    if(tok){
+      try{
+        CU=await api('GET','/auth/me');
+        if(CU.school_name||CU.school){
+          const sname=CU.school_name||CU.school;
+          const sd=await api('GET','/site/school/'+encodeURIComponent(sname));
+          if(sd&&sd.title) AD=sd;
+        }
+      }catch(e){localStorage.removeItem('ep_token');CU=null;}
+    }
+  }catch(e){
+    console.warn('Could not reach server, using defaults');
+  }
+  renderSite();
+  renderParticles();
+}
 
 // ══════════════════════════════════════════════
 // RENDER
 // ══════════════════════════════════════════════
 function renderSite(){
-  AD=CU&&CU.school?getSD(CU.school):S;
-  var D=AD;
+  const D=AD||S;
   G('navLogo').textContent=S.title;
-  G('heroTitle').textContent = CU && CU.school ? (AD.title || CU.school) : S.title;
-  // Tagline: if logged in show school's custom tagline (not school•class)
-  G('heroTagline').textContent = CU&&CU.school ? (D.tagline||[CU.school,CU.cls].filter(Boolean).join(' • ')) : D.tagline;
-  G('shayariText').textContent=D.shayari;
-  G('heroCta').textContent=D.ctaBtn;
-  G('aboutText').textContent=D.about;
-  G('contentText').textContent=D.content;
+  G('heroTitle').textContent=CU?(AD&&AD.title?AD.title:S.title):S.title;
+  G('heroTagline').textContent=CU?(AD&&AD.tagline?AD.tagline:(CU.school_name+' में आपका स्वागत है')):D.tagline;
+  G('shayariText').textContent=D.shayari||S.shayari;
+  G('heroCta').textContent=D.ctaBtn||D.cta_btn||S.ctaBtn;
+  G('aboutText').textContent=D.about||'';
+  G('contentText').textContent=D.content||'';
   G('footerName').textContent=S.title;
   document.title=S.title;
-  // School banner photo
-  var bannerEl=G('schoolBanner');
-  var bannerImg=G('schoolBannerImg');
-  if(CU&&CU.school&&D.bannerPhoto){
-    bannerImg.src=D.bannerPhoto;
-    bannerEl.style.display='block';
-  } else {
-    bannerEl.style.display='none';
-    bannerImg.src='';
-  }
-  var c=Object.assign({},DEF.colors,D.colors||{});
+  const c=Object.assign({},S.colors||{},D.colors||{});
   applyColors(c);
-  applyFonts(D.bodyFont,D.headingFont);
-  G('featureBoxes').innerHTML=(D.boxes||[]).map(function(b,i){
-    return '<div class="feature-box" style="animation:fadeUp 0.6s '+(0.1+i*0.1)+'s ease both;opacity:0"><div class="box-icon">'+b.icon+'</div><div class="box-title">'+b.title+'</div><div class="box-content">'+b.content+'</div></div>';
-  }).join('');
-  var schools=S.schools||[];
-  G('schoolDropdown').innerHTML=schools.map(function(s){
-    var nm=typeof s==='string'?s:s.name;
-    return '<div class="school-option" onclick="selSchool(\''+nm.replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\')">'+nm+'</div>';
-  }).join('');
+  applyFonts(D.bodyFont||D.body_font||S.bodyFont,D.headingFont||D.heading_font||S.headingFont);
+  G('featureBoxes').innerHTML=(D.boxes||S.boxes||[]).map((b,i)=>'<div class="feature-box" style="animation:fadeUp 0.6s '+(0.1+i*0.1)+'s ease both;opacity:0"><div class="box-icon">'+b.icon+'</div><div class="box-title">'+b.title+'</div><div class="box-content">'+b.content+'</div></div>').join('');
+  // School dropdowns for signup
+  const schools=S.schools||[];
+  G('schoolDropdown').innerHTML=schools.map(s=>'<div class="school-option" onclick="selSchool(\''+escJ(s.name)+'\')">'+s.name+'</div>').join('');
   renderAuth();
-  // Update hero stats if logged in
-  if(CU&&CU.school&&CU.cls){
-    var _data=getSD(CU.school);
-    var _subs=_data.subjects||{};
-    var _list=(_subs[CU.school]&&_subs[CU.school][CU.cls])?_subs[CU.school][CU.cls]:(_subs[CU.cls]||[]);
-    var _sc=_list.length;
-    var _ch=_list.reduce(function(a,s){return a+(s.chapters?s.chapters.length:0);},0);
-    var _qz=_list.reduce(function(a,s){return a+(s.chapters?s.chapters.reduce(function(b,c){return b+(c.quizzes?c.quizzes.length:0);},0):0);},0);
-    if(G('statSubjects'))G('statSubjects').textContent=_sc;
-    if(G('statChapters'))G('statChapters').textContent=_ch;
-    if(G('statQuizzes'))G('statQuizzes').textContent=_qz;
-    if(G('heroStats'))G('heroStats').style.display=(_sc||_ch||_qz)?'flex':'none';
-  } else {
-    if(G('heroStats'))G('heroStats').style.display='none';
-  }
+  // Stats
+  if(CU&&_subjectsCache.length){
+    const sc=_subjectsCache.length;
+    const ch=_subjectsCache.reduce((a,s)=>a+(s.chapters?s.chapters.length:0),0);
+    const qz=_subjectsCache.reduce((a,s)=>a+(s.chapters?s.chapters.reduce((b,c)=>b+(c.quizzes?c.quizzes.length:0),0):0),0);
+    if(G('statSubjects'))G('statSubjects').textContent=sc;
+    if(G('statChapters'))G('statChapters').textContent=ch;
+    if(G('statQuizzes'))G('statQuizzes').textContent=qz;
+    if(G('heroStats'))G('heroStats').style.display=(sc||ch||qz)?'flex':'none';
+  } else {if(G('heroStats'))G('heroStats').style.display='none';}
 }
 
 function applyColors(c){
-  var r=document.documentElement.style;
-  r.setProperty('--bg',c.bg);r.setProperty('--surface',c.surface);
-  r.setProperty('--card',c.card);r.setProperty('--border',c.border);
-  r.setProperty('--accent',c.accent);r.setProperty('--accent2',c.accent2);
-  r.setProperty('--text',c.text);r.setProperty('--muted',c.muted);
-  r.setProperty('--btn-primary-bg',c.btnbg);r.setProperty('--btn-primary-color',c.btnclr);
-  r.setProperty('--hero-btn-bg','linear-gradient(135deg,'+c.hb1+','+c.hb2+')');
+  const r=document.documentElement.style;
+  const m={'bg':'--bg','surface':'--surface','card':'--card','border':'--border','accent':'--accent','accent2':'--accent2','text':'--text','muted':'--muted','btnbg':'--btn-primary-bg','btnclr':'--btn-primary-color'};
+  Object.entries(m).forEach(([k,v])=>{if(c[k])r.setProperty(v,c[k]);});
+  r.setProperty('--hero-btn-bg','linear-gradient(135deg,'+(c.hb1||c.accent2)+','+(c.hb2||c.accent)+')');
 }
 function applyFonts(body,heading){
-  var r=document.documentElement.style;
-  if(body){r.setProperty('--body-font',"'"+body+"',sans-serif");document.body.style.fontFamily="'"+body+"',sans-serif";}
-  if(heading)r.setProperty('--heading-font',"'"+heading+"',serif");
+  const r=document.documentElement.style;
+  if(body){r.setProperty('--body-font',"'"+body+"','Noto Sans Devanagari',sans-serif");document.body.style.fontFamily="'"+body+"','Noto Sans Devanagari',sans-serif";}
+  if(heading)r.setProperty('--heading-font',"'"+heading+"',sans-serif");
 }
+function escJ(s){return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\\'");}
+function h(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 // ══════════════════════════════════════════════
 // AUTH
 // ══════════════════════════════════════════════
 function renderAuth(){
-  var on=!!CU;
+  const on=!!CU;
   G('authBtns').style.display=on?'none':'flex';
   G('userMenu').style.display=on?'flex':'none';
   G('adminGear').style.display=on?'none':'flex';
-  if(on) updateLBSection(); else G('lbSection').style.display='none';
   if(on){
-    var ini=CU.name.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);
+    const ini=CU.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
     G('userAvatar').textContent=ini;
     G('ddName').textContent=CU.name;
-    G('ddSchool').textContent=[CU.school,CU.cls].filter(Boolean).join(' • ')||'Student';
-    // Show approval status
-    var freshUsers=JSON.parse(localStorage.getItem('edu_users')||'[]');
-    var freshU=freshUsers.find(function(u){return u.phone===CU.phone;});
-    var st=freshU?freshU.status:CU.status;
-    var statusBadge=st==='approved'?'':st==='rejected'?'<div style="font-size:0.7rem;color:var(--danger);font-weight:700;margin-top:2px;">❌ Access Rejected</div>':'<div style="font-size:0.7rem;color:#f59e0b;font-weight:700;margin-top:2px;">⏳ Approval Pending</div>';
-    G('ddSchool').innerHTML=[CU.school,CU.cls].filter(Boolean).join(' • ')+(statusBadge?'</span>'+statusBadge:'');
-    // Sync status to session
-    if(freshU&&freshU.status!==CU.status){CU.status=freshU.status;sessionStorage.setItem('cu',JSON.stringify(CU));}
+    const st=CU.status;
+    const badge=st==='approved'?'':st==='rejected'?'<div style="font-size:0.7rem;color:var(--danger);font-weight:700;">❌ Access Rejected</div>':'<div style="font-size:0.7rem;color:#f59e0b;font-weight:700;">⏳ Approval Pending</div>';
+    G('ddSchool').innerHTML=h((CU.school_name||'')+(CU.class_name?' • '+CU.class_name:''))+badge;
     G('ddSchoolAdmin').style.display='flex';
-    G('ddSchoolAdmin').onclick=function(){closeUserDD();openSchoolAdmin();};
+    G('ddSchoolAdmin').onclick=()=>{closeUserDD();openSchoolAdmin();};
+    if(CU.school_name&&CU.class_name) updateLBSection();
+    else if(G('lbSection'))G('lbSection').style.display='none';
   } else {
     G('ddSchoolAdmin').style.display='none';
+    if(G('lbSection'))G('lbSection').style.display='none';
   }
 }
-function doLogout(){CU=null;sessionStorage.removeItem('cu');closeUserDD();renderSite();toast('👋 Logout हो गए!');}
+
+async function doLogout(){
+  CU=null;AD=null;_subjectsCache=[];
+  localStorage.removeItem('ep_token');
+  closeUserDD();renderSite();toast('👋 Logout हो गए!');
+}
 function toggleUserDD(){G('userDropdown').classList.toggle('open');}
 function closeUserDD(){G('userDropdown').classList.remove('open');}
 
-document.addEventListener('click',function(e){
-  var m=G('userMenu');if(m&&!m.contains(e.target))closeUserDD();
-  var sb=G('schoolSelectBtn'),dd=G('schoolDropdown');
-  if(sb&&!sb.contains(e.target)&&dd&&!dd.contains(e.target))dd.classList.remove('open');
-  var cb=G('classSelectBtn'),cd=G('classDropdown');
-  if(cb&&!cb.contains(e.target)&&cd&&!cd.contains(e.target))cd.classList.remove('open');
-  ['editSchoolBtn,editSchoolList','editClassBtn,editClassList'].forEach(function(pair){
-    var parts=pair.split(',');var btn=G(parts[0]),list=G(parts[1]);
-    if(btn&&list&&!btn.contains(e.target)&&!list.contains(e.target))list.classList.remove('open');
+document.addEventListener('click',e=>{
+  const m=G('userMenu');if(m&&!m.contains(e.target))closeUserDD();
+  ['schoolSelectBtn,schoolDropdown','classSelectBtn,classDropdown','editSchoolBtn,editSchoolList','editClassBtn,editClassList'].forEach(p=>{
+    const [a,b]=p.split(',');const btn=G(a),dd=G(b);
+    if(btn&&dd&&!btn.contains(e.target)&&!dd.contains(e.target))dd.classList.remove('open');
   });
 });
 
-// ══════════════════════════════════════════════
-// POPUPS
-// ══════════════════════════════════════════════
+// ── POPUPS ──
 function openLogin(){G('loginOverlay').classList.add('active');document.body.style.overflow='hidden';}
 function openSignup(){G('signupOverlay').classList.add('active');document.body.style.overflow='hidden';}
 function closePopup(id){G(id).classList.remove('active');document.body.style.overflow='';}
 function closeOnBg(e,id){if(e.target===G(id))closePopup(id);}
 function switchToSignup(){closePopup('loginOverlay');setTimeout(openSignup,100);}
 function switchToLogin(){closePopup('signupOverlay');setTimeout(openLogin,100);}
-
 function toggleSchoolDropdown(){G('schoolDropdown').classList.toggle('open');}
 function toggleClassDropdown(){G('classDropdown').classList.toggle('open');}
 
@@ -1889,11 +1886,9 @@ function selSchool(nm){
   G('schoolDropdown').classList.remove('open');
   G('classSelectedText').textContent='Class select करें';
   G('classSelectBtn').classList.remove('selected');
-  var school=S.schools.find(function(s){return (typeof s==='string'?s:s.name)===nm;});
-  var classes=school&&school.classes?school.classes:[];
-  G('classDropdown').innerHTML=classes.map(function(c){
-    return '<div class="school-option" onclick="selClass(\''+c.replace(/'/g,"\\'")+'\')">📖 '+c+'</div>';
-  }).join('');
+  const sc=S.schools.find(s=>s.name===nm);
+  const classes=sc&&sc.classes?sc.classes:[];
+  G('classDropdown').innerHTML=classes.map(c=>'<div class="school-option" onclick="selClass(\''+escJ(c.name)+'\')">📖 '+c.name+'</div>').join('');
   G('classGroup').style.display=classes.length?'block':'none';
 }
 function selClass(cls){
@@ -1902,85 +1897,76 @@ function selClass(cls){
   G('classDropdown').classList.remove('open');
 }
 
-function handleLogin(){
-  var phone=G('loginPhone').value.trim(),pass=G('loginPass').value;
+async function handleLogin(){
+  const phone=G('loginPhone').value.trim(),pass=G('loginPass').value;
   if(!phone||!pass){toast('⚠️ सभी fields भरें!');return;}
-  var users=JSON.parse(localStorage.getItem('edu_users')||'[]');
-  var user=users.find(function(u){return u.phone===phone&&u.pass===pass;});
-  if(!user){toast('❌ Phone या Password गलत है!');return;}
-  CU=user;sessionStorage.setItem('cu',JSON.stringify(user));
-  closePopup('loginOverlay');renderSite();toast('✅ Welcome back, '+user.name+'!');
-  G('loginPhone').value='';G('loginPass').value='';
+  try{
+    const res=await api('POST','/auth/login',{phone,password:pass});
+    localStorage.setItem('ep_token',res.token);
+    CU=res.user;
+    if(CU.school_name){
+      try{AD=await api('GET','/site/school/'+encodeURIComponent(CU.school_name));}catch(e){}
+      try{_subjectsCache=await api('GET','/subjects?school='+encodeURIComponent(CU.school_name)+'&class='+encodeURIComponent(CU.class_name||''));}catch(e){}
+    }
+    closePopup('loginOverlay');renderSite();
+    toast('✅ Welcome back, '+CU.name+'!');
+    G('loginPhone').value='';G('loginPass').value='';
+  }catch(e){toast('❌ '+e.message);}
 }
-function handleSignup(){
-  var name=G('signupName').value.trim(),phone=G('signupPhone').value.trim();
-  var pass=G('signupPass').value;
-  var school=G('schoolSelectedText').textContent;
-  var cls=G('classSelectedText').textContent;
+
+async function handleSignup(){
+  const name=G('signupName').value.trim(),phone=G('signupPhone').value.trim(),pass=G('signupPass').value;
+  const school=G('schoolSelectedText').textContent,cls=G('classSelectedText').textContent;
   if(!name||!phone||!pass){toast('⚠️ सभी fields भरें!');return;}
   if(school==='School select करें'){toast('⚠️ School चुनें!');return;}
-  var sObj=S.schools.find(function(s){return (typeof s==='string'?s:s.name)===school;});
-  if(sObj&&sObj.classes&&sObj.classes.length&&cls==='Class select करें'){toast('⚠️ Class चुनें!');return;}
+  const sc=S.schools.find(s=>s.name===school);
+  if(sc&&sc.classes&&sc.classes.length&&cls==='Class select करें'){toast('⚠️ Class चुनें!');return;}
   if(phone.length<10){toast('⚠️ Valid phone number डालें!');return;}
-  var users=JSON.parse(localStorage.getItem('edu_users')||'[]');
-  if(users.find(function(u){return u.phone===phone;})){toast('⚠️ Phone already registered!');return;}
-  var user={name:name,phone:phone,pass:pass,school:school,cls:cls!=='Class select करें'?cls:'',status:'pending'};
-  users.push(user);localStorage.setItem('edu_users',JSON.stringify(users));
-  CU=user;sessionStorage.setItem('cu',JSON.stringify(user));
-  closePopup('signupOverlay');renderSite();toast('🎉 Welcome, '+name+'!');
-  ['signupName','signupPhone','signupPass'].forEach(function(id){G(id).value='';});
-  G('schoolSelectedText').textContent='School select करें';
-  G('schoolSelectBtn').classList.remove('selected');
-  G('classSelectedText').textContent='Class select करें';
-  G('classSelectBtn').classList.remove('selected');
-  G('classGroup').style.display='none';
+  try{
+    const res=await api('POST','/auth/signup',{name,phone,password:pass,school_name:school,class_name:cls});
+    localStorage.setItem('ep_token',res.token);
+    CU=res.user;
+    closePopup('signupOverlay');renderSite();
+    toast('🎉 Welcome, '+name+'! Approval pending hai.');
+    ['signupName','signupPhone','signupPass'].forEach(id=>G(id).value='');
+    G('schoolSelectedText').textContent='School select करें';G('schoolSelectBtn').classList.remove('selected');
+    G('classSelectedText').textContent='Class select करें';G('classSelectBtn').classList.remove('selected');
+    G('classGroup').style.display='none';
+  }catch(e){toast('❌ '+e.message);}
 }
 
 // ══════════════════════════════════════════════
-// HERO BUTTON
+// HERO BUTTON + SUBJECTS
 // ══════════════════════════════════════════════
-function handleCtaClick(){
-  if(CU&&CU.school&&CU.cls)openSubjectsPopup();
+async function handleCtaClick(){
+  if(CU&&CU.school_name&&CU.class_name) openSubjectsPopup();
   else openSignup();
 }
 
-// ══════════════════════════════════════════════
-// SUBJECTS POPUP
-// ══════════════════════════════════════════════
-function openSubjectsPopup(){
-  var school=CU.school,cls=CU.cls;
-  var data=getSD(school);
-  var subs=data.subjects||{};
-  var subjs=[];
-  if(subs[school]&&subs[school][cls])subjs=subs[school][cls];
-  else if(subs[cls])subjs=subs[cls];
+async function openSubjectsPopup(){
+  const school=CU.school_name,cls=CU.class_name;
+  try{
+    _subjectsCache=await api('GET','/subjects?school='+encodeURIComponent(school)+'&class='+encodeURIComponent(cls));
+  }catch(e){toast('⚠️ Subjects load नहीं हुए');}
   G('subjectsTag').textContent=school+' • '+cls;
   G('subjectsTitle').textContent=cls+' — Subjects';
-  G('subjectsSub').textContent=subjs.length?'अपना subject चुनें':'अभी कोई subject add नहीं किया गया';
-  G('subjectsGrid').innerHTML=subjs.length?subjs.map(function(sub,i){
-    var chCount=sub.chapters&&sub.chapters.length?sub.chapters.length+' chapters':'Chapters →';
-    return '<div class="subject-card" onclick="openChapters('+i+')" style="cursor:pointer;"><div class="subject-icon">'+(sub.icon||'📖')+'</div><div class="subject-name">'+(sub.name||'')+'</div>'+(sub.desc?'<div class="subject-desc">'+sub.desc+'</div>':'')+'<div style="font-size:0.7rem;color:var(--accent2);margin-top:4px;font-weight:600;">'+chCount+'</div></div>';
+  G('subjectsSub').textContent=_subjectsCache.length?'अपना subject चुनें':'अभी कोई subject नहीं';
+  G('subjectsGrid').innerHTML=_subjectsCache.length?_subjectsCache.map((sub,i)=>{
+    const chCnt=sub.chapters?sub.chapters.length:0;
+    return '<div class="subject-card" onclick="openChapters('+i+')" style="cursor:pointer;"><div class="subject-icon">'+(sub.icon||'📖')+'</div><div class="subject-name">'+h(sub.name||'')+'</div>'+(sub.description?'<div class="subject-desc">'+h(sub.description)+'</div>':'')+'<div style="font-size:0.7rem;color:var(--accent2);margin-top:4px;font-weight:600;">'+chCnt+' chapters</div></div>';
   }).join(''):'<div class="subjects-empty" style="grid-column:1/-1;"><span class="subjects-empty-icon">📭</span>School Admin se subjects add karein.</div>';
   G('subjectsOverlay').classList.add('active');
   document.body.style.overflow='hidden';
 }
 
-// ══════════════════════════════════════════════
-// CHAPTERS
-// ══════════════════════════════════════════════
+// ── CHAPTERS ──
 function openChapters(subjIdx){
   _qz.subjIdx=subjIdx;
-  var school=CU.school,cls=CU.cls;
-  var data=getSD(school);
-  var subs=data.subjects||{};
-  var subjs=[];
-  if(subs[school]&&subs[school][cls])subjs=subs[school][cls];
-  else if(subs[cls])subjs=subs[cls];
-  var sub=subjs[subjIdx];
+  const sub=_subjectsCache[subjIdx];
   if(!sub)return;
   G('chapSubjIcon').textContent=sub.icon||'📖';
   G('chapSubjName').textContent=sub.name||'Subject';
-  G('chapSubjMeta').textContent=cls+' • '+school;
+  G('chapSubjMeta').textContent=(CU.class_name||'')+' • '+(CU.school_name||'');
   renderChapList(sub.chapters||[]);
   G('subjectsOverlay').classList.remove('active');
   G('chaptersOverlay').classList.add('active');
@@ -1989,1436 +1975,632 @@ function openChapters(subjIdx){
 }
 function renderChapList(chapters){
   G('chapCount').textContent=chapters.length+' CHAPTER'+(chapters.length!==1?'S':'');
-  G('chapList').innerHTML=chapters.length?chapters.map(function(ch,i){
-    var qzCount=ch.quizzes&&ch.quizzes.length?ch.quizzes.length:0;
-    var hasFile=!!(ch.quizFile&&ch.quizFile.trim());
-    var btns='';
-    if(hasFile){
-      btns+='<button onclick="openIqv(this.dataset.url,this.dataset.title)" data-url="'+ch.quizFile.replace(/"/g,'&quot;')+'" data-title="'+(ch.name||'Quiz').replace(/"/g,'&quot;')+'" style="margin-top:8px;width:100%;padding:9px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:8px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:var(--body-font);">📄 Quiz File खोलें</button>';
-    }
-    if(qzCount>0){
-      btns+='<button onclick="openQuiz('+i+')" style="margin-top:6px;width:100%;padding:9px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:8px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:var(--body-font);">📝 '+qzCount+' Quiz'+(qzCount>1?'zes':'')+' देखें</button>';
-    }
-    if(!hasFile&&!qzCount) btns='<div style="font-size:0.7rem;color:var(--muted);margin-top:6px;">📭 अभी कोई quiz नहीं</div>';
+  G('chapList').innerHTML=chapters.length?chapters.map((ch,i)=>{
+    const qzCount=ch.quizzes?ch.quizzes.length:0;
+    const hasFile=ch.quizzes&&ch.quizzes.some(q=>q.hasFile||q.quiz_file_name);
+    let btns='';
+    if(qzCount>0)btns='<button onclick="openQuiz('+i+')" style="margin-top:8px;width:100%;padding:9px;background:linear-gradient(135deg,var(--accent2),#5a3fd4);color:#fff;border:none;border-radius:8px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:var(--body-font);">📝 '+qzCount+' Quiz'+(qzCount>1?'zes':'')+' देखें</button>';
+    else btns='<div style="font-size:0.7rem;color:var(--muted);margin-top:6px;">📭 अभी कोई quiz नहीं</div>';
     return '<div class="chapter-item" style="animation-delay:'+(i*0.05)+'s;flex-direction:column;align-items:stretch;">'
-      +'<div style="display:flex;align-items:flex-start;gap:14px;">'
-      +'<div class="chapter-num">'+(i+1)+'</div>'
-      +'<div class="chapter-info" style="flex:1;"><div class="chapter-name">'+(ch.name||'')+'</div>'
-      +(ch.desc?'<div class="chapter-desc">'+ch.desc+'</div>':'')
-      +'</div></div>'+btns+'</div>';
+      +'<div style="display:flex;align-items:flex-start;gap:14px;"><div class="chapter-num">'+(i+1)+'</div>'
+      +'<div class="chapter-info" style="flex:1;"><div class="chapter-name">'+h(ch.name||'')+'</div>'
+      +(ch.description?'<div class="chapter-desc">'+h(ch.description)+'</div>':'')+'</div></div>'
+      +btns+'</div>';
   }).join(''):'<div class="chapters-empty"><span class="chapters-empty-icon">📂</span>अभी कोई chapter नहीं।</div>';
 }
-function closeChapters(){
-  G('chaptersOverlay').classList.remove('active');
-  openSubjectsPopup();
-}
+function closeChapters(){G('chaptersOverlay').classList.remove('active');openSubjectsPopup();}
 
 // ══════════════════════════════════════════════
-// ADMIN — OPEN/CLOSE
+// QUIZ
 // ══════════════════════════════════════════════
-var GLOBAL_ADMIN_PW='ReBi5409N@';
-function openAdmin(){
-  var pw=GLOBAL_ADMIN_PW;
-  if(pw){
-    G('adminPassLabel').textContent='Global Admin Password डालें';
-    G('adminPassInput').value='';
-    G('adminPassError').style.display='none';
-    G('adminPassOverlay').classList.add('active');
-    document.body.style.overflow='hidden';
-    // Store that we're opening global admin
-    G('adminPassOverlay').dataset.mode='global';
-    setTimeout(function(){G('adminPassInput').focus();},200);
-  } else {
-    _openAdminDirect();
-  }
-}
-function _openAdminDirect(){
-  ES=null;fillAdmin(S,false);updateAdminHdr(false);
-  G('adminSidebar').classList.add('open');G('adminBg').classList.add('open');
-  document.body.style.overflow='hidden';
-}
-function openSchoolAdmin(){
-  if(!CU||!CU.school){toast('⚠️ पहले Login करें!');return;}
-  var pw=getClassPw(CU.school,CU.cls||'');
-  if(pw){
-    G('adminPassLabel').textContent=CU.school+(CU.cls?' — '+CU.cls:'')+' Admin Password डालें';
-    G('adminPassInput').value='';
-    G('adminPassError').style.display='none';
-    G('adminPassOverlay').dataset.mode='school';
-    G('adminPassOverlay').classList.add('active');
-    document.body.style.overflow='hidden';
-    setTimeout(function(){G('adminPassInput').focus();},200);
-  } else {
-    _openSchoolAdminDirect();
-  }
-}
-
-function verifyAdminPass(){
-  var entered=G('adminPassInput').value;
-  var mode=G('adminPassOverlay').dataset.mode;
-  var correct='';
-  if(mode==='global'){
-    correct=GLOBAL_ADMIN_PW;
-  } else {
-    correct=getClassPw(CU.school,CU.cls||'');
-  }
-  if(entered===correct){
-    G('adminPassError').style.display='none';
-    closePopup('adminPassOverlay');
-    if(mode==='global') _openAdminDirect();
-    else _openSchoolAdminDirect();
-  } else {
-    G('adminPassError').style.display='block';
-    G('adminPassInput').value='';
-    G('adminPassInput').focus();
-  }
-}
-
-function _openSchoolAdminDirect(){
-  ES=CU.school;var data=getSD(ES);
-  fillAdmin(data,true);updateAdminHdr(true);
-  G('adminSidebar').classList.add('open');G('adminBg').classList.add('open');
-  document.body.style.overflow='hidden';
-}
-function updateAdminHdr(isSchool){
-  if(isSchool){
-    G('adminTopBadge').textContent='🏫 School Admin';
-    G('adminTopTitle').textContent=ES+' — Customize';
-    G('tabSchools').style.display='none';
-    G('tabQuizAdd').style.display='flex';
-    G('tabUsers').style.display='flex';
-  } else {
-    G('adminTopBadge').textContent='Global Admin';
-    G('adminTopTitle').textContent='Website Customize करें';
-    G('tabSchools').style.display='';
-    G('tabQuizAdd').style.display='none';
-    G('tabUsers').style.display='none';
-  }
-}
-function closeAdmin(){
-  G('adminSidebar').classList.remove('open');G('adminBg').classList.remove('open');
-  document.body.style.overflow='';ES=null;
-  if(AD)applyColors(Object.assign({},DEF.colors,AD.colors||{}));
-}
-function switchTab(name,el){
-  document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active');});
-  document.querySelectorAll('.admin-tab').forEach(function(t){t.classList.remove('active');});
-  G('tab-'+name).classList.add('active');el.classList.add('active');
-  if(name==='quizadd')qaAdminInit();
-  if(name==='users')renderUsersTab();
-}
-
-// ══════════════════════════════════════════════
-// ADMIN — FILL FIELDS
-// ══════════════════════════════════════════════
-function fillAdmin(data,isSchool){
-  _AD=JSON.parse(JSON.stringify(data));
-  G('adminTitle').value=_AD.title||'';G('adminTagline').value=_AD.tagline||'';
-  G('adminShayari').value=_AD.shayari||'';G('adminCtaBtn').value=_AD.ctaBtn||'';
-  G('adminAbout').value=_AD.about||'';G('adminContent').value=_AD.content||'';
-  // Banner photo - only show for school admin
-  var bannerField=G('adminBannerField');
-  if(bannerField) bannerField.style.display=isSchool?'block':'none';
-  if(isSchool&&_AD.bannerPhoto){
-    G('adminBannerImg').src=_AD.bannerPhoto;
-    G('adminBannerPreview').style.display='block';
-  } else if(G('adminBannerPreview')){
-    G('adminBannerPreview').style.display='none';
-  }
-  var c=Object.assign({},DEF.colors,_AD.colors||{});
-  ['bg','surface','card','border','accent','accent2','text','muted','btnbg','btnclr','hb1','hb2'].forEach(function(k){
-    var cv=G('clr-'+k),hv=G('hex-'+k),val=c[k]||'#000000';
-    if(cv)cv.value=val;if(hv)hv.value=val;
-  });
-  applyColors(c);applyFonts(_AD.bodyFont||DEF.bodyFont,_AD.headingFont||DEF.headingFont);
-  document.querySelectorAll('#bodyFontGrid .font-option').forEach(function(el){
-    el.classList.toggle('selected',el.textContent.includes((_AD.bodyFont||'Noto').split(' ')[0]));
-  });
-  document.querySelectorAll('#headingFontGrid .font-option').forEach(function(el){
-    el.classList.toggle('selected',el.textContent.includes((_AD.headingFont||'Playfair').split(' ')[0]));
-  });
-  renderAdminBoxes();
-  if(!isSchool)renderAdminSchools();
-  renderAdminSubjects();
-  switchTab('content',document.querySelector('.admin-tab[data-tab="content"]'));
-}
-
-// ══════════════════════════════════════════════
-// COLOR/FONT HELPERS
-// ══════════════════════════════════════════════
-function liveClr(v,val){
-  document.documentElement.style.setProperty(v,val);
-  var km={'--bg':'bg','--surface':'surface','--card':'card','--border':'border','--accent':'accent','--accent2':'accent2','--text':'text','--muted':'muted','--btn-primary-bg':'btnbg','--btn-primary-color':'btnclr'};
-  var k=km[v];if(k&&_AD){if(!_AD.colors)_AD.colors={};_AD.colors[k]=val;}
-}
-function syncH(hid,val){var e=G(hid);if(e)e.value=val;}
-function hexClr(pid,v,val){if(/^#[0-9A-Fa-f]{6}$/.test(val)){liveClr(v,val);var p=G(pid);if(p)p.value=val;}}
-function updBtn(){
-  var bg=G('clr-btnbg').value||'#c8a96e',clr=G('clr-btnclr').value||'#0a0a0f';
-  var h1=G('clr-hb1').value||'#c8a96e',h2=G('clr-hb2').value||'#7c6fe0';
-  document.documentElement.style.setProperty('--btn-primary-bg',bg);
-  document.documentElement.style.setProperty('--btn-primary-color',clr);
-  document.documentElement.style.setProperty('--hero-btn-bg','linear-gradient(135deg,'+h1+','+h2+')');
-  if(_AD){if(!_AD.colors)_AD.colors={};Object.assign(_AD.colors,{btnbg:bg,btnclr:clr,hb1:h1,hb2:h2});}
-  ['btnbg','btnclr','hb1','hb2'].forEach(function(k){var h=G('hex-'+k),c=G('clr-'+k);if(h&&c)h.value=c.value;});
-}
-function setBodyFont(font,el){
-  document.querySelectorAll('#bodyFontGrid .font-option').forEach(function(e){e.classList.remove('selected');});
-  el.classList.add('selected');if(_AD)_AD.bodyFont=font;
-  document.documentElement.style.setProperty('--body-font',"'"+font+"',sans-serif");
-  document.body.style.fontFamily="'"+font+"',sans-serif";
-}
-function setHeadingFont(font,el){
-  document.querySelectorAll('#headingFontGrid .font-option').forEach(function(e){e.classList.remove('selected');});
-  el.classList.add('selected');if(_AD)_AD.headingFont=font;
-  document.documentElement.style.setProperty('--heading-font',"'"+font+"',serif");
-}
-var PRESETS={
-  dark:{bg:'#0a0a0f',surface:'#12121a',card:'#1a1a26',border:'#2a2a3d',accent:'#c8a96e',accent2:'#7c6fe0',text:'#e8e4d9',muted:'#7a7a8a',btnbg:'#c8a96e',btnclr:'#0a0a0f',hb1:'#c8a96e',hb2:'#7c6fe0'},
-  light:{bg:'#f4f4ef',surface:'#ffffff',card:'#efefea',border:'#ddddd5',accent:'#8b6914',accent2:'#5a4fc8',text:'#1a1a14',muted:'#66665a',btnbg:'#8b6914',btnclr:'#ffffff',hb1:'#8b6914',hb2:'#5a4fc8'},
-  forest:{bg:'#071a12',surface:'#0a2218',card:'#0e2d1f',border:'#154428',accent:'#22d17c',accent2:'#4ecdc4',text:'#d4edda',muted:'#5a9e72',btnbg:'#22d17c',btnclr:'#071a12',hb1:'#22d17c',hb2:'#4ecdc4'},
-  purple:{bg:'#0d0520',surface:'#120830',card:'#180b3f',border:'#251450',accent:'#b06cff',accent2:'#ff6cce',text:'#e8d8ff',muted:'#7a5da0',btnbg:'#b06cff',btnclr:'#0d0520',hb1:'#b06cff',hb2:'#ff6cce'},
-  sunset:{bg:'#160b04',surface:'#1f1008',card:'#2a160a',border:'#3d2212',accent:'#ff8c42',accent2:'#ff4e6a',text:'#ffe8d4',muted:'#9a6244',btnbg:'#ff8c42',btnclr:'#160b04',hb1:'#ff8c42',hb2:'#ff4e6a'},
-  ocean:{bg:'#001a33',surface:'#002244',card:'#003366',border:'#004488',accent:'#00bfff',accent2:'#00ffcc',text:'#d0eeff',muted:'#4a90b8',btnbg:'#00bfff',btnclr:'#001a33',hb1:'#00bfff',hb2:'#00ffcc'},
-};
-function applyPreset(n){
-  if(_AD)_AD.colors=JSON.parse(JSON.stringify(PRESETS[n]||PRESETS.dark));
-  applyColors(_AD.colors);
-  var c=_AD.colors;
-  ['bg','surface','card','border','accent','accent2','text','muted','btnbg','btnclr','hb1','hb2'].forEach(function(k){
-    var cv=G('clr-'+k),hv=G('hex-'+k);if(cv)cv.value=c[k]||'#000000';if(hv)hv.value=c[k]||'';
-  });
-  toast('🎨 Preset applied!');
-}
-
-// ══════════════════════════════════════════════
-// ADMIN — BOXES
-// ══════════════════════════════════════════════
-function renderAdminBoxes(){
-  var boxes=(_AD&&_AD.boxes)||[];
-  G('adminBoxes').innerHTML=boxes.map(function(b,i){
-    return '<div class="box-admin-item"><div class="box-admin-row"><input value="'+b.icon+'" placeholder="Icon" style="max-width:58px;text-align:center;" oninput="_AD.boxes['+i+'].icon=this.value"><input value="'+b.title+'" placeholder="Title" oninput="_AD.boxes['+i+'].title=this.value"><button class="btn-del" onclick="delBox('+i+')">🗑</button></div><div class="box-admin-row"><textarea placeholder="Content..." oninput="_AD.boxes['+i+'].content=this.value">'+b.content+'</textarea></div></div>';
-  }).join('');
-}
-function addBox(){if(_AD){_AD.boxes.push({icon:'⭐',title:'नया Box',content:'content...'});renderAdminBoxes();}}
-function delBox(i){if(_AD){_AD.boxes.splice(i,1);renderAdminBoxes();}}
-
-// ══════════════════════════════════════════════
-// ADMIN — SCHOOLS
-// ══════════════════════════════════════════════
-function renderAdminSchools(){
-  G('adminSchools').innerHTML=S.schools.map(function(s,i){
-    var classList=(s.classes||[]).map(function(c,ci){
-      var pwKey='adm_pw_'+s.name.replace(/\s/g,'_')+'_'+c.replace(/\s/g,'_');
-      var hasPw=!!(localStorage.getItem(pwKey));
-      return '<div style="display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 10px;margin-bottom:6px;">'
-        +'<span style="font-size:0.82rem;font-weight:600;color:var(--text);flex:1;">📖 '+h(c)+'</span>'
-        +(hasPw?'<span style="font-size:0.68rem;color:var(--success);font-weight:700;">🔐 Set</span>':'<span style="font-size:0.68rem;color:var(--muted);">🔓 No PW</span>')
-        +'<input type="text" id="pw-'+i+'-'+ci+'" placeholder="Password set करें" style="width:130px;padding:5px 8px;background:#060610;border:1px solid var(--border);border-radius:5px;color:var(--text);font-size:0.75rem;outline:none;">'
-        +'<button onclick="saveClassPw('+i+','+ci+')" style="padding:5px 10px;background:rgba(82,200,122,0.1);border:1px solid rgba(82,200,122,0.3);border-radius:5px;color:var(--success);cursor:pointer;font-size:0.72rem;font-weight:700;flex-shrink:0;">💾</button>'
-        +'<button class="class-chip-del" onclick="delClass('+i+','+ci+')" style="flex-shrink:0;">✕</button>'
-        +'</div>';
-    }).join('');
-    return '<div class="school-admin-card">'
-      +'<div class="school-admin-card-top"><input value="'+s.name+'" placeholder="School" oninput="S.schools['+i+'].name=this.value" data-si="'+i+'"><button class="btn-del" onclick="delSchool('+i+')">🗑</button></div>'
-      +'<div class="class-label">📖 Classes — 🔐 Admin Passwords</div>'
-      +(classList||'<p style="color:var(--muted);font-size:0.8rem;margin-bottom:8px;">कोई class नहीं।</p>')
-      +'<div class="add-class-row" style="margin-top:8px;"><input class="add-class-input" id="newClass-'+i+'" placeholder="Class 9" onkeydown="if(event.key===\'Enter\')addClassToSchool('+i+')"><button class="add-class-btn" onclick="addClassToSchool('+i+')">+ Add</button></div>'
-      +'</div>';
-  }).join('');
-}
-
-function saveClassPw(si,ci){
-  var school=S.schools[si];
-  var cls=school&&school.classes&&school.classes[ci];
-  if(!cls)return;
-  var pwKey='adm_pw_'+school.name.replace(/\s/g,'_')+'_'+cls.replace(/\s/g,'_');
-  var val=G('pw-'+si+'-'+ci).value.trim();
-  if(val) localStorage.setItem(pwKey,val);
-  else localStorage.removeItem(pwKey);
-  toast('✅ '+(val?'"'+cls+'" ka password set हो गया!':'"'+cls+'" ka password हटा दिया!'));
-}
-
-function getClassPw(school,cls){
-  var pwKey='adm_pw_'+school.replace(/\s/g,'_')+'_'+cls.replace(/\s/g,'_');
-  try{return localStorage.getItem(pwKey)||'';}catch(e){return '';}
-}
-function addSchool(){S.schools.push({name:'नया School',classes:[]});renderAdminSchools();}
-function delSchool(i){S.schools.splice(i,1);renderAdminSchools();}
-function addClassToSchool(i){
-  var inp=G('newClass-'+i),val=inp.value.trim();
-  if(!val){toast('⚠️ Class नाम लिखें!');return;}
-  if(!S.schools[i].classes)S.schools[i].classes=[];
-  if(S.schools[i].classes.includes(val)){toast('⚠️ पहले से है!');return;}
-  S.schools[i].classes.push(val);inp.value='';renderAdminSchools();
-}
-function delClass(si,ci){S.schools[si].classes.splice(ci,1);renderAdminSchools();}
-
-// ══════════════════════════════════════════════
-// ADMIN — SUBJECTS + CHAPTERS
-// ══════════════════════════════════════════════
-function renderAdminSubjects(){
-  if(ES){
-    // SCHOOL ADMIN
-    var school=ES,cls=CU&&CU.cls;
-    if(!cls){G('adminSubjectsTree').innerHTML='<p style="color:var(--muted)">Class नहीं मिली।</p>';return;}
-    if(!_AD.subjects)_AD.subjects={};
-    if(!_AD.subjects[school])_AD.subjects[school]={};
-    if(!_AD.subjects[school][cls])_AD.subjects[school][cls]=[];
-    var list=_AD.subjects[school][cls];
-    var html='<div style="background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;">';
-    html+='<div style="padding:10px 16px;border-bottom:1px solid var(--border);background:rgba(124,111,224,0.06);font-size:0.7rem;color:var(--accent2);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;">📖 '+cls+' — '+list.length+' subjects</div>';
-    html+='<div style="padding:14px 16px;">';
-    list.forEach(function(sub,bi){
-      html+='<div style="background:#0d0d1e;border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px;">';
-      html+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">';
-      html+='<input style="width:44px;padding:6px 4px;background:#060610;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:1rem;text-align:center;outline:none;" value="'+h(sub.icon||'')+'" placeholder="📖" oninput="updSubj('+bi+',\'icon\',this.value)">';
-      html+='<input style="flex:1;padding:6px 10px;background:#060610;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.85rem;outline:none;" value="'+h(sub.name||'')+'" placeholder="Subject नाम" oninput="updSubj('+bi+',\'name\',this.value)">';
-      html+='<button class="btn-del" onclick="delSubj('+bi+')" style="padding:5px 9px;">🗑</button></div>';
-      html+='<div style="margin-bottom:10px;"><input style="width:100%;padding:6px 10px;background:#060610;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.8rem;outline:none;" value="'+h(sub.desc||'')+'" placeholder="Description" oninput="updSubj('+bi+',\'desc\',this.value)"></div>';
-      var chapters=sub.chapters||[];
-      html+='<div class="chap-admin-block"><div class="chap-admin-label">📑 Chapters — '+chapters.length+'</div>';
-      chapters.forEach(function(ch,chi){
-        html+='<div class="chap-item" style="flex-direction:column;align-items:stretch;">';
-        html+='<div style="display:flex;align-items:center;gap:6px;">';
-        html+='<div class="chap-item-num">'+(chi+1)+'</div>';
-        html+='<input class="chap-item-name" value="'+h(ch.name||'')+ '" placeholder="Chapter naam" oninput="updChap('+bi+','+chi+',\'name\',this.value)">';
-        html+='<input class="chap-item-desc" value="'+h(ch.desc||'')+ '" placeholder="Description" oninput="updChap('+bi+','+chi+',\'desc\',this.value)">';
-        html+='<button class="btn-del" onclick="delChap('+bi+','+chi+')" style="padding:4px 8px;font-size:0.8rem;">🗑</button>';
-        html+='</div></div>';
-      });
-      html+='<div style="display:flex;flex-direction:column;gap:6px;margin-top:8px;">';
-      html+='<input class="add-chap-name" id="cn-'+bi+'" placeholder="naya Chapter naam" onkeydown="if(event.key===&quot;Enter&quot;)addChap('+bi+')">';
-      html+='<input class="add-chap-desc" id="cd-'+bi+'" placeholder="Description (optional)" onkeydown="if(event.key===&quot;Enter&quot;)addChap('+bi+')">';
-      html+='<button class="add-chap-btn" onclick="addChap('+bi+')">+ Chapter जोड़ें</button>';
-      html+='</div></div></div>';
-    });
-    html+='<div style="border-top:1px solid var(--border);padding-top:14px;margin-top:4px;">';
-    html+='<div style="font-size:0.7rem;color:var(--accent);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">+ नया Subject जोड़ें</div>';
-    html+='<div style="display:flex;gap:6px;margin-bottom:6px;"><input id="si-icon" style="width:44px;padding:7px 4px;background:#060610;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:1rem;text-align:center;outline:none;" placeholder="📖"><input id="si-name" style="flex:1;padding:7px 10px;background:#060610;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.85rem;outline:none;" placeholder="Subject नाम" onkeydown="if(event.key===\'Enter\')addSubj()"></div>';
-    html+='<div style="display:flex;gap:6px;"><input id="si-desc" style="flex:1;padding:7px 10px;background:#060610;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.82rem;outline:none;" placeholder="Description" onkeydown="if(event.key===\'Enter\')addSubj()"><button class="add-subj-btn" onclick="addSubj()" style="flex-shrink:0;">+ Add</button></div>';
-    html+='</div></div></div>';
-    G('adminSubjectsTree').innerHTML=html;
-    return;
-  }
-  // GLOBAL ADMIN
-  var schools=S.schools||[];
-  var sd=(_AD&&_AD.subjects)||{};
-  if(!schools.length){G('adminSubjectsTree').innerHTML='<p style="color:var(--muted);font-size:0.82rem;">पहले Schools add करें।</p>';return;}
-  var html='';
-  schools.forEach(function(sc,si){
-    var sname=typeof sc==='string'?sc:sc.name;
-    var classes=sc.classes||[];
-    var total=classes.reduce(function(a,c){return a+((sd[sname]&&sd[sname][c])?sd[sname][c].length:0);},0);
-    var cHtml='';
-    classes.forEach(function(cls,ci){
-      var list=(sd[sname]&&sd[sname][cls])||[];
-      cHtml+='<div class="subj-class-block"><div class="subj-class-label">📖 '+cls+' — '+list.length+' subjects</div>';
-      list.forEach(function(sub,bi){
-        cHtml+='<div class="chap-item"><span style="font-size:1.1rem;padding:0 4px;">'+(sub.icon||'📖')+'</span><span class="chap-item-name" style="flex:1;">'+(sub.name||'')+'</span><span style="font-size:0.7rem;color:var(--muted);padding:0 6px;">'+((sub.chapters&&sub.chapters.length)||0)+' ch</span></div>';
-      });
-      cHtml+='</div>';
-    });
-    html+='<div class="subj-school-block"><div class="subj-school-hdr" onclick="toggleSubjBlock(this)"><div><div class="subj-school-name">🏫 '+sname+'</div><div class="subj-school-count">'+total+' subjects</div></div><span class="subj-toggle">▶</span></div><div class="subj-school-body">'+(cHtml||'<p style="color:var(--muted);font-size:0.8rem;">Classes add करें।</p>')+'</div></div>';
-  });
-  G('adminSubjectsTree').innerHTML=html;
-}
-
-function h(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function getSubjArr(){
-  var school=ES,cls=CU&&CU.cls;
-  if(!_AD.subjects)_AD.subjects={};
-  if(!_AD.subjects[school])_AD.subjects[school]={};
-  if(!_AD.subjects[school][cls])_AD.subjects[school][cls]=[];
-  return _AD.subjects[school][cls];
-}
-function autoSave(){
-  if(ES){var saved=getSD(ES);saved.subjects=_AD.subjects;setSD(ES,saved);}
-}
-function updSubj(bi,field,val){var arr=getSubjArr();if(arr[bi])arr[bi][field]=val;}
-function delSubj(bi){getSubjArr().splice(bi,1);autoSave();renderAdminSubjects();}
-function addSubj(){
-  var icon=G('si-icon').value.trim()||'📖';
-  var name=G('si-name').value.trim();
-  var desc=G('si-desc').value.trim()||'';
-  if(!name){toast('⚠️ Subject नाम लिखें!');return;}
-  getSubjArr().push({icon:icon,name:name,desc:desc,chapters:[]});
-  G('si-icon').value='';G('si-name').value='';G('si-desc').value='';
-  autoSave();renderAdminSubjects();toast('✅ Subject add हो गया!');
-}
-function updChap(bi,chi,field,val){var arr=getSubjArr();if(arr[bi]&&arr[bi].chapters&&arr[bi].chapters[chi])arr[bi].chapters[chi][field]=val;}
-function delChap(bi,chi){var arr=getSubjArr();if(arr[bi]&&arr[bi].chapters)arr[bi].chapters.splice(chi,1);autoSave();renderAdminSubjects();}
-function addChap(bi){
-  var nameEl=G('cn-'+bi),descEl=G('cd-'+bi);
-  var name=nameEl&&nameEl.value.trim();
-  var desc=descEl&&descEl.value.trim()||'';
-  if(!name){toast('⚠️ Chapter नाम लिखें!');return;}
-  var arr=getSubjArr();
-  if(!arr[bi].chapters)arr[bi].chapters=[];
-  arr[bi].chapters.push({name:name,desc:desc});
-  if(nameEl)nameEl.value='';if(descEl)descEl.value='';
-  autoSave();renderAdminSubjects();toast('✅ Chapter जोड़ा गया!');
-}
-function toggleSubjBlock(hdr){
-  var body=hdr.nextElementSibling;var tog=hdr.querySelector('.subj-toggle');
-  var open=body.classList.toggle('open');
-  tog.style.transform=open?'rotate(90deg)':'rotate(0deg)';
-}
-
-// ══════════════════════════════════════════════
-// ADMIN — SAVE
-// ══════════════════════════════════════════════
-function saveAdmin(){
-  _AD.title=G('adminTitle').value||_AD.title;
-  _AD.tagline=G('adminTagline').value;_AD.shayari=G('adminShayari').value;
-  _AD.ctaBtn=G('adminCtaBtn').value;_AD.about=G('adminAbout').value;_AD.content=G('adminContent').value;
-  _AD.colors=_AD.colors||{};
-  ['bg','surface','card','border','accent','accent2','text','muted','btnbg','btnclr','hb1','hb2'].forEach(function(k){
-    var el=G('clr-'+k);if(el)_AD.colors[k]=el.value;
-  });
-  document.querySelectorAll('.box-admin-item').forEach(function(item,i){
-    var ins=item.querySelectorAll('input'),ta=item.querySelector('textarea');
-    if(_AD.boxes&&_AD.boxes[i]){
-      _AD.boxes[i].icon=ins[0]&&ins[0].value||_AD.boxes[i].icon;
-      _AD.boxes[i].title=ins[1]&&ins[1].value||_AD.boxes[i].title;
-      _AD.boxes[i].content=ta&&ta.value||_AD.boxes[i].content;
-    }
-  });
-  var wasSchool=ES;
-  if(wasSchool){
-    setSD(wasSchool,_AD);toast('✅ '+wasSchool+' save हो गया!');  } else {
-    document.querySelectorAll('.school-admin-card-top input[data-si]').forEach(function(inp){
-      var i=parseInt(inp.getAttribute('data-si'));if(S.schools[i])S.schools[i].name=inp.value;
-    });
-    Object.assign(S,{title:_AD.title,tagline:_AD.tagline,shayari:_AD.shayari,ctaBtn:_AD.ctaBtn,about:_AD.about,content:_AD.content,boxes:_AD.boxes,subjects:_AD.subjects||{},colors:_AD.colors,bodyFont:_AD.bodyFont,headingFont:_AD.headingFont});
-    localStorage.setItem('edu_v5',JSON.stringify(S));
-    toast('✅ Global site save हो गया!');
-  }
-  G('adminSidebar').classList.remove('open');G('adminBg').classList.remove('open');
-  document.body.style.overflow='';ES=null;renderSite();
-}
-
-function toast(msg){
-  var t=G('saveToast');t.textContent=msg;t.style.display='block';
-  t.style.animation='none';t.offsetHeight;t.style.animation='slideUp 0.3s ease';
-  setTimeout(function(){t.style.display='none';},3500);
-}
-
-// ══════════════════════════════════════════════
-// PROFILE
-// ══════════════════════════════════════════════
-function openProfile(){
-  if(!CU){toast('⚠️ पहले Login करें!');return;}
-  showProfileView();G('profileOverlay').classList.add('active');document.body.style.overflow='hidden';
-}
-function showProfileView(){
-  G('profileViewMode').style.display='block';G('profileEditMode').style.display='none';
-  var u=CU,ini=u.name.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);
-  G('profileAvatar').textContent=ini;G('profileViewName').textContent=u.name;
-  G('profileViewSub').textContent=[u.school,u.cls].filter(Boolean).join(' • ')||'Student';
-  G('pv-name').textContent=u.name;G('pv-phone').textContent=u.phone;
-  G('pv-school').textContent=u.school||'—';G('pv-class').textContent=u.cls||'—';
-}
-function showProfileEdit(){
-  G('profileViewMode').style.display='none';G('profileEditMode').style.display='block';
-  G('editName').value=CU.name||'';G('editPass').value='';G('editPassConfirm').value='';
-  G('editSchoolList').innerHTML=S.schools.map(function(s){
-    var nm=typeof s==='string'?s:s.name;
-    return '<div class="profile-dd-opt" onclick="pickEditSchool(\''+nm.replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\')">'+nm+'</div>';
-  }).join('');
-  if(CU.school){G('editSchoolText').textContent=CU.school;G('editSchoolBtn').classList.add('selected');loadEditClasses(CU.school,CU.cls||'');}
-  else{G('editSchoolText').textContent='School चुनें';G('editSchoolBtn').classList.remove('selected');G('editClassRow').style.display='none';}
-}
-function togglePDD(id){
-  ['editSchoolList','editClassList'].forEach(function(lid){if(lid!==id&&G(lid))G(lid).classList.remove('open');});
-  G(id).classList.toggle('open');
-}
-function pickEditSchool(name){
-  G('editSchoolText').textContent=name;G('editSchoolBtn').classList.add('selected');
-  G('editSchoolList').classList.remove('open');loadEditClasses(name,'');
-}
-function loadEditClasses(sname,pre){
-  var sc=S.schools.find(function(s){return (typeof s==='string'?s:s.name)===sname;});
-  var classes=sc&&sc.classes?sc.classes:[];
-  if(classes.length){
-    G('editClassList').innerHTML=classes.map(function(c){return '<div class="profile-dd-opt" onclick="pickEditClass(\''+c.replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\')">'+c+'</div>';}).join('');
-    G('editClassText').textContent=pre||'Class चुनें';
-    G('editClassBtn').classList.toggle('selected',!!pre);
-    G('editClassRow').style.display='block';
-  } else {G('editClassRow').style.display='none';}
-}
-function pickEditClass(cls){G('editClassText').textContent=cls;G('editClassBtn').classList.add('selected');G('editClassList').classList.remove('open');}
-function togglePwVis(id,btn){
-  var inp=G(id);if(inp.type==='password'){inp.type='text';btn.textContent='🙈';}else{inp.type='password';btn.textContent='👁';}
-}
-function saveProfile(){
-  var name=G('editName').value.trim(),school=G('editSchoolText').textContent,cls=G('editClassText').textContent;
-  var np=G('editPass').value,cp=G('editPassConfirm').value;
-  if(!name){toast('⚠️ नाम खाली नहीं!');return;}
-  if(school==='School चुनें'){toast('⚠️ School चुनें!');return;}
-  var sObj=S.schools.find(function(s){return (typeof s==='string'?s:s.name)===school;});
-  if(sObj&&sObj.classes&&sObj.classes.length&&cls==='Class चुनें'){toast('⚠️ Class चुनें!');return;}
-  if(np&&np!==cp){toast('❌ Passwords match नहीं!');return;}
-  if(np&&np.length<4){toast('⚠️ Password कम से कम 4 अक्षर!');return;}
-  var users=JSON.parse(localStorage.getItem('edu_users')||'[]');
-  var idx=users.findIndex(function(u){return u.phone===CU.phone;});
-  if(idx===-1){toast('❌ User नहीं मिला!');return;}
-  var oldSchool=users[idx].school, oldCls=users[idx].cls;
-  var newCls=cls==='Class चुनें'?'':cls;
-  // Reset to pending if school or class changed
-  var schoolOrClsChanged=(school!==oldSchool)||(newCls!==oldCls);
-  users[idx].name=name;
-  users[idx].school=school;
-  users[idx].cls=newCls;
-  if(np)users[idx].pass=np;
-  if(schoolOrClsChanged) users[idx].status='pending';
-  localStorage.setItem('edu_users',JSON.stringify(users));
-  CU=JSON.parse(JSON.stringify(users[idx]));
-  sessionStorage.setItem('cu',JSON.stringify(CU));
-  closePopup('profileOverlay');renderSite();
-  if(schoolOrClsChanged){
-    toast('✅ Profile update हुई! नई class/school के लिए approval pending है।');
-  } else {
-    toast('✅ Profile update हो गई!');
-  }
-}
-
-// ══════════════════════════════════════════════
-// QUIZ — Multiple quizzes per chapter
-// Data: chapter.quizzes = [{name, questions:[{q,opts,ans,exp}]}]
-// ══════════════════════════════════════════════
-var _qz={subjIdx:null,chapIdx:null,quizIdx:null,questions:[],cur:0,score:0,answered:false};
-
-// Chapter click → Quiz List page
 function openQuiz(chapIdx){
-  var school=CU.school,cls=CU.cls;
-  var data=getSD(school);
-  var subs=data.subjects||{};
-  var subjs=(subs[school]&&subs[school][cls])?subs[school][cls]:(subs[cls]||[]);
-  var sub=subjs[_qz.subjIdx];
-  var chap=sub&&sub.chapters&&sub.chapters[chapIdx];
+  _qz.chapIdx=chapIdx;_qz.quizIdx=null;
+  const sub=_subjectsCache[_qz.subjIdx];
+  const chap=sub&&sub.chapters&&sub.chapters[chapIdx];
   if(!chap)return;
-  _qz.chapIdx=chapIdx;
-  _qz.quizIdx=null;
   G('quizChapName').textContent=chap.name||'Chapter';
-  G('quizChapMeta').textContent=(sub.name||'Subject')+' • '+cls;
+  G('quizChapMeta').textContent=(sub.name||'Subject')+' • '+(CU.class_name||'');
   G('chaptersOverlay').classList.remove('active');
   G('quizOverlay').classList.add('active');
   G('quizOverlay').scrollTop=0;
   document.body.style.overflow='hidden';
   renderQuizList(chap);
 }
-
-// Show list of quizzes for this chapter
 function renderQuizList(chap){
-  var quizzes=chap.quizzes||[];
-  // backward compat: if old single quiz exists, wrap it
-  if(!quizzes.length&&chap.quiz&&chap.quiz.length){
-    quizzes=[{name:'Quiz 1',questions:chap.quiz}];
-  }
-  var body=G('quizBody');
+  const quizzes=chap.quizzes||[];
   if(!quizzes.length){
-    body.innerHTML='<div class="quiz-empty"><span class="quiz-empty-icon">📝</span>'
-      +'इस chapter में अभी कोई quiz नहीं है।<br>'
-      +'<span style="font-size:0.8rem;">School Admin → Chapter → Quiz add करें।</span></div>';
+    G('quizBody').innerHTML='<div class="quiz-empty"><span class="quiz-empty-icon">📝</span>अभी कोई quiz नहीं।</div>';
     return;
   }
-  var html='<div style="margin-bottom:20px;">'
-    +'<div style="font-size:0.72rem;letter-spacing:2px;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:16px;font-family:Poppins,sans-serif;">'+quizzes.length+' QUIZ'+(quizzes.length!==1?'ZES':'')+'</div>';
-  quizzes.forEach(function(qz,qi){
-    var qCount=qz.questions&&qz.questions.length?qz.questions.length:0;
-    var hasFile=!!(qz.quizFile&&qz.quizFile.trim());
-    var meta=hasFile?'📄 File Quiz':'📝 '+qCount+' questions';
-    var iconBg=hasFile?'linear-gradient(135deg,#10b981,#059669)':'linear-gradient(135deg,var(--accent),var(--accent2))';
+  let html='<div style="margin-bottom:20px;"><div style="font-size:0.72rem;letter-spacing:2px;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:16px;font-family:Poppins,sans-serif;">'+quizzes.length+' QUIZ'+(quizzes.length!==1?'ZES':'')+'</div>';
+  quizzes.forEach((qz,qi)=>{
+    const hasFile=!!(qz.hasFile||qz.quiz_file_name);
+    const meta=hasFile?'📄 File Quiz':'📝 '+(qz.questions?qz.questions.length:0)+' questions';
     html+='<div onclick="startQuizByIdx('+qi+')" style="background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:12px;cursor:pointer;display:flex;align-items:center;gap:16px;transition:all 0.2s;" onmouseover="this.style.borderColor=\'var(--accent2)\';this.style.transform=\'translateY(-2px)\'" onmouseout="this.style.borderColor=\'var(--border)\';this.style.transform=\'\';">'
-      +'<div style="width:44px;height:44px;border-radius:10px;background:'+iconBg+';display:flex;align-items:center;justify-content:center;font-weight:800;font-size:'+(hasFile?'1.4rem':'1rem')+';color:#fff;flex-shrink:0;">'+(hasFile?'📄':(qi+1))+'</div>'
-      +'<div style="flex:1;">'
-      +'<div style="font-weight:700;font-size:0.95rem;color:var(--text);margin-bottom:3px;">'+(qz.name||'Quiz '+(qi+1))+'</div>'
-      +'<div style="font-size:0.75rem;color:var(--muted);">'+meta+'</div>'
-      +'</div>'
-      +'<div style="color:var(--accent2);font-size:1.2rem;">→</div>'
-      +'</div>';
+      +'<div style="width:44px;height:44px;border-radius:10px;background:'+(hasFile?'linear-gradient(135deg,#10b981,#059669)':'linear-gradient(135deg,var(--accent),var(--accent2))')+';display:flex;align-items:center;justify-content:center;font-weight:800;font-size:'+(hasFile?'1.4rem':'1rem')+';color:#fff;flex-shrink:0;">'+(hasFile?'📄':(qi+1))+'</div>'
+      +'<div style="flex:1;"><div style="font-weight:700;font-size:0.95rem;color:var(--text);margin-bottom:3px;">'+h(qz.name||'Quiz '+(qi+1))+'</div><div style="font-size:0.75rem;color:var(--muted);">'+meta+'</div></div>'
+      +'<div style="color:var(--accent2);font-size:1.2rem;">→</div></div>';
   });
   html+='</div>';
-  body.innerHTML=html;
+  G('quizBody').innerHTML=html;
 }
 
-function startQuizByIdx(qi){
-  // Always check fresh status from localStorage
-  var freshSt='pending';
-  if(CU){
-    var allU=JSON.parse(localStorage.getItem('edu_users')||'[]');
-    var freshU=allU.find(function(x){return x.phone===CU.phone;});
-    freshSt=freshU?freshU.status:CU.status;
-    // Sync to session
-    if(freshU&&freshU.status!==CU.status){CU.status=freshU.status;sessionStorage.setItem('cu',JSON.stringify(CU));}
-  }
-  if(freshSt==='rejected'){
-    G('quizBody').innerHTML='<div class="quiz-empty"><span class="quiz-empty-icon">❌</span>आपकी access reject कर दी गई है।<br><span style="font-size:0.8rem;">School Admin से संपर्क करें।</span></div>';
-    G('chaptersOverlay').classList.remove('active');
-    G('quizOverlay').classList.add('active');
+async function startQuizByIdx(qi){
+  // Check approval
+  try{const me=await api('GET','/auth/me');CU=me;}catch(e){}
+  if(CU.status!=='approved'){
+    G('quizBody').innerHTML=CU.status==='rejected'
+      ?'<div class="quiz-empty"><span class="quiz-empty-icon">❌</span>Access reject हो गई है।</div>'
+      :'<div class="quiz-empty"><span class="quiz-empty-icon">⏳</span>Approval pending है। Admin se approve karwao.</div>';
+    G('chaptersOverlay').classList.remove('active');G('quizOverlay').classList.add('active');
     return;
   }
-  if(!freshSt||freshSt==='pending'){
-    G('quizBody').innerHTML='<div class="quiz-empty"><span class="quiz-empty-icon">⏳</span>आपकी request अभी pending है।<br><span style="font-size:0.8rem;">School Admin से approve करवाएं, तभी quiz दे सकेंगे।</span></div>';
-    G('chaptersOverlay').classList.remove('active');
-    G('quizOverlay').classList.add('active');
-    return;
-  }
-  var school=CU.school,cls=CU.cls;
-  var data=getSD(school);
-  var subs=data.subjects||{};
-  var subjs=(subs[school]&&subs[school][cls])?subs[school][cls]:(subs[cls]||[]);
-  var sub=subjs[_qz.subjIdx];
-  var chap=sub&&sub.chapters&&sub.chapters[_qz.chapIdx];
+  const sub=_subjectsCache[_qz.subjIdx];
+  const chap=sub&&sub.chapters&&sub.chapters[_qz.chapIdx];
   if(!chap)return;
-  var quizzes=chap.quizzes||[];
-  if(!quizzes.length&&chap.quiz&&chap.quiz.length) quizzes=[{name:'Quiz 1',questions:chap.quiz}];
-  var qz=quizzes[qi];
+  const qz=(chap.quizzes||[])[qi];
   if(!qz)return;
   _qz.quizIdx=qi;
-  // If quiz has a file, open it in iframe
-  if(qz.quizFile&&qz.quizFile.trim()){
-    G('subjectsOverlay').classList.remove('active');
-    G('chaptersOverlay').classList.remove('active');
+  // File quiz — open in iframe
+  if(qz.hasFile||qz.quiz_file_name){
+    G('iqvTitle').textContent=qz.name||'Quiz';
+    G('iqvFrame').src=window.API_BASE+'/quizzes/file/'+qz.id;
+    G('iqvOverlay').classList.add('active');
     G('quizOverlay').classList.remove('active');
-    openIqv(qz.quizFile, qz.name||'Quiz '+(qi+1));
+    document.body.style.overflow='hidden';
     return;
   }
-  // Otherwise use built-in quiz engine
-  _qz.questions=qz.questions||[];
-  _qz.cur=0;_qz.score=0;_qz.answered=false;
+  // Built-in quiz
+  _qz.questions=qz.questions||[];_qz.cur=0;_qz.score=0;_qz.answered=false;
   G('quizChapName').textContent=(qz.name||'Quiz '+(qi+1))+' — '+chap.name;
-  if(!_qz.questions.length){
-    G('quizBody').innerHTML='<div class="quiz-empty"><span class="quiz-empty-icon">📝</span>इस quiz में कोई question नहीं है।</div>';
-    return;
-  }
-  renderQuizStart(_qz.questions.length,qz.name||'Quiz '+(qi+1));
+  if(!_qz.questions.length){G('quizBody').innerHTML='<div class="quiz-empty"><span class="quiz-empty-icon">📝</span>Questions नहीं हैं।</div>';return;}
+  renderQuizStart(_qz.questions.length,qz.name);
 }
 
 function renderQuizStart(total,name){
-  G('quizBody').innerHTML='<div class="quiz-start">'
-    +'<div class="quiz-start-icon">🧠</div>'
-    +'<div class="quiz-start-title">'+(name||'Quiz Time!')+'</div>'
-    +'<div class="quiz-start-sub">'+total+' questions • अपना best दो!</div>'
-    +'<button class="quiz-start-btn" onclick="startQuiz()">Quiz शुरू करें →</button>'
-    +'</div>';
+  G('quizBody').innerHTML='<div class="quiz-start"><div class="quiz-start-icon">🧠</div><div class="quiz-start-title">'+(name||'Quiz Time!')+'</div><div class="quiz-start-sub">'+total+' questions • अपना best दो!</div><button class="quiz-start-btn" onclick="startQuiz()">Quiz शुरू करें →</button></div>';
 }
 function startQuiz(){_qz.cur=0;_qz.score=0;_qz.answered=false;showQuestion();}
 function showQuestion(){
-  var qs=_qz.questions,qi=_qz.cur;
+  const qs=_qz.questions,qi=_qz.cur;
   if(qi>=qs.length){showResult();return;}
-  var q=qs[qi],pct=Math.round((qi/qs.length)*100),labels=['A','B','C','D'];
-  var html='<div class="quiz-progress-bar"><div class="quiz-progress-fill" style="width:'+pct+'%"></div></div>';
+  const q=qs[qi],pct=Math.round((qi/qs.length)*100),labels=['A','B','C','D'];
+  let html='<div class="quiz-progress-bar"><div class="quiz-progress-fill" style="width:'+pct+'%"></div></div>';
   html+='<div class="quiz-q-num">Question '+(qi+1)+' / '+qs.length+'</div>';
   html+='<div class="quiz-question">'+(q.q||'')+'</div>';
   html+='<div class="quiz-options" id="quizOpts">';
-  (q.opts||[]).forEach(function(opt,i){
-    html+='<button class="quiz-option" id="qopt-'+i+'" onclick="answerQ('+i+')">'
-      +'<span class="quiz-opt-label">'+labels[i]+'</span><span>'+(opt||'')+'</span></button>';
-  });
+  (q.opts||[]).forEach((opt,i)=>{html+='<button class="quiz-option" id="qopt-'+i+'" onclick="answerQ('+i+')">'+'<span class="quiz-opt-label">'+labels[i]+'</span><span>'+(opt||'')+'</span></button>';});
   html+='</div><div class="quiz-explanation" id="quizExp">'+(q.exp||'')+'</div>';
   html+='<button class="quiz-next-btn" id="quizNext" onclick="nextQ()">'+(qi===qs.length-1?'Result देखें 🏆':'अगला सवाल →')+'</button>';
   G('quizBody').innerHTML=html;G('quizOverlay').scrollTop=0;
 }
 function answerQ(idx){
   if(_qz.answered)return;_qz.answered=true;
-  var q=_qz.questions[_qz.cur],opts=document.querySelectorAll('.quiz-option');
-  opts.forEach(function(b){b.disabled=true;});
+  const q=_qz.questions[_qz.cur],opts=document.querySelectorAll('.quiz-option');
+  opts.forEach(b=>b.disabled=true);
   if(idx===q.ans){opts[idx].classList.add('correct');_qz.score++;}
   else{opts[idx].classList.add('wrong');if(opts[q.ans])opts[q.ans].classList.add('show-correct');}
   if(q.exp&&G('quizExp'))G('quizExp').classList.add('show');
   if(G('quizNext'))G('quizNext').classList.add('show');
 }
 function nextQ(){_qz.cur++;_qz.answered=false;if(_qz.cur>=_qz.questions.length)showResult();else showQuestion();}
-function showResult(){
-  var total=_qz.questions.length,score=_qz.score,pct=Math.round((score/total)*100);
-  // Save to leaderboard
-  var school=CU&&CU.school,cls=CU&&CU.cls;
-  var data=school?getSD(school):{};
-  var subs=data.subjects||{};
-  var subjs=(subs[school]&&subs[school][cls])?subs[school][cls]:(subs[cls]||[]);
-  var sub=subjs[_qz.subjIdx];
-  var chap=sub&&sub.chapters&&sub.chapters[_qz.chapIdx];
-  var qz=chap&&chap.quizzes&&chap.quizzes[_qz.quizIdx];
-  saveScore(pct,score,total,qz?qz.name:'Quiz',chap?chap.name:'',sub?sub.name:'');
-  var icon=pct>=80?'🏆':pct>=50?'👍':'💪';
-  var msg=pct>=80?'शानदार! आपने बहुत अच्छा किया!':pct>=50?'अच्छा प्रयास!':'मेहनत जारी रखें!';
-  G('quizBody').innerHTML='<div class="quiz-result">'
-    +'<div class="quiz-result-icon">'+icon+'</div>'
-    +'<div class="quiz-result-score">'+score+'/'+total+'</div>'
-    +'<div class="quiz-result-label">'+pct+'% Correct</div>'
-    +'<div class="quiz-result-msg">'+msg+'</div>'
-    +'<div class="quiz-result-btns">'
-    +'<button class="quiz-retry-btn" onclick="startQuiz()">🔄 फिर से</button>'
-    +'<button class="quiz-retry-btn" onclick="backToQuizList()" style="border-color:var(--accent);color:var(--accent);">← Quiz List</button>'
-    +'<button class="quiz-retry-btn" onclick="G(\'quizOverlay\').classList.remove(\'active\');openLB();" style="border-color:#f5c518;color:#f5c518;">🏆 Leaderboard</button>'
-    +'</div></div>';
+async function showResult(){
+  const total=_qz.questions.length,score=_qz.score,pct=Math.round((score/total)*100);
+  // Save score to server
+  const sub=_subjectsCache[_qz.subjIdx];
+  const chap=sub&&sub.chapters&&sub.chapters[_qz.chapIdx];
+  const qz=chap&&chap.quizzes&&chap.quizzes[_qz.quizIdx];
+  if(qz&&qz.id){
+    try{await api('POST','/scores',{quiz_id:qz.id,score,total,pct});}catch(e){console.warn('Score save failed',e);}
+  }
+  const icon=pct>=80?'🏆':pct>=50?'👍':'💪';
+  const msg=pct>=80?'शानदार!':pct>=50?'अच्छा प्रयास!':'मेहनत जारी रखें!';
+  G('quizBody').innerHTML='<div class="quiz-result"><div class="quiz-result-icon">'+icon+'</div><div class="quiz-result-score">'+score+'/'+total+'</div><div class="quiz-result-label">'+pct+'% Correct</div><div class="quiz-result-msg">'+msg+'</div><div class="quiz-result-btns"><button class="quiz-retry-btn" onclick="startQuiz()">🔄 फिर से</button><button class="quiz-retry-btn" onclick="backToQuizList()" style="border-color:var(--accent);color:var(--accent);">← Quiz List</button><button class="quiz-retry-btn" onclick="G(\'quizOverlay\').classList.remove(\'active\');scrollToLB();" style="border-color:#f5c518;color:#f5c518;">🏆 Leaderboard</button></div></div>';
+  updateLBSection();
 }
 function backToQuizList(){
-  var school=CU.school,cls=CU.cls;
-  var data=getSD(school);
-  var subs=data.subjects||{};
-  var subjs=(subs[school]&&subs[school][cls])?subs[school][cls]:(subs[cls]||[]);
-  var sub=subjs[_qz.subjIdx];
-  var chap=sub&&sub.chapters&&sub.chapters[_qz.chapIdx];
+  const sub=_subjectsCache[_qz.subjIdx];
+  const chap=sub&&sub.chapters&&sub.chapters[_qz.chapIdx];
   if(chap){G('quizChapName').textContent=chap.name||'Chapter';renderQuizList(chap);}
   G('quizOverlay').scrollTop=0;
 }
 function closeQuiz(){
   G('quizOverlay').classList.remove('active');
-  var school=CU.school,cls=CU.cls;
-  var data=getSD(school);
-  var subs=data.subjects||{};
-  var subjs=(subs[school]&&subs[school][cls])?subs[school][cls]:(subs[cls]||[]);
-  var sub=subjs[_qz.subjIdx];
+  const sub=_subjectsCache[_qz.subjIdx];
   if(sub){
     G('chapSubjIcon').textContent=sub.icon||'📖';
-    G('chapSubjName').textContent=sub.name||'Subject';
-    G('chapSubjMeta').textContent=cls+' • '+school;
+    G('chapSubjName').textContent=sub.name;
     renderChapList(sub.chapters||[]);
   }
-  G('chaptersOverlay').classList.add('active');
-  G('chaptersOverlay').scrollTop=0;
+  G('chaptersOverlay').classList.add('active');G('chaptersOverlay').scrollTop=0;
   document.body.style.overflow='hidden';
 }
 
-// ── Banner photo ──
-function uploadBanner(event){
-  var file=event.target.files&&event.target.files[0];
-  if(!file)return;
-  var reader=new FileReader();
-  reader.onload=function(ev){
-    if(!_AD)return;
-    _AD.bannerPhoto=ev.target.result;
-    G('adminBannerImg').src=ev.target.result;
-    G('adminBannerPreview').style.display='block';
-    // Live preview
-    G('schoolBannerImg').src=ev.target.result;
-    G('schoolBanner').style.display='block';
-    toast('✅ Banner photo add हो गई!');
-  };
-  reader.readAsDataURL(file);
-}
-function removeBanner(){
-  if(!_AD)return;
-  _AD.bannerPhoto='';
-  G('adminBannerImg').src='';
-  G('adminBannerPreview').style.display='none';
-  G('schoolBanner').style.display='none';
-  G('schoolBannerImg').src='';
-  toast('🗑 Banner हटा दिया!');
-}
-function getChapQuizzes(bi,chi){
-  var arr=getSubjArr();
-  var chap=arr[bi]&&arr[bi].chapters&&arr[bi].chapters[chi];
-  if(!chap)return null;
-  if(!chap.quizzes)chap.quizzes=[];
-  return chap.quizzes;
-}
-function addQuiz(bi,chi){
-  var qzs=getChapQuizzes(bi,chi);
-  if(!qzs)return;
-  var nameEl=G('nqz-'+bi+'-'+chi);
-  var name=nameEl&&nameEl.value.trim()||'Quiz '+(qzs.length+1);
-  qzs.push({name:name,questions:[]});
-  if(nameEl)nameEl.value='';
-  autoSave();renderAdminSubjects();toast('✅ Quiz add हो गई!');
-}
-function delQuiz(bi,chi,qi){
-  var qzs=getChapQuizzes(bi,chi);if(!qzs)return;
-  qzs.splice(qi,1);autoSave();renderAdminSubjects();
-}
-function addQ(bi,chi,qi){
-  var qzs=getChapQuizzes(bi,chi);if(!qzs||!qzs[qi])return;
-  if(!qzs[qi].questions)qzs[qi].questions=[];
-  qzs[qi].questions.push({q:'',opts:['','','',''],ans:0,exp:''});
-  autoSave();renderAdminSubjects();toast('✅ Question add हो गया!');
-}
-function delQ(bi,chi,qi,qni){
-  var qzs=getChapQuizzes(bi,chi);
-  if(qzs&&qzs[qi]&&qzs[qi].questions)qzs[qi].questions.splice(qni,1);
-  autoSave();renderAdminSubjects();
-}
-function updQzName(bi,chi,qi,val){
-  var qzs=getChapQuizzes(bi,chi);if(qzs&&qzs[qi])qzs[qi].name=val;
-}
-function updQ(bi,chi,qi,qni,field,val){
-  var qzs=getChapQuizzes(bi,chi);
-  if(qzs&&qzs[qi]&&qzs[qi].questions&&qzs[qi].questions[qni])qzs[qi].questions[qni][field]=val;
-}
-function updOpt(bi,chi,qi,qni,oi,val){
-  var qzs=getChapQuizzes(bi,chi);
-  if(qzs&&qzs[qi]&&qzs[qi].questions&&qzs[qi].questions[qni]){
-    if(!qzs[qi].questions[qni].opts)qzs[qi].questions[qni].opts=['','','',''];
-    qzs[qi].questions[qni].opts[oi]=val;
-  }
-}
-function setAns(bi,chi,qi,qni,oi){
-  var qzs=getChapQuizzes(bi,chi);
-  if(qzs&&qzs[qi]&&qzs[qi].questions&&qzs[qi].questions[qni]){
-    qzs[qi].questions[qni].ans=oi;autoSave();renderAdminSubjects();
-  }
-}
-
-
-
-// ══════════════════════════════════════════════
-// IFRAME QUIZ VIEWER
-// ══════════════════════════════════════════════
-function openIqv(url,title){
-  G('iqvTitle').textContent=title||'Quiz';
-  // Check if stored in localStorage
-  if(url&&url.startsWith('__stored__:')){
-    var key=url.replace('__stored__:','');
-    var content=localStorage.getItem(key);
-    if(content){
-      var blob=new Blob([content],{type:'text/html'});
-      G('iqvFrame').src=URL.createObjectURL(blob);
-    } else {
-      toast('⚠️ Quiz file नहीं मिली! दोबारा upload करें।');return;
-    }
-  } else {
-    G('iqvFrame').src=url;
-  }
-  G('iqvOverlay').classList.add('active');
-  document.body.style.overflow='hidden';
-}
+// ── IFRAME QUIZ ──
 function closeIqv(){
-  G('iqvOverlay').classList.remove('active');
-  G('iqvFrame').src='';
-  // Return to quiz list if we came from there
-  if(_qz.chapIdx!==null){
-    var school=CU.school,cls=CU.cls;
-    var data=getSD(school);
-    var subs=data.subjects||{};
-    var subjs=(subs[school]&&subs[school][cls])?subs[school][cls]:(subs[cls]||[]);
-    var sub=subjs[_qz.subjIdx];
-    var chap=sub&&sub.chapters&&sub.chapters[_qz.chapIdx];
-    if(chap){
-      G('quizChapName').textContent=chap.name||'Chapter';
-      renderQuizList(chap);
-      G('quizOverlay').classList.add('active');
-    } else {
-      G('chaptersOverlay').classList.add('active');
-    }
-  } else {
-    G('chaptersOverlay').classList.add('active');
-  }
+  G('iqvOverlay').classList.remove('active');G('iqvFrame').src='';
+  G('quizOverlay').classList.add('active');G('quizOverlay').scrollTop=0;
   document.body.style.overflow='hidden';
 }
-window.addEventListener('message',function(e){
+window.addEventListener('message',async e=>{
   if(!e.data||e.data.type!=='quizScore')return;
-  var d=e.data;
-  // Save to leaderboard
-  saveScore(d.pct||0,d.score||0,d.total||0,d.subject||'Quiz',d.chapter||'','');
-  var grade=d.grade||(d.pct>=90?'A+':d.pct>=75?'A':d.pct>=60?'B':d.pct>=45?'C':'D');
-  var msg=d.pct>=75?'Shandaar! Bilkul taiyaar ho! 🎉':d.pct>=50?'Aur practice karo 💪':'Dobara padho 📖';
+  const d=e.data;
+  const sub=_subjectsCache[_qz.subjIdx];
+  const chap=sub&&sub.chapters&&sub.chapters[_qz.chapIdx];
+  const qz=chap&&chap.quizzes&&chap.quizzes[_qz.quizIdx];
+  if(qz&&qz.id){
+    try{await api('POST','/scores',{quiz_id:qz.id,score:d.score||0,total:d.total||0,pct:Math.round(d.pct||0)});}catch(e){}
+  }
+  const grade=d.grade||(d.pct>=90?'A+':d.pct>=75?'A':d.pct>=60?'B':d.pct>=45?'C':'D');
   G('stGrade').textContent=grade;
   G('stNum').textContent=(d.score||0)+' / '+(d.total||0)+' ('+Math.round(d.pct||0)+'%)';
-  G('stMsg').textContent=msg;
+  G('stMsg').textContent=d.pct>=75?'Shandaar! 🎉':d.pct>=50?'Aur practice karo 💪':'Dobara padho 📖';
   G('scoreToast').classList.add('show');
-  setTimeout(function(){closeIqv();},800);
+  setTimeout(()=>closeIqv(),800);
+  updateLBSection();
 });
 
 // ══════════════════════════════════════════════
-// QUIZ FILE UPLOAD (in-website)
+// ADMIN — GLOBAL
 // ══════════════════════════════════════════════
-function uploadQzFile(event,bi,chi,qi){
-  var file=event.target.files&&event.target.files[0];
-  if(!file)return;
-  if(!file.name.endsWith('.html')){toast('⚠️ Sirf .html file allowed hai!');return;}
-  var reader=new FileReader();
-  reader.onload=function(ev){
-    var content=ev.target.result;
-    if(content.indexOf("type:'quizScore'")===-1&&content.indexOf('type:"quizScore"')===-1){
-      content=injectPostMsg(content);
-    }
-    var storeKey='qzf_'+ES+'_b'+bi+'_c'+chi+'_q'+qi+'_'+Date.now();
-    try{localStorage.setItem(storeKey,content);}catch(e){toast('⚠️ File too large!');return;}
-    var arr=getSubjArr();
-    if(arr[bi]&&arr[bi].chapters&&arr[bi].chapters[chi]){
-      if(!arr[bi].chapters[chi].quizzes)arr[bi].chapters[chi].quizzes=[];
-      if(!arr[bi].chapters[chi].quizzes[qi])arr[bi].chapters[chi].quizzes[qi]={name:'Quiz '+(qi+1),questions:[]};
-      arr[bi].chapters[chi].quizzes[qi].quizFile='__stored__:'+storeKey;
-      arr[bi].chapters[chi].quizzes[qi].quizFileName=file.name;
-      autoSave();renderAdminSubjects();
-      toast('✅ '+file.name+' Quiz '+( qi+1)+' mein upload ho gayi!');
-    }
+const GLOBAL_PW='ReBi5409N@';
+var _adminMode=''; // 'global' or 'school'
+
+function openAdmin(){
+  G('adminPassLabel').textContent='Global Admin Password डालें';
+  G('adminPassInput').value='';G('adminPassError').style.display='none';
+  G('adminPassOverlay').dataset.mode='global';
+  G('adminPassOverlay').classList.add('active');document.body.style.overflow='hidden';
+  setTimeout(()=>G('adminPassInput').focus(),200);
+}
+async function openSchoolAdmin(){
+  if(!CU||!CU.school_name){toast('⚠️ Login करें!');return;}
+  try{
+    const res=await api('POST','/schools/verify-class-password',{school_name:CU.school_name,class_name:CU.class_name||'',password:''});
+    if(res.valid){_openSchoolAdminDirect();return;}
+  }catch(e){}
+  G('adminPassLabel').textContent=CU.school_name+(CU.class_name?' — '+CU.class_name:'')+' Admin Password डालें';
+  G('adminPassInput').value='';G('adminPassError').style.display='none';
+  G('adminPassOverlay').dataset.mode='school';
+  G('adminPassOverlay').classList.add('active');document.body.style.overflow='hidden';
+  setTimeout(()=>G('adminPassInput').focus(),200);
+}
+async function verifyAdminPass(){
+  const entered=G('adminPassInput').value;
+  const mode=G('adminPassOverlay').dataset.mode;
+  if(mode==='global'){
+    if(entered!==GLOBAL_PW){G('adminPassError').style.display='block';G('adminPassInput').value='';G('adminPassInput').focus();return;}
+    G('adminPassError').style.display='none';closePopup('adminPassOverlay');
+    await _openAdminDirect();
+  } else {
+    try{
+      const res=await api('POST','/schools/verify-class-password',{school_name:CU.school_name,class_name:CU.class_name||'',password:entered});
+      if(res.valid){G('adminPassError').style.display='none';closePopup('adminPassOverlay');_openSchoolAdminDirect();}
+      else{G('adminPassError').style.display='block';G('adminPassInput').value='';G('adminPassInput').focus();}
+    }catch(e){toast('❌ Server error');}
+  }
+}
+async function _openAdminDirect(){
+  ES=null;
+  // Load fresh settings
+  try{
+    const [settings,schools]=await Promise.all([api('GET','/site/settings'),api('GET','/schools')]);
+    S=Object.assign(S,{title:settings.title,tagline:settings.tagline,shayari:settings.shayari,ctaBtn:settings.cta_btn||settings.ctaBtn,about:settings.about,content:settings.content,boxes:settings.boxes,colors:settings.colors,bodyFont:settings.body_font,headingFont:settings.heading_font,schools});
+    _AD=JSON.parse(JSON.stringify(S));
+  }catch(e){_AD=JSON.parse(JSON.stringify(S));}
+  fillAdmin(_AD,false);updateAdminHdr(false);
+  G('adminSidebar').classList.add('open');G('adminBg').classList.add('open');document.body.style.overflow='hidden';
+}
+async function _openSchoolAdminDirect(){
+  ES=CU.school_name;
+  try{
+    const data=await api('GET','/site/school/'+encodeURIComponent(ES));
+    _AD=Object.assign({},S,data,{schools:S.schools});
+  }catch(e){_AD=JSON.parse(JSON.stringify(S));}
+  fillAdmin(_AD,true);updateAdminHdr(true);
+  G('adminSidebar').classList.add('open');G('adminBg').classList.add('open');document.body.style.overflow='hidden';
+}
+function updateAdminHdr(isSchool){
+  if(isSchool){
+    G('adminTopBadge').textContent='🏫 School Admin';G('adminTopTitle').textContent=ES+' — Customize';
+    G('tabSchools').style.display='none';G('tabQuizAdd').style.display='flex';G('tabUsers').style.display='flex';
+  } else {
+    G('adminTopBadge').textContent='Global Admin';G('adminTopTitle').textContent='Website Customize करें';
+    G('tabSchools').style.display='';G('tabQuizAdd').style.display='none';G('tabUsers').style.display='none';
+  }
+}
+function closeAdmin(){
+  G('adminSidebar').classList.remove('open');G('adminBg').classList.remove('open');
+  document.body.style.overflow='';ES=null;
+  applyColors(Object.assign({},S.colors||{},(AD&&AD.colors)||{}));
+}
+function switchTab(name,el){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.admin-tab').forEach(t=>t.classList.remove('active'));
+  G('tab-'+name).classList.add('active');el.classList.add('active');
+  if(name==='quizadd')qaAdminInit();
+  if(name==='users')renderUsersTab();
+  if(name==='subjects')renderAdminSubjects();
+}
+function fillAdmin(data,isSchool){
+  G('adminTitle').value=data.title||'';G('adminTagline').value=data.tagline||'';
+  G('adminShayari').value=data.shayari||'';G('adminCtaBtn').value=data.ctaBtn||data.cta_btn||'';
+  G('adminAbout').value=data.about||'';G('adminContent').value=data.content||'';
+  const c=Object.assign({},S.colors||{},data.colors||{});
+  ['bg','surface','card','border','accent','accent2','text','muted','btnbg','btnclr','hb1','hb2'].forEach(k=>{
+    const cv=G('clr-'+k),hv=G('hex-'+k),val=c[k]||'#000000';
+    if(cv)cv.value=val;if(hv)hv.value=val;
+  });
+  applyColors(c);applyFonts(data.bodyFont||data.body_font,data.headingFont||data.heading_font);
+  if(G('adminBannerField'))G('adminBannerField').style.display=isSchool?'block':'none';
+  if(isSchool&&data.bannerPhoto&&data.banner_photo){
+    const bp=data.bannerPhoto||data.banner_photo;
+    if(G('adminBannerImg'))G('adminBannerImg').src=bp;
+    if(G('adminBannerPreview'))G('adminBannerPreview').style.display='block';
+  } else if(G('adminBannerPreview'))G('adminBannerPreview').style.display='none';
+  renderAdminBoxes();
+  if(!isSchool)renderAdminSchools();
+  switchTab('content',document.querySelector('.admin-tab[data-tab="content"]'));
+}
+async function saveAdmin(){
+  const isSchool=!!ES;
+  const data={
+    title:G('adminTitle').value,tagline:G('adminTagline').value,shayari:G('adminShayari').value,
+    ctaBtn:G('adminCtaBtn').value,about:G('adminAbout').value,content:G('adminContent').value,
+    boxes:_AD?_AD.boxes:S.boxes,
+    colors:{},bodyFont:_AD?_AD.bodyFont:S.bodyFont,headingFont:_AD?_AD.headingFont:S.headingFont
   };
-  reader.readAsText(file);
-}
-
-function removeQzFile(bi,chi,qi){
-  var arr=getSubjArr();
-  if(arr[bi]&&arr[bi].chapters&&arr[bi].chapters[chi]&&arr[bi].chapters[chi].quizzes&&arr[bi].chapters[chi].quizzes[qi]){
-    var key=arr[bi].chapters[chi].quizzes[qi].quizFile;
-    if(key&&key.startsWith('__stored__:'))localStorage.removeItem(key.replace('__stored__:',''));
-    arr[bi].chapters[chi].quizzes[qi].quizFile='';
-    arr[bi].chapters[chi].quizzes[qi].quizFileName='';
-    autoSave();renderAdminSubjects();
-    toast('🗑 Quiz file हटा दी!');
-  }
-}
-
-
-function injectPostMsg(html){
-  var pm="if(window.parent!==window){var _g=typeof pct!=='undefined'?(pct>=90?'A+':pct>=75?'A':pct>=60?'B':pct>=45?'C':'D'):'?';window.parent.postMessage({type:'quizScore',score:typeof correct!=='undefined'?correct:(typeof score!=='undefined'?score:0),total:typeof questions!=='undefined'?questions.length:0,pct:typeof pct!=='undefined'?pct:0,grade:_g},'*');}";
-  var patterns=["setTimeout(function(){document.getElementById('meter-fill')","setTimeout(function(){document.getElementById(\"meter-fill\")"];
-  for(var i=0;i<patterns.length;i++){
-    var idx=html.indexOf(patterns[i]);
-    if(idx!==-1){
-      var ci=html.indexOf('},300);}',idx);
-      if(ci!==-1){html=html.slice(0,ci+8)+'\n  '+pm+html.slice(ci+8);return html;}
+  ['bg','surface','card','border','accent','accent2','text','muted','btnbg','btnclr','hb1','hb2'].forEach(k=>{const el=G('clr-'+k);if(el)data.colors[k]=el.value;});
+  if(isSchool&&_AD&&_AD.bannerPhoto)data.bannerPhoto=_AD.bannerPhoto;
+  try{
+    if(isSchool){
+      await api('POST','/site/school/'+encodeURIComponent(ES),{data});
+      AD=data;toast('✅ '+ES+' save हो गया!');
+    } else {
+      await api('POST','/site/settings',{password:GLOBAL_PW,settings:{title:data.title,tagline:data.tagline,shayari:data.shayari,cta_btn:data.ctaBtn,about:data.about,content:data.content,boxes:data.boxes,colors:data.colors,body_font:data.bodyFont,heading_font:data.headingFont}});
+      Object.assign(S,data);toast('✅ Global save हो गया!');
     }
-  }
-  var si=html.lastIndexOf('<\/script>');
-  if(si!==-1) html=html.slice(0,si)+'\n'+pm+'\n'+html.slice(si);
-  return html;
+  }catch(e){toast('❌ Save नहीं हुआ: '+e.message);return;}
+  G('adminSidebar').classList.remove('open');G('adminBg').classList.remove('open');
+  document.body.style.overflow='';ES=null;renderSite();
 }
 
+// ── COLOR/FONT helpers ──
+function liveClr(v,val){document.documentElement.style.setProperty(v,val);if(_AD){if(!_AD.colors)_AD.colors={};const km={'--bg':'bg','--surface':'surface','--card':'card','--border':'border','--accent':'accent','--accent2':'accent2','--text':'text','--muted':'muted','--btn-primary-bg':'btnbg','--btn-primary-color':'btnclr'};const k=km[v];if(k)_AD.colors[k]=val;}}
+function syncH(hid,val){const e=G(hid);if(e)e.value=val;}
+function hexClr(pid,v,val){if(/^#[0-9A-Fa-f]{6}$/.test(val)){liveClr(v,val);const p=G(pid);if(p)p.value=val;}}
+function updBtn(){const bg=G('clr-btnbg').value,clr=G('clr-btnclr').value,h1=G('clr-hb1').value,h2=G('clr-hb2').value;document.documentElement.style.setProperty('--btn-primary-bg',bg);document.documentElement.style.setProperty('--btn-primary-color',clr);document.documentElement.style.setProperty('--hero-btn-bg','linear-gradient(135deg,'+h1+','+h2+')');if(_AD){if(!_AD.colors)_AD.colors={};Object.assign(_AD.colors,{btnbg:bg,btnclr:clr,hb1:h1,hb2:h2});}['btnbg','btnclr','hb1','hb2'].forEach(k=>{const hv=G('hex-'+k),cv=G('clr-'+k);if(hv&&cv)hv.value=cv.value;});}
+function setBodyFont(font,el){document.querySelectorAll('#bodyFontGrid .font-option').forEach(e=>e.classList.remove('selected'));el.classList.add('selected');if(_AD)_AD.bodyFont=font;document.documentElement.style.setProperty('--body-font',"'"+font+"','Noto Sans Devanagari',sans-serif");document.body.style.fontFamily="'"+font+"','Noto Sans Devanagari',sans-serif";}
+function setHeadingFont(font,el){document.querySelectorAll('#headingFontGrid .font-option').forEach(e=>e.classList.remove('selected'));el.classList.add('selected');if(_AD)_AD.headingFont=font;document.documentElement.style.setProperty('--heading-font',"'"+font+"',sans-serif");}
+const PRESETS={dark:{bg:'#06060f',surface:'#0d0d1f',card:'#12122a',border:'#1e1e3f',accent:'#f0a500',accent2:'#7c5cfc',text:'#f0eeff',muted:'#6e6e9a',btnbg:'#f0a500',btnclr:'#06060f',hb1:'#7c5cfc',hb2:'#f0a500'},light:{bg:'#f4f4ef',surface:'#ffffff',card:'#efefea',border:'#ddddd5',accent:'#8b6914',accent2:'#5a4fc8',text:'#1a1a14',muted:'#66665a',btnbg:'#8b6914',btnclr:'#ffffff',hb1:'#8b6914',hb2:'#5a4fc8'},forest:{bg:'#071a12',surface:'#0a2218',card:'#0e2d1f',border:'#154428',accent:'#22d17c',accent2:'#4ecdc4',text:'#d4edda',muted:'#5a9e72',btnbg:'#22d17c',btnclr:'#071a12',hb1:'#22d17c',hb2:'#4ecdc4'},purple:{bg:'#0d0520',surface:'#120830',card:'#180b3f',border:'#251450',accent:'#b06cff',accent2:'#ff6cce',text:'#e8d8ff',muted:'#7a5da0',btnbg:'#b06cff',btnclr:'#0d0520',hb1:'#b06cff',hb2:'#ff6cce'},sunset:{bg:'#160b04',surface:'#1f1008',card:'#2a160a',border:'#3d2212',accent:'#ff8c42',accent2:'#ff4e6a',text:'#ffe8d4',muted:'#9a6244',btnbg:'#ff8c42',btnclr:'#160b04',hb1:'#ff8c42',hb2:'#ff4e6a'},ocean:{bg:'#001a33',surface:'#002244',card:'#003366',border:'#004488',accent:'#00bfff',accent2:'#00ffcc',text:'#d0eeff',muted:'#4a90b8',btnbg:'#00bfff',btnclr:'#001a33',hb1:'#00bfff',hb2:'#00ffcc'}};
+function applyPreset(n){if(_AD)_AD.colors=JSON.parse(JSON.stringify(PRESETS[n]||PRESETS.dark));applyColors(_AD.colors);const c=_AD.colors;['bg','surface','card','border','accent','accent2','text','muted','btnbg','btnclr','hb1','hb2'].forEach(k=>{const cv=G('clr-'+k),hv=G('hex-'+k);if(cv)cv.value=c[k]||'#000000';if(hv)hv.value=c[k]||'';});toast('🎨 Preset applied!');}
+function uploadBanner(event){const file=event.target.files&&event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=ev=>{if(!_AD)return;_AD.bannerPhoto=ev.target.result;G('adminBannerImg').src=ev.target.result;G('adminBannerPreview').style.display='block';G('schoolBannerImg').src=ev.target.result;G('schoolBanner').style.display='block';toast('✅ Banner add हो गई!');};reader.readAsDataURL(file);}
+function removeBanner(){if(!_AD)return;_AD.bannerPhoto='';G('adminBannerImg').src='';G('adminBannerPreview').style.display='none';G('schoolBanner').style.display='none';G('schoolBannerImg').src='';toast('🗑 Banner हटाई!');}
 
+// ── BOXES ──
+function renderAdminBoxes(){const boxes=(_AD&&_AD.boxes)||[];G('adminBoxes').innerHTML=boxes.map((b,i)=>'<div class="box-admin-item"><div class="box-admin-row"><input value="'+h(b.icon)+'" placeholder="Icon" style="max-width:58px;text-align:center;" oninput="_AD.boxes['+i+'].icon=this.value"><input value="'+h(b.title)+'" placeholder="Title" oninput="_AD.boxes['+i+'].title=this.value"><button class="btn-del" onclick="delBox('+i+')">🗑</button></div><div class="box-admin-row"><textarea placeholder="Content..." oninput="_AD.boxes['+i+'].content=this.value">'+h(b.content)+'</textarea></div></div>').join('');}
+function addBox(){if(_AD){_AD.boxes.push({icon:'⭐',title:'नया Box',content:'content...'});renderAdminBoxes();}}
+function delBox(i){if(_AD){_AD.boxes.splice(i,1);renderAdminBoxes();}}
 
+// ── SCHOOLS ──
+async function renderAdminSchools(){
+  let schools=S.schools||[];
+  try{schools=await api('GET','/schools');S.schools=schools;}catch(e){}
+  G('adminSchools').innerHTML=schools.map((s,i)=>{
+    const classes=(s.classes||[]).map((c,ci)=>{
+      const hasPw=!!(c.admin_password);
+      return '<div style="display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 10px;margin-bottom:6px;">'
+        +'<span style="font-size:0.82rem;font-weight:600;color:var(--text);flex:1;">📖 '+h(c.name)+'</span>'
+        +(hasPw?'<span style="font-size:0.68rem;color:var(--success);font-weight:700;">🔐 Set</span>':'<span style="font-size:0.68rem;color:var(--muted);">🔓 No PW</span>')
+        +'<input type="text" id="pw-'+i+'-'+ci+'" placeholder="Password set करें" style="width:120px;padding:5px 8px;background:#060610;border:1px solid var(--border);border-radius:5px;color:var(--text);font-size:0.75rem;outline:none;">'
+        +'<button onclick="saveClassPw('+i+','+ci+')" style="padding:5px 10px;background:rgba(82,200,122,0.1);border:1px solid rgba(82,200,122,0.3);border-radius:5px;color:var(--success);cursor:pointer;font-size:0.72rem;font-weight:700;flex-shrink:0;">💾</button>'
+        +'<button class="class-chip-del" onclick="deleteClass('+s.id+','+c.id+')" style="flex-shrink:0;">✕</button>'
+        +'</div>';
+    }).join('');
+    return '<div class="school-admin-card">'
+      +'<div class="school-admin-card-top"><span style="font-weight:700;flex:1;">'+h(s.name)+'</span><button class="btn-del" onclick="deleteSchool('+s.id+')">🗑</button></div>'
+      +'<div class="class-label">📖 Classes — 🔐 Admin Passwords</div>'
+      +(classes||'<p style="color:var(--muted);font-size:0.8rem;margin-bottom:8px;">कोई class नहीं।</p>')
+      +'<div class="add-class-row" style="margin-top:8px;"><input class="add-class-input" id="newClass-'+i+'" placeholder="Class 9" onkeydown="if(event.key===\'Enter\')addClassToSchool('+s.id+','+i+')"><button class="add-class-btn" onclick="addClassToSchool('+s.id+','+i+')">+ Add</button></div>'
+      +'</div>';
+  }).join('');
+}
+async function addSchool(){
+  const name=prompt('School का नाम:');if(!name)return;
+  try{await api('POST','/schools',{password:GLOBAL_PW,name});await renderAdminSchools();toast('✅ School add हुई!');}catch(e){toast('❌ '+e.message);}
+}
+async function deleteSchool(id){
+  if(!confirm('School delete करें?'))return;
+  try{await api('DELETE','/schools/'+id,{password:GLOBAL_PW});await renderAdminSchools();toast('🗑 School delete हुई!');}catch(e){toast('❌ '+e.message);}
+}
+async function addClassToSchool(schoolId,si){
+  const inp=G('newClass-'+si),val=inp&&inp.value.trim();
+  if(!val){toast('⚠️ Class नाम लिखें!');return;}
+  try{await api('POST','/schools/'+schoolId+'/classes',{password:GLOBAL_PW,name:val});if(inp)inp.value='';await renderAdminSchools();toast('✅ Class add हुई!');}catch(e){toast('❌ '+e.message);}
+}
+async function deleteClass(schoolId,classId){
+  if(!confirm('Class delete करें?'))return;
+  try{await api('DELETE','/schools/'+schoolId+'/classes/'+classId,{password:GLOBAL_PW});await renderAdminSchools();}catch(e){toast('❌ '+e.message);}
+}
+async function saveClassPw(si,ci){
+  const schools=S.schools||[];const school=schools[si];
+  if(!school)return;const cls=(school.classes||[])[ci];if(!cls)return;
+  const val=G('pw-'+si+'-'+ci)&&G('pw-'+si+'-'+ci).value.trim();
+  try{await api('PUT','/schools/'+school.id+'/classes/'+cls.id+'/password',{password:GLOBAL_PW,newPassword:val||null});await renderAdminSchools();toast('✅ Password '+(val?'set':'hata diya')+'!');}catch(e){toast('❌ '+e.message);}
+}
+function getClassPw(){return '';} // not needed, server handles it
 
-// ══════════════════════════════════════════════
-// USERS TAB (School Admin)
-// ══════════════════════════════════════════════
-function renderUsersTab(){
-  if(!ES||!CU)return;
-  var allUsers=JSON.parse(localStorage.getItem('edu_users')||'[]');
-  // Sirf is school ke users
-  var schoolUsers=allUsers.filter(function(u){return u.school===ES;});
+// ── SUBJECTS (School Admin) ──
+async function renderAdminSubjects(){
+  if(!ES)return;
+  const school=ES,cls=CU&&CU.class_name;
+  if(!cls){G('adminSubjectsTree').innerHTML='<p style="color:var(--muted)">Class नहीं मिली।</p>';return;}
+  let list=[];
+  try{list=await api('GET','/subjects?school='+encodeURIComponent(school)+'&class='+encodeURIComponent(cls));}catch(e){}
+  let html='<div style="background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;">';
+  html+='<div style="padding:10px 16px;border-bottom:1px solid var(--border);background:rgba(124,92,252,0.06);font-size:0.7rem;color:var(--accent2);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;">📖 '+h(cls)+' — '+list.length+' subjects</div>';
+  html+='<div style="padding:14px 16px;">';
+  list.forEach(sub=>{
+    html+='<div style="background:#0d0d1e;border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px;">';
+    html+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">';
+    html+='<input style="width:44px;padding:6px 4px;background:#060610;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:1rem;text-align:center;outline:none;" value="'+h(sub.icon||'')+'\" placeholder="📖" onchange="updateSubject('+sub.id+',this.value,null,null)">';
+    html+='<input style="flex:1;padding:6px 10px;background:#060610;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.85rem;outline:none;" value="'+h(sub.name||'')+'\" placeholder="Subject नाम" onchange="updateSubject('+sub.id+',null,this.value,null)">';
+    html+='<button class="btn-del" onclick="deleteSubject('+sub.id+')" style="padding:5px 9px;">🗑</button></div>';
+    html+='<div style="margin-bottom:10px;"><input style="width:100%;padding:6px 10px;background:#060610;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.8rem;outline:none;" value="'+h(sub.description||'')+'\" placeholder="Description" onchange="updateSubject('+sub.id+',null,null,this.value)"></div>';
+    // Chapters
+    const chapters=sub.chapters||[];
+    html+='<div class="chap-admin-block"><div class="chap-admin-label">📑 Chapters — '+chapters.length+'</div>';
+    chapters.forEach(ch=>{
+      html+='<div class="chap-item" style="flex-direction:column;align-items:stretch;">';
+      html+='<div style="display:flex;align-items:center;gap:6px;">';
+      html+='<div class="chap-item-num">'+chapters.indexOf(ch)+1+'</div>';
+      html+='<input class="chap-item-name" value="'+h(ch.name||'')+'\" placeholder="Chapter नाम" onchange="updateChapter('+ch.id+',this.value,null)">';
+      html+='<input class="chap-item-desc" value="'+h(ch.description||'')+'\" placeholder="Description" onchange="updateChapter('+ch.id+',null,this.value)">';
+      html+='<button class="btn-del" onclick="deleteChapter('+ch.id+')" style="padding:4px 8px;font-size:0.8rem;">🗑</button>';
+      html+='</div></div>';
+    });
+    html+='<div style="display:flex;flex-direction:column;gap:6px;margin-top:8px;">';
+    html+='<input class="add-chap-name" id="cn-'+sub.id+'" placeholder="नया Chapter नाम" onkeydown="if(event.key===\'Enter\')addChapter('+sub.id+')">';
+    html+='<input class="add-chap-desc" id="cd-'+sub.id+'" placeholder="Description" onkeydown="if(event.key===\'Enter\')addChapter('+sub.id+')">';
+    html+='<button class="add-chap-btn" onclick="addChapter('+sub.id+')">+ Chapter जोड़ें</button>';
+    html+='</div></div></div>';
+  });
+  html+='<div style="border-top:1px solid var(--border);padding-top:14px;margin-top:4px;">';
+  html+='<div style="font-size:0.7rem;color:var(--accent);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">+ नया Subject जोड़ें</div>';
+  html+='<div style="display:flex;gap:6px;margin-bottom:6px;"><input id="si-icon" style="width:44px;padding:7px 4px;background:#060610;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:1rem;text-align:center;outline:none;" placeholder="📖"><input id="si-name" style="flex:1;padding:7px 10px;background:#060610;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.85rem;outline:none;" placeholder="Subject नाम" onkeydown="if(event.key===\'Enter\')addSubject()"></div>';
+  html+='<div style="display:flex;gap:6px;"><input id="si-desc" style="flex:1;padding:7px 10px;background:#060610;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.82rem;outline:none;" placeholder="Description" onkeydown="if(event.key===\'Enter\')addSubject()"><button class="add-subj-btn" onclick="addSubject()" style="flex-shrink:0;">+ Add</button></div>';
+  html+='</div></div></div>';
+  G('adminSubjectsTree').innerHTML=html;
+}
+async function addSubject(){
+  const icon=G('si-icon')&&G('si-icon').value.trim()||'📖';
+  const name=G('si-name')&&G('si-name').value.trim();
+  const desc=G('si-desc')&&G('si-desc').value.trim()||'';
+  if(!name){toast('⚠️ Subject नाम लिखें!');return;}
+  try{await api('POST','/subjects',{school_name:ES,class_name:CU.class_name,icon,name,description:desc});if(G('si-icon'))G('si-icon').value='';if(G('si-name'))G('si-name').value='';if(G('si-desc'))G('si-desc').value='';await renderAdminSubjects();toast('✅ Subject add हो गया!');}catch(e){toast('❌ '+e.message);}
+}
+async function updateSubject(id,icon,name,desc){
+  const sub=(_subjectsCache||[]).find(s=>s.id===id)||{};
+  try{await api('PUT','/subjects/'+id,{icon:icon!==null?icon:sub.icon,name:name!==null?name:sub.name,description:desc!==null?desc:sub.description});}catch(e){}
+}
+async function deleteSubject(id){
+  try{await api('DELETE','/subjects/'+id);await renderAdminSubjects();}catch(e){toast('❌ '+e.message);}
+}
+async function addChapter(subjectId){
+  const nameEl=G('cn-'+subjectId),descEl=G('cd-'+subjectId);
+  const name=nameEl&&nameEl.value.trim();if(!name){toast('⚠️ Chapter नाम लिखें!');return;}
+  const desc=descEl&&descEl.value.trim()||'';
+  try{await api('POST','/subjects/'+subjectId+'/chapters',{name,description:desc});if(nameEl)nameEl.value='';if(descEl)descEl.value='';await renderAdminSubjects();toast('✅ Chapter जोड़ा गया!');}catch(e){toast('❌ '+e.message);}
+}
+async function updateChapter(id,name,desc){}
+async function deleteChapter(id){
+  try{await api('DELETE','/subjects/chapters/'+id);await renderAdminSubjects();}catch(e){toast('❌ '+e.message);}
+}
 
-  // School ki sabhi classes
-  var school=S.schools.find(function(s){return (typeof s==='string'?s:s.name)===ES;});
-  var classes=school&&school.classes?school.classes:[];
-  // Agar logged-in admin ki class hai toh sirf wahi class dikhao
-  var adminCls=CU.cls;
-
+// ── USERS TAB ──
+async function renderUsersTab(){
+  if(!ES)return;
+  let users=[];
+  try{users=await api('GET','/users?school='+encodeURIComponent(ES));}catch(e){}
+  const school=S.schools.find(s=>s.name===ES);
+  const classes=school&&school.classes?school.classes:[];
+  const adminCls=CU&&CU.class_name;
+  const classesToShow=adminCls?[adminCls]:classes.map(c=>c.name);
   function userCard(u){
-    var statusClr=u.status==='approved'?'var(--success)':u.status==='rejected'?'var(--danger)':'#f59e0b';
-    var statusLabel=u.status==='approved'?'✅ Approved':u.status==='rejected'?'❌ Rejected':'⏳ Pending';
-    var ini=u.name.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);
-    var btns='';
-    if(u.status!=='approved') btns+='<button onclick="approveUser(\''+u.phone+'\')" style="padding:6px 12px;background:rgba(82,200,122,0.15);border:1px solid rgba(82,200,122,0.4);border-radius:6px;color:var(--success);cursor:pointer;font-size:0.78rem;font-weight:700;">✅ Approve</button>';
-    if(u.status!=='rejected') btns+='<button onclick="rejectUser(\''+u.phone+'\')" style="padding:6px 12px;background:rgba(224,82,82,0.1);border:1px solid rgba(224,82,82,0.3);border-radius:6px;color:var(--danger);cursor:pointer;font-size:0.78rem;font-weight:700;margin-left:6px;">❌ Reject</button>';
+    const statusClr=u.status==='approved'?'var(--success)':u.status==='rejected'?'var(--danger)':'#f59e0b';
+    const statusLabel=u.status==='approved'?'✅ Approved':u.status==='rejected'?'❌ Rejected':'⏳ Pending';
+    const ini=u.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    let btns='';
+    if(u.status!=='approved')btns+='<button onclick="approveUser('+u.id+')" style="padding:6px 12px;background:rgba(82,200,122,0.15);border:1px solid rgba(82,200,122,0.4);border-radius:6px;color:var(--success);cursor:pointer;font-size:0.78rem;font-weight:700;">✅ Approve</button>';
+    if(u.status!=='rejected')btns+='<button onclick="rejectUser('+u.id+')" style="padding:6px 12px;background:rgba(224,82,82,0.1);border:1px solid rgba(224,82,82,0.3);border-radius:6px;color:var(--danger);cursor:pointer;font-size:0.78rem;font-weight:700;margin-left:6px;">❌ Reject</button>';
     return '<div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;">'
       +'<div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.9rem;color:#fff;flex-shrink:0;">'+ini+'</div>'
-      +'<div style="flex:1;min-width:0;">'
-      +'<div style="font-weight:700;font-size:0.9rem;color:var(--text);">'+h(u.name)+'</div>'
-      +'<div style="font-size:0.75rem;color:var(--muted);">'+h(u.phone)+'</div>'
-      +'<div style="font-size:0.72rem;font-weight:700;color:'+statusClr+';margin-top:2px;">'+statusLabel+'</div>'
-      +'</div>'
-      +'<div style="display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end;">'+btns+'</div>'
-      +'</div>';
+      +'<div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:0.9rem;color:var(--text);">'+h(u.name)+'</div><div style="font-size:0.75rem;color:var(--muted);">'+h(u.phone)+'</div><div style="font-size:0.72rem;font-weight:700;color:'+statusClr+';margin-top:2px;">'+statusLabel+'</div></div>'
+      +'<div style="display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end;">'+btns+'</div></div>';
   }
-
-  // Class-wise sections build karo
-  var classesToShow = adminCls ? [adminCls] : (classes.length ? classes : ['(No Class)']);
-  var html = '<div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:10px;padding:12px 14px;margin-bottom:16px;">'
-    +'<div style="font-size:0.7rem;color:#f59e0b;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:2px;">ℹ️ Approval System</div>'
-    +'<div style="font-size:0.78rem;color:var(--muted);line-height:1.5;">Approve होने के बाद ही student quiz दे सकेगा। School/Class बदलने पर re-approval जरूरी है।</div>'
-    +'</div>';
-
-  classesToShow.forEach(function(cls){
-    var clsUsers=schoolUsers.filter(function(u){return u.cls===cls;});
-    var pending=clsUsers.filter(function(u){return !u.status||u.status==='pending';});
-    var approved=clsUsers.filter(function(u){return u.status==='approved';});
-    var rejected=clsUsers.filter(function(u){return u.status==='rejected';});
-
-    html+='<div style="margin-bottom:20px;">';
-    html+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);">';
-    html+='<div style="font-size:0.72rem;color:var(--accent2);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;">📖 '+h(cls)+'</div>';
-    html+='<div style="font-size:0.7rem;color:var(--muted);">'+clsUsers.length+' users</div>';
-    if(pending.length) html+='<div style="font-size:0.68rem;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);color:#f59e0b;border-radius:10px;padding:2px 7px;font-weight:700;">'+pending.length+' pending</div>';
-    html+='</div>';
-
-    if(pending.length){
-      html+='<div style="font-size:0.68rem;color:#f59e0b;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">⏳ Pending</div>';
-      html+=pending.map(userCard).join('');
-    }
-    if(approved.length){
-      html+='<div style="font-size:0.68rem;color:var(--success);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin:10px 0 6px;">✅ Approved</div>';
-      html+=approved.map(userCard).join('');
-    }
-    if(rejected.length){
-      html+='<details style="margin-top:6px;"><summary style="font-size:0.72rem;color:var(--muted);cursor:pointer;">Rejected ('+rejected.length+')</summary><div style="margin-top:8px;">'+rejected.map(userCard).join('')+'</div></details>';
-    }
-    if(!clsUsers.length){
-      html+='<div style="font-size:0.8rem;color:var(--muted);padding:8px 0;">कोई user नहीं।</div>';
-    }
+  let html='<div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:10px;padding:12px 14px;margin-bottom:16px;"><div style="font-size:0.7rem;color:#f59e0b;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:2px;">ℹ️ Approval System</div><div style="font-size:0.78rem;color:var(--muted);">Approve होने के बाद ही student quiz दे सकेगा।</div></div>';
+  classesToShow.forEach(cls=>{
+    const clsUsers=users.filter(u=>u.class_name===cls);
+    const pending=clsUsers.filter(u=>!u.status||u.status==='pending');
+    const approved=clsUsers.filter(u=>u.status==='approved');
+    const rejected=clsUsers.filter(u=>u.status==='rejected');
+    html+='<div style="margin-bottom:20px;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);"><div style="font-size:0.72rem;color:var(--accent2);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;">📖 '+h(cls)+'</div><div style="font-size:0.7rem;color:var(--muted);">'+clsUsers.length+' users</div>'+(pending.length?'<div style="font-size:0.68rem;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);color:#f59e0b;border-radius:10px;padding:2px 7px;font-weight:700;">'+pending.length+' pending</div>':'')+'</div>';
+    if(pending.length){html+='<div style="font-size:0.68rem;color:#f59e0b;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">⏳ Pending</div>';html+=pending.map(userCard).join('');}
+    if(approved.length){html+='<div style="font-size:0.68rem;color:var(--success);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin:10px 0 6px;">✅ Approved</div>';html+=approved.map(userCard).join('');}
+    if(rejected.length){html+='<details style="margin-top:6px;"><summary style="font-size:0.72rem;color:var(--muted);cursor:pointer;">Rejected ('+rejected.length+')</summary><div style="margin-top:8px;">'+rejected.map(userCard).join('')+'</div></details>';}
+    if(!clsUsers.length)html+='<div style="font-size:0.8rem;color:var(--muted);padding:8px 0;">कोई user नहीं।</div>';
     html+='</div>';
   });
-
   G('usersAdminContent').innerHTML=html;
 }
+async function approveUser(id){try{await api('PUT','/users/'+id+'/status',{status:'approved'});await renderUsersTab();toast('✅ Approved!');}catch(e){toast('❌ '+e.message);}}
+async function rejectUser(id){try{await api('PUT','/users/'+id+'/status',{status:'rejected'});await renderUsersTab();toast('❌ Rejected.');}catch(e){toast('❌ '+e.message);}}
 
-function approveUser(phone){
-  var users=JSON.parse(localStorage.getItem('edu_users')||'[]');
-  var idx=users.findIndex(function(u){return u.phone===phone;});
-  if(idx===-1)return;
-  users[idx].status='approved';
-  localStorage.setItem('edu_users',JSON.stringify(users));
-  // Update session if this is current user
-  if(CU&&CU.phone===phone){CU.status='approved';sessionStorage.setItem('cu',JSON.stringify(CU));}
-  renderUsersTab();
-  toast('✅ User approve हो गया!');
-}
-
-function rejectUser(phone){
-  var users=JSON.parse(localStorage.getItem('edu_users')||'[]');
-  var idx=users.findIndex(function(u){return u.phone===phone;});
-  if(idx===-1)return;
-  users[idx].status='rejected';
-  localStorage.setItem('edu_users',JSON.stringify(users));
-  renderUsersTab();
-  toast('❌ User reject कर दिया।');
-}
-
-
-var qaAdminFile=null, qaAdminFileName='';
-
-function qaAdminInit(){
+// ── QUIZ ADD TAB ──
+var qaAdminFile=null,qaAdminFileName='';
+async function qaAdminInit(){
   if(!ES||!CU)return;
-  // Show school + class info
-  G('qaAdminSchoolInfo').textContent=ES+(CU.cls?' — '+CU.cls:'');
-  // Load subjects for this class
-  var data=getSD(ES);
-  var subs=data.subjects||{};
-  var cls=CU.cls||'';
-  var list=(subs[ES]&&subs[ES][cls])?subs[ES][cls]:(subs[cls]||[]);
-  var opts='<option value="">Subject चुनें</option>';
-  list.forEach(function(sub,i){
-    opts+='<option value="'+i+'">'+h(sub.icon||'')+(sub.name?' '+sub.name:'Subject '+(i+1))+'</option>';
-  });
-  G('qaAdminSubject').innerHTML=opts;
+  G('qaAdminSchoolInfo').textContent=ES+(CU.class_name?' — '+CU.class_name:'');
+  let subjects=[];
+  try{subjects=await api('GET','/subjects?school='+encodeURIComponent(ES)+'&class='+encodeURIComponent(CU.class_name||''));}catch(e){}
+  G('qaAdminSubject').innerHTML='<option value="">Subject चुनें</option>'+subjects.map((s,i)=>'<option value="'+s.id+'">'+h(s.icon||'')+(s.name?' '+s.name:'')+'</option>').join('');
   G('qaAdminChapter').innerHTML='<option value="">Subject चुनें पहले</option>';
-  G('qaAdminName').value='';
-  qaAdminFile=null;qaAdminFileName='';
-  G('qaAdminFileIcon').textContent='📁';
-  G('qaAdminFileName').textContent='File चुनें';
+  G('qaAdminName').value='';qaAdminFile=null;qaAdminFileName='';
+  G('qaAdminFileIcon').textContent='📁';G('qaAdminFileName').textContent='File चुनें';
   G('qaAdminFileSub').textContent='.html file — score auto capture होगा';
   G('qaAdminFileZone').style.borderColor='var(--border)';
-  var msg=G('qaAdminMsg');if(msg)msg.style.display='none';
+  const msg=G('qaAdminMsg');if(msg)msg.style.display='none';
+  // Store subjects for chapter loading
+  G('qaAdminSubject')._subjects=subjects;
 }
-
 function qaAdminLoadChapters(){
-  var si=G('qaAdminSubject').value;
-  if(si===''){G('qaAdminChapter').innerHTML='<option value="">Subject चुनें पहले</option>';return;}
-  var data=getSD(ES);
-  var subs=data.subjects||{};
-  var cls=CU.cls||'';
-  var list=(subs[ES]&&subs[ES][cls])?subs[ES][cls]:(subs[cls]||[]);
-  var sub=list[parseInt(si)];
-  var chapters=sub&&sub.chapters?sub.chapters:[];
-  var opts='<option value="">Chapter चुनें</option>';
-  chapters.forEach(function(ch,i){
-    opts+='<option value="'+i+'">'+h(ch.name||'Chapter '+(i+1))+'</option>';
-  });
-  G('qaAdminChapter').innerHTML=opts;
+  const si=G('qaAdminSubject').value;
+  if(!si){G('qaAdminChapter').innerHTML='<option value="">Subject चुनें पहले</option>';return;}
+  const subjects=G('qaAdminSubject')._subjects||[];
+  const sub=subjects.find(s=>String(s.id)===si);
+  const chapters=sub&&sub.chapters?sub.chapters:[];
+  G('qaAdminChapter').innerHTML='<option value="">Chapter चुनें</option>'+chapters.map(c=>'<option value="'+c.id+'">'+h(c.name)+'</option>').join('');
 }
-
 function qaAdminHandleFile(event){
-  var file=event.target.files&&event.target.files[0];
-  if(!file)return;
-  if(!file.name.endsWith('.html')){toast('⚠️ Sirf .html file!');return;}
+  const file=event.target.files&&event.target.files[0];
+  if(!file)return;if(!file.name.endsWith('.html')){toast('⚠️ Sirf .html file!');return;}
   qaAdminFileName=file.name;
-  var reader=new FileReader();
-  reader.onload=function(ev){
+  const reader=new FileReader();
+  reader.onload=ev=>{
     qaAdminFile=ev.target.result;
-    if(qaAdminFile.indexOf("type:'quizScore'")===-1&&qaAdminFile.indexOf('type:"quizScore"')===-1){
-      qaAdminFile=injectPostMsg(qaAdminFile);
-    }
-    G('qaAdminFileIcon').textContent='📝';
-    G('qaAdminFileName').textContent=file.name;
+    G('qaAdminFileIcon').textContent='📝';G('qaAdminFileName').textContent=file.name;
     G('qaAdminFileSub').textContent='✅ Ready — score capture होगा';
     G('qaAdminFileZone').style.borderColor='var(--success)';
-  };
-  reader.readAsText(file);
+  };reader.readAsText(file);
 }
-function qaAdminSubmit(){
-  var si=G('qaAdminSubject').value;
-  var chi=G('qaAdminChapter').value;
-  var name=G('qaAdminName').value.trim();
-  if(si===''){toast('⚠️ Subject चुनें!');return;}
-  if(chi===''){toast('⚠️ Chapter चुनें!');return;}
-  if(!name){toast('⚠️ Quiz का नाम लिखें!');return;}
-  if(!qaAdminFile){toast('⚠️ File चुनें!');return;}
-  var cls=CU.cls||'';
-  var storeKey='qzf_'+ES+'_c'+chi+'_s'+si+'_'+Date.now();
-  try{localStorage.setItem(storeKey,qaAdminFile);}catch(e){toast('⚠️ File too large!');return;}
-  // Add to _AD (which will be saved on Save All Changes)
-  if(!_AD.subjects)_AD.subjects={};
-  if(!_AD.subjects[ES])_AD.subjects[ES]={};
-  if(!_AD.subjects[ES][cls])_AD.subjects[ES][cls]=[];
-  var subList=_AD.subjects[ES][cls];
-  var sub=subList[parseInt(si)];
-  if(!sub||!sub.chapters||!sub.chapters[parseInt(chi)]){toast('⚠️ Chapter नहीं मिला!');return;}
-  var chap=sub.chapters[parseInt(chi)];
-  if(!chap.quizzes)chap.quizzes=[];
-  chap.quizzes.push({name:name,questions:[],quizFile:'__stored__:'+storeKey,quizFileName:qaAdminFileName});
-  // Auto save
-  autoSave();
-  // Show success
-  var msg=G('qaAdminMsg');
-  msg.textContent='🎉 "'+name+'" — '+sub.name+' → '+chap.name+' mein add ho gayi!';
-  msg.style.display='block';
-  // Reset form
-  G('qaAdminName').value='';
-  qaAdminFile=null;qaAdminFileName='';
-  G('qaAdminFileIcon').textContent='📁';
-  G('qaAdminFileName').textContent='File चुनें';
-  G('qaAdminFileSub').textContent='.html file — score auto capture होगा';
-  G('qaAdminFileZone').style.borderColor='var(--border)';
-  toast('✅ Quiz add ho gayi!');
+async function qaAdminSubmit(){
+  const chi=G('qaAdminChapter').value;const name=G('qaAdminName').value.trim();
+  if(!chi){toast('⚠️ Chapter चुनें!');return;}if(!name){toast('⚠️ Quiz का नाम लिखें!');return;}if(!qaAdminFile){toast('⚠️ File चुनें!');return;}
+  try{
+    await api('POST','/quizzes',{chapter_id:parseInt(chi),name,quiz_file_data:qaAdminFile,quiz_file_name:qaAdminFileName});
+    const msg=G('qaAdminMsg');msg.textContent='🎉 "'+name+'" add हो गई!';msg.style.display='block';
+    G('qaAdminName').value='';qaAdminFile=null;qaAdminFileName='';
+    G('qaAdminFileIcon').textContent='📁';G('qaAdminFileName').textContent='File चुनें';
+    G('qaAdminFileSub').textContent='.html file — score auto capture होगा';
+    G('qaAdminFileZone').style.borderColor='var(--border)';
+    toast('✅ Quiz add हो गई!');
+  }catch(e){toast('❌ '+e.message);}
 }
 
-
-var _qaFile=null, _qaFileName='';
-
-function openQA(){
-  if(!CU||!CU.school){toast('⚠️ Login करें!');return;}
-  _qaFile=null;_qaFileName='';
-  G('qaFileIcon').textContent='📁';
-  G('qaFileTitle').textContent='File चुनें';
-  G('qaFileSub').textContent='कोई file नहीं चुनी';
-  G('qaFileZone').classList.remove('has-file');
-  G('qaQuizName').value='';
-  G('qaQuizDesc').value='';
-  // Fill class dropdown from user's school classes
-  var school=S.schools.find(function(s){return (typeof s==='string'?s:s.name)===CU.school;});
-  var classes=school&&school.classes?school.classes:[];
-  var classOpts='<option value="">Class चुनें</option>';
-  classes.forEach(function(cls){
-    classOpts+='<option value="'+h(cls)+'"'+(cls===CU.cls?' selected':'')+'>'+cls+'</option>';
+// ── LEADERBOARD ──
+async function updateLBSection(){
+  if(!CU||!CU.school_name||!CU.class_name){if(G('lbSection'))G('lbSection').style.display='none';return;}
+  if(G('lbSection'))G('lbSection').style.display='block';
+  if(G('lbSectionSub'))G('lbSectionSub').textContent=CU.school_name+' • '+CU.class_name;
+  await renderLB('score');
+}
+async function renderLB(mode){
+  if(!CU||!CU.school_name)return;
+  let users=[];
+  try{users=await api('GET','/scores/leaderboard?school='+encodeURIComponent(CU.school_name)+'&class='+encodeURIComponent(CU.class_name||''));}catch(e){}
+  if(!users.length){G('lbBody').innerHTML='<div class="lb-empty"><span class="lb-empty-icon">🏆</span>अभी कोई quiz attempt नहीं।</div>';return;}
+  if(mode==='count')users.sort((a,b)=>b.quiz_count-a.quiz_count||b.points-a.points);
+  let html='';
+  const myIdx=users.findIndex(u=>u.id===CU.id);
+  if(myIdx>2){const me=users[myIdx];html+='<div class="lb-my-rank-bar"><div style="font-size:0.75rem;color:var(--muted);">आपकी rank</div><div style="font-size:1.1rem;font-weight:900;color:var(--accent2);font-family:Poppins,sans-serif;">#'+(myIdx+1)+'</div><div style="flex:1;"></div><div style="font-size:0.8rem;color:var(--accent);font-weight:700;">'+me.points+' pts</div></div>';}
+  const top3=users.slice(0,3);
+  html+='<div class="lb-podium">';
+  [1,0,2].forEach(idx=>{
+    if(!top3[idx])return;
+    const u=top3[idx];const rank=idx+1;
+    const medal=rank===1?'🥇':rank===2?'🥈':'🥉';
+    const ini=u.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    html+='<div class="lb-pod"><div class="lb-pod-medal">'+medal+'</div><div class="lb-pod-avatar'+(rank===1?' r1':'')+'">'+ini+'</div><div class="lb-pod-name">'+h(u.name)+'</div><div class="lb-pod-pts">'+u.points+' pts</div><div class="lb-pod-bar"></div></div>';
   });
-  G('qaClass').innerHTML=classOpts;
-  G('qaSubject').innerHTML='<option value="">Subject चुनें</option>';
-  G('qaChapter').innerHTML='<option value="">Chapter चुनें</option>';
-  // If user has a class, auto-load subjects
-  if(CU.cls) qaLoadSubjects();
-  G('qaOverlay').classList.add('active');
-  document.body.style.overflow='hidden';
+  html+='</div><div class="lb-list">';
+  users.forEach((u,i)=>{
+    const ini=u.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    const isMe=u.id===CU.id;
+    const rank=i+1;const rankIcon=rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':'#'+rank;
+    html+='<div class="lb-entry'+(isMe?' is-me':'')+'" style="animation-delay:'+(i*0.05)+'s"><div class="lb-rank-num">'+(typeof rankIcon==='string'&&rankIcon.startsWith('#')?rankIcon:rankIcon)+'</div><div class="lb-entry-avatar">'+ini+'</div><div class="lb-entry-info"><div class="lb-entry-name">'+h(u.name)+(isMe?' <span style="font-size:0.6rem;background:rgba(124,92,252,0.2);color:var(--accent2);border-radius:8px;padding:1px 6px;font-weight:700;">आप</span>':'')+'</div><div class="lb-entry-meta">'+u.quiz_count+' quizzes • best '+u.best_pct+'% • avg '+u.avg_pct+'%</div></div><div class="lb-entry-right"><div class="lb-pts">'+u.points+'</div><div class="lb-pts-label">points</div></div></div>';
+  });
+  html+='</div><div style="margin-top:20px;padding:12px 14px;background:rgba(240,165,0,0.06);border:1px solid rgba(240,165,0,0.15);border-radius:8px;font-size:0.72rem;color:var(--muted);text-align:center;">📊 Points = (Best × 2) + (Quizzes × 15) + (Avg × 0.5)</div>';
+  G('lbBody').innerHTML=html;
 }
+function switchLB(mode,el){document.querySelectorAll('.lb-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderLB(mode);}
+function scrollToLB(){const el=G('lbSection');if(el&&el.style.display!=='none')el.scrollIntoView({behavior:'smooth',block:'start'});}
+function openLB(){if(!CU||!CU.school_name)return;scrollToLB();}
 
-function closeQA(){
-  G('qaOverlay').classList.remove('active');
-  document.body.style.overflow='';
+// ── PROFILE ──
+function openProfile(){if(!CU){toast('⚠️ Login करें!');return;}showProfileView();G('profileOverlay').classList.add('active');document.body.style.overflow='hidden';}
+function showProfileView(){
+  G('profileViewMode').style.display='block';G('profileEditMode').style.display='none';
+  const ini=CU.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  G('profileAvatar').textContent=ini;G('profileViewName').textContent=CU.name;
+  G('profileViewSub').textContent=[CU.school_name,CU.class_name].filter(Boolean).join(' • ')||'Student';
+  G('pv-name').textContent=CU.name;G('pv-phone').textContent=CU.phone;
+  G('pv-school').textContent=CU.school_name||'—';G('pv-class').textContent=CU.class_name||'—';
 }
-
-function qaLoadSubjects(){
-  var cls=G('qaClass').value;
-  if(!cls){G('qaSubject').innerHTML='<option value="">Class चुनें पहले</option>';G('qaChapter').innerHTML='<option value="">Chapter चुनें</option>';return;}
-  var data=getSD(CU.school);
-  var subs=data.subjects||{};
-  var list=(subs[CU.school]&&subs[CU.school][cls])?subs[CU.school][cls]:(subs[cls]||[]);
-  var opts='<option value="">Subject चुनें</option>';
-  list.forEach(function(sub,i){opts+='<option value="'+i+'">'+h(sub.name||'Subject '+(i+1))+'</option>';});
-  G('qaSubject').innerHTML=opts;
-  G('qaChapter').innerHTML='<option value="">Subject चुनें पहले</option>';
+function showProfileEdit(){
+  G('profileViewMode').style.display='none';G('profileEditMode').style.display='block';
+  G('editName').value=CU.name||'';G('editPass').value='';G('editPassConfirm').value='';
+  G('editSchoolList').innerHTML=(S.schools||[]).map(s=>'<div class="profile-dd-opt" onclick="pickEditSchool(\''+escJ(s.name)+'\')">'+s.name+'</div>').join('');
+  if(CU.school_name){G('editSchoolText').textContent=CU.school_name;G('editSchoolBtn').classList.add('selected');loadEditClasses(CU.school_name,CU.class_name||'');}
+  else{G('editSchoolText').textContent='School चुनें';G('editSchoolBtn').classList.remove('selected');G('editClassRow').style.display='none';}
 }
-
-function qaLoadChapters(){
-  var cls=G('qaClass').value;
-  var si=G('qaSubject').value;
-  if(si===''){G('qaChapter').innerHTML='<option value="">Subject चुनें पहले</option>';return;}
-  var data=getSD(CU.school);
-  var subs=data.subjects||{};
-  var list=(subs[CU.school]&&subs[CU.school][cls])?subs[CU.school][cls]:(subs[cls]||[]);
-  var sub=list[parseInt(si)];
-  var chapters=sub&&sub.chapters?sub.chapters:[];
-  var opts='<option value="">Chapter चुनें</option>';
-  chapters.forEach(function(ch,i){opts+='<option value="'+i+'">'+h(ch.name||'Chapter '+(i+1))+'</option>';});
-  G('qaChapter').innerHTML=opts;
+function togglePDD(id){['editSchoolList','editClassList'].forEach(lid=>{if(lid!==id&&G(lid))G(lid).classList.remove('open');});G(id).classList.toggle('open');}
+function pickEditSchool(name){G('editSchoolText').textContent=name;G('editSchoolBtn').classList.add('selected');G('editSchoolList').classList.remove('open');loadEditClasses(name,'');}
+function loadEditClasses(sname,pre){
+  const sc=(S.schools||[]).find(s=>s.name===sname);
+  const classes=sc&&sc.classes?sc.classes:[];
+  if(classes.length){G('editClassList').innerHTML=classes.map(c=>'<div class="profile-dd-opt" onclick="pickEditClass(\''+escJ(c.name)+'\')">'+c.name+'</div>').join('');G('editClassText').textContent=pre||'Class चुनें';G('editClassBtn').classList.toggle('selected',!!pre);G('editClassRow').style.display='block';}
+  else G('editClassRow').style.display='none';
 }
-
-function qaLoadQuizSlot(){}
-
-function qaHandleFile(event){
-  var file=event.target.files&&event.target.files[0];
-  if(!file)return;
-  if(!file.name.endsWith('.html')){toast('⚠️ Sirf .html file!');return;}
-  _qaFileName=file.name;
-  var reader=new FileReader();
-  reader.onload=function(ev){
-    _qaFile=ev.target.result;
-    if(_qaFile.indexOf("type:'quizScore'")===-1&&_qaFile.indexOf('type:"quizScore"')===-1){
-      _qaFile=injectPostMsg(_qaFile);
+function pickEditClass(cls){G('editClassText').textContent=cls;G('editClassBtn').classList.add('selected');G('editClassList').classList.remove('open');}
+function togglePwVis(id,btn){const inp=G(id);if(inp.type==='password'){inp.type='text';btn.textContent='🙈';}else{inp.type='password';btn.textContent='👁';}}
+async function saveProfile(){
+  const name=G('editName').value.trim(),school=G('editSchoolText').textContent,cls=G('editClassText').textContent;
+  if(!name){toast('⚠️ नाम खाली नहीं!');return;}if(school==='School चुनें'){toast('⚠️ School चुनें!');return;}
+  try{
+    const res=await api('PUT','/users/me',{name,school_name:school,class_name:cls==='Class चुनें'?'':cls});
+    CU=res.user;AD=null;_subjectsCache=[];
+    if(CU.school_name){
+      try{AD=await api('GET','/site/school/'+encodeURIComponent(CU.school_name));}catch(e){}
+      try{_subjectsCache=await api('GET','/subjects?school='+encodeURIComponent(CU.school_name)+'&class='+encodeURIComponent(CU.class_name||''));}catch(e){}
     }
-    G('qaFileIcon').textContent='📝';
-    G('qaFileTitle').textContent=file.name;
-    G('qaFileSub').textContent='✅ File ready — score capture होगा';
-    G('qaFileZone').classList.add('has-file');
-    toast('✅ '+file.name+' ready!');
-  };
-  reader.readAsText(file);
+    closePopup('profileOverlay');renderSite();
+    toast(res.reapprovalNeeded?'✅ Profile update! नई class/school के लिए approval pending।':'✅ Profile update हो गई!');
+  }catch(e){toast('❌ '+e.message);}
 }
 
-function qaSubmit(){
-  var cls=G('qaClass').value;
-  var si=G('qaSubject').value;
-  var chi=G('qaChapter').value;
-  var name=G('qaQuizName').value.trim();
-  var desc=G('qaQuizDesc').value.trim();
-  if(!cls){toast('⚠️ Class चुनें!');return;}
-  if(si===''){toast('⚠️ Subject चुनें!');return;}
-  if(chi===''){toast('⚠️ Chapter चुनें!');return;}
-  if(!name){toast('⚠️ Quiz का नाम लिखें!');return;}
-  if(!_qaFile){toast('⚠️ Quiz HTML file चुनें!');return;}
-  // Save file to localStorage
-  var storeKey='qzf_'+CU.school+'_c'+chi+'_s'+si+'_'+Date.now();
-  try{localStorage.setItem(storeKey,_qaFile);}catch(e){toast('⚠️ File too large!');return;}
-  // Add quiz to chapter
-  var data=getSD(CU.school);
-  if(!data.subjects)data.subjects={};
-  if(!data.subjects[CU.school])data.subjects[CU.school]={};
-  if(!data.subjects[CU.school][cls])data.subjects[CU.school][cls]=[];
-  var subList=data.subjects[CU.school][cls];
-  var sub=subList[parseInt(si)];
-  if(!sub){toast('⚠️ Subject नहीं मिला!');return;}
-  if(!sub.chapters)sub.chapters=[];
-  var chap=sub.chapters[parseInt(chi)];
-  if(!chap){toast('⚠️ Chapter नहीं मिला!');return;}
-  if(!chap.quizzes)chap.quizzes=[];
-  var newQuiz={
-    name:name,
-    desc:desc,
-    questions:[],
-    quizFile:'__stored__:'+storeKey,
-    quizFileName:_qaFileName
-  };
-  chap.quizzes.push(newQuiz);
-  setSD(CU.school,data);
-  toast('🎉 "'+name+'" successfully add हो गई!');
-  closeQA();
-  _qaFile=null;_qaFileName='';
-}
+// ── MISC ──
+function toast(msg){const t=G('saveToast');t.textContent=msg;t.style.display='block';t.style.animation='none';t.offsetHeight;t.style.animation='slideUp 0.3s ease';clearTimeout(t._timer);t._timer=setTimeout(()=>t.style.display='none',3500);}
+function toggleSubjBlock(hdr){const body=hdr.nextElementSibling;const tog=hdr.querySelector('.subj-toggle');const open=body.classList.toggle('open');tog.style.transform=open?'rotate(90deg)':'rotate(0deg)';}
+// Scroll to LB when clicked from profile
+document.addEventListener('DOMContentLoaded',()=>{
+  const lbBtn=document.querySelector('.profile-edit-btn[onclick*="lbSection"]');
+  if(lbBtn)lbBtn.onclick=()=>{closePopup('profileOverlay');setTimeout(()=>{const el=G('lbSection');if(el&&el.style.display!=='none')el.scrollIntoView({behavior:'smooth'});},200);};
+});
 
-// Show/hide FAB based on login state
-
-
-// ══════════════════════════════════════════════
-// PARTICLES + SCROLL ANIMATIONS
-// ══════════════════════════════════════════════
-(function(){
-  var canvas=document.getElementById('particlesCanvas');
-  if(!canvas)return;
-  var ctx=canvas.getContext('2d');
-  var W,H;
-  var particles=[];
+// ── PARTICLES ──
+function renderParticles(){
+  const canvas=G('particlesCanvas');if(!canvas)return;
+  const ctx=canvas.getContext('2d');let W,H;const particles=[];
   function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
   resize();window.addEventListener('resize',resize);
-  var cols=['#7c5cfc','#f0a500','#00d4aa','#d4b8ff'];
-  for(var i=0;i<55;i++){
-    particles.push({
-      x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,
-      r:Math.random()*1.8+0.4,dx:(Math.random()-0.5)*0.35,dy:(Math.random()-0.5)*0.35,
-      col:cols[Math.floor(Math.random()*cols.length)],a:Math.random()*0.4+0.1
-    });
-  }
+  const cols=['#7c5cfc','#f0a500','#00d4aa','#d4b8ff'];
+  for(let i=0;i<55;i++)particles.push({x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,r:Math.random()*1.8+0.4,dx:(Math.random()-0.5)*0.35,dy:(Math.random()-0.5)*0.35,col:cols[Math.floor(Math.random()*cols.length)],a:Math.random()*0.4+0.1});
   function draw(){
     ctx.clearRect(0,0,W,H);
-    particles.forEach(function(p){
-      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-      ctx.fillStyle=p.col;ctx.globalAlpha=p.a;ctx.fill();
-      p.x+=p.dx;p.y+=p.dy;
-      if(p.x<0||p.x>W)p.dx*=-1;if(p.y<0||p.y>H)p.dy*=-1;
-    });
+    particles.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.col;ctx.globalAlpha=p.a;ctx.fill();p.x+=p.dx;p.y+=p.dy;if(p.x<0||p.x>W)p.dx*=-1;if(p.y<0||p.y>H)p.dy*=-1;});
     ctx.globalAlpha=1;
-    for(var i=0;i<particles.length;i++)for(var j=i+1;j<particles.length;j++){
-      var dx=particles[i].x-particles[j].x,dy=particles[i].y-particles[j].y;
-      var d=Math.sqrt(dx*dx+dy*dy);
-      if(d<110){
-        ctx.beginPath();ctx.moveTo(particles[i].x,particles[i].y);
-        ctx.lineTo(particles[j].x,particles[j].y);
-        ctx.strokeStyle='rgba(124,111,224,'+(0.07*(1-d/110))+')';
-        ctx.lineWidth=0.5;ctx.stroke();
-      }
-    }
+    for(let i=0;i<particles.length;i++)for(let j=i+1;j<particles.length;j++){const dx=particles[i].x-particles[j].x,dy=particles[i].y-particles[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<110){ctx.beginPath();ctx.moveTo(particles[i].x,particles[i].y);ctx.lineTo(particles[j].x,particles[j].y);ctx.strokeStyle='rgba(124,92,252,'+(0.07*(1-d/110))+')';ctx.lineWidth=0.5;ctx.stroke();}}
     requestAnimationFrame(draw);
   }
   draw();
   // Scroll reveal
-  function initReveal(){
-    document.querySelectorAll('.features-section,.about-section,.content-section').forEach(function(el){
-      el.style.opacity='0';el.style.transform='translateY(30px)';
-      el.style.transition='opacity 0.7s ease,transform 0.7s ease';
-    });
-  }
-  function checkReveal(){
-    document.querySelectorAll('.features-section,.about-section,.content-section').forEach(function(el){
-      if(el.getBoundingClientRect().top<window.innerHeight-80){
-        el.style.opacity='1';el.style.transform='translateY(0)';
-      }
-    });
-  }
+  function checkReveal(){document.querySelectorAll('.features-section,.about-section,.content-section').forEach(el=>{if(el.getBoundingClientRect().top<window.innerHeight-80){el.style.opacity='1';el.style.transform='translateY(0)';}});}
   window.addEventListener('scroll',checkReveal,{passive:true});
-  setTimeout(function(){initReveal();checkReveal();},600);
-})();
-
-
-
-// ══════════════════════════════════════════════
-// SCORE SAVING + LEADERBOARD
-// Points = (bestPct * 2) + (quizCount * 15) + (avgPct * 0.5)
-// ══════════════════════════════════════════════
-function calcPoints(bestPct, quizCount, avgPct){
-  return Math.round(bestPct * 2 + quizCount * 15 + avgPct * 0.5);
+  setTimeout(()=>{document.querySelectorAll('.features-section,.about-section,.content-section').forEach(el=>{el.style.opacity='0';el.style.transform='translateY(30px)';el.style.transition='opacity 0.7s ease,transform 0.7s ease';});checkReveal();},600);
 }
 
-function saveScore(pct, score, total, quizName, chapName, subjName){
-  if(!CU||!CU.school||!CU.cls) return;
-  var key='lb_'+CU.school.replace(/\s/g,'_')+'_'+CU.cls.replace(/\s/g,'_');
-  var allScores=[];
-  try{allScores=JSON.parse(localStorage.getItem(key)||'[]');}catch(e){}
-  var quizKey=(subjName||'')+'|'+(chapName||'')+'|'+(quizName||'');
-  var existing=allScores.find(function(s){return s.phone===CU.phone&&s.qkey===quizKey;});
-  var entry={
-    phone:CU.phone, name:CU.name, cls:CU.cls,
-    pct:Math.round(pct), score:score, total:total,
-    quiz:quizName||'Quiz', chap:chapName||'', subj:subjName||'',
-    qkey:quizKey, time:Date.now()
-  };
-  if(existing){
-    if(entry.pct > existing.pct){
-      Object.assign(existing, entry);
-    }
-  } else {
-    allScores.push(entry);
-  }
-  localStorage.setItem(key, JSON.stringify(allScores));
-  updateLBSection();
-}
-
-function getUserStats(school, cls){
-  var key='lb_'+school.replace(/\s/g,'_')+'_'+cls.replace(/\s/g,'_');
-  var all=[];
-  try{all=JSON.parse(localStorage.getItem(key)||'[]');}catch(e){}
-  var users={};
-  all.forEach(function(s){
-    if(!users[s.phone]){
-      users[s.phone]={phone:s.phone,name:s.name,cls:s.cls,attempts:[],quizCount:0,bestPct:0,avgPct:0,points:0};
-    }
-    var u=users[s.phone];
-    u.attempts.push(s);
-    u.quizCount++;
-    if(s.pct>u.bestPct) u.bestPct=s.pct;
-  });
-  Object.keys(users).forEach(function(k){
-    var u=users[k];
-    var sum=u.attempts.reduce(function(a,b){return a+b.pct;},0);
-    u.avgPct=u.attempts.length?Math.round(sum/u.attempts.length):0;
-    u.points=calcPoints(u.bestPct, u.quizCount, u.avgPct);
-  });
-  return Object.values(users);
-}
-
-function updateLBSection(){
-  if(!CU||!CU.school||!CU.cls){G('lbSection').style.display='none';return;}
-  G('lbSection').style.display='block';
-  G('lbSectionSub').textContent=CU.school+' • '+CU.cls;
-  renderLB('score');
-}
-
-function openLB(){
-  if(!CU||!CU.school) return;
-  scrollToLB();
-}
-function scrollToLB(){
-  var el=G('lbSection');
-  if(el&&el.style.display!=='none') el.scrollIntoView({behavior:'smooth',block:'start'});
-}
-
-function switchLB(mode, el){
-  document.querySelectorAll('.lb-tab').forEach(function(t){t.classList.remove('active');});
-  el.classList.add('active');
-  renderLB(mode);
-}
-
-function renderLB(mode){
-  if(!CU||!CU.school||!CU.cls){G('lbBody').innerHTML='';return;}
-  var users=getUserStats(CU.school,CU.cls);
-
-  if(!users.length){
-    G('lbBody').innerHTML='<div class="lb-empty"><span class="lb-empty-icon">🏆</span>अभी कोई quiz attempt नहीं हुई।<br><span style="font-size:0.8rem;">Quiz देने के बाद यहाँ ranking दिखेगी।</span></div>';
-    return;
-  }
-
-  // Sort by points (default) or quiz count
-  if(mode==='score'){
-    users.sort(function(a,b){return b.points-a.points||b.bestPct-a.bestPct;});
-  } else {
-    users.sort(function(a,b){return b.quizCount-a.quizCount||b.points-a.points;});
-  }
-
-  var html='';
-
-  // My rank banner (if not in top 3)
-  var myIdx=users.findIndex(function(u){return u.phone===CU.phone;});
-  if(myIdx>2&&myIdx>=0){
-    var me=users[myIdx];
-    html+='<div class="lb-my-rank-bar">'
-      +'<div style="font-size:0.75rem;color:var(--muted);">आपकी rank</div>'
-      +'<div style="font-size:1.1rem;font-weight:900;color:var(--accent2);font-family:Poppins,sans-serif;">#'+(myIdx+1)+'</div>'
-      +'<div style="flex:1;"></div>'
-      +'<div style="font-size:0.8rem;color:var(--accent);font-weight:700;">'+me.points+' pts</div>'
-      +'</div>';
-  }
-
-  // Podium — top 3 in order: 2nd, 1st, 3rd
-  var top3=users.slice(0,3);
-  var medals=['🥈','🥇','🥉'];
-  var podOrder=top3.length>=2?[1,0,2]:[0];
-  html+='<div class="lb-podium">';
-  podOrder.forEach(function(idx){
-    if(!top3[idx])return;
-    var u=top3[idx];
-    var rank=idx+1;
-    var medal=rank===1?'🥇':rank===2?'🥈':'🥉';
-    var ini=u.name.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);
-    html+='<div class="lb-pod">'
-      +'<div class="lb-pod-medal">'+medal+'</div>'
-      +'<div class="lb-pod-avatar'+(rank===1?' r1':'')+'">'+ini+'</div>'
-      +'<div class="lb-pod-name">'+h(u.name)+'</div>'
-      +'<div class="lb-pod-pts">'+u.points+' pts</div>'
-      +'<div class="lb-pod-bar"></div>'
-      +'</div>';
-  });
-  html+='</div>';
-
-  // Full ranked list
-  html+='<div class="lb-list">';
-  users.forEach(function(u,i){
-    var ini=u.name.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);
-    var isMe=u.phone===CU.phone;
-    var rank=i+1;
-    var rankIcon=rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':rank;
-    html+='<div class="lb-entry'+(isMe?' is-me':'')+'" style="animation-delay:'+(i*0.05)+'s">';
-    html+='<div class="lb-rank-num">'+(typeof rankIcon==='string'?rankIcon:'#'+rank)+'</div>';
-    html+='<div class="lb-entry-avatar">'+ini+'</div>';
-    html+='<div class="lb-entry-info">'
-      +'<div class="lb-entry-name">'+h(u.name)
-      +(isMe?' <span style="font-size:0.6rem;background:rgba(124,111,224,0.2);color:var(--accent2);border-radius:8px;padding:1px 6px;font-weight:700;">आप</span>':'')
-      +'</div>'
-      +'<div class="lb-entry-meta">'+u.quizCount+' quizzes • best '+u.bestPct+'% • avg '+u.avgPct+'%</div>'
-      +'</div>'
-      +'<div class="lb-entry-right">'
-      +'<div class="lb-pts">'+u.points+'</div>'
-      +'<div class="lb-pts-label">points</div>'
-      +'</div>'
-      +'</div>';
-  });
-  html+='</div>';
-
-  // Points formula note
-  html+='<div style="margin-top:20px;padding:12px 14px;background:rgba(200,169,110,0.06);border:1px solid rgba(200,169,110,0.15);border-radius:8px;font-size:0.72rem;color:var(--muted);text-align:center;">'
-    +'📊 Points = (Best Score × 2) + (Quizzes × 15) + (Average × 0.5)'
-    +'</div>';
-
-  G('lbBody').innerHTML=html;
-}
-
-renderSite();
+// ── START ──
+initSite();
 </script>
 </body>
 </html>
